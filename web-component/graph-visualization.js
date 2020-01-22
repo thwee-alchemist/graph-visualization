@@ -121,9 +121,6 @@ class GraphVisualization extends HTMLElement {
   resizeCamera(){
     this.camera.aspect = this.clientWidth / this.clientHeight;
     this.camera.updateProjectionMatrix();
-
-    this.camera.position.set(0, 0, -20);
-    this.camera.lookAt(0, 0, 0)
   }
 
   /**
@@ -155,12 +152,12 @@ class GraphVisualization extends HTMLElement {
 
     console.log(this.clientWidth, this.clientHeight);
 
-    this.camera = new THREE.PerspectiveCamera( 75, this.clientWidth / this.clientHeight, 0.1, 1000 );
+    this.camera = new THREE.PerspectiveCamera( 75, this.clientWidth / this.clientHeight, 1, 1000 );
 
 
     this.scene.add(this.camera);
 
-    this.camera.position.set(0, 0, -10);
+    this.camera.position.set(0, 0, -50);
     this.camera.lookAt(0,0,0)
     this.camera.updateProjectionMatrix();
   }
@@ -221,15 +218,66 @@ class GraphVisualization extends HTMLElement {
     }
   }
 
+  setupObserver(){
+    var config = {
+      attributes: false,
+      childList: true,
+      subtree: true
+    };
+
+    var self = this;
+    var moCallback = function(mutations, observer){
+      for(var mutation of mutations){
+        switch(mutation.type){
+          case 'childList':
+            console.log('child added or removed', mutation);
+
+            for(var added of mutation.addedNodes){
+              console.log('added', added);
+              if(added instanceof GraphVertex){
+                console.log('vertex added ', added)
+                // todo
+              }
+
+              if(added instanceof GraphEdge){
+                console.log('edge added', added)
+                // added
+              }
+            }
+
+            for(var removed of mutation.removedNodes){
+              console.log('removed', removed)
+
+              if(removed instanceof GraphVertex){
+                console.log('vertex removed', removed);
+              }
+
+              if(removed instanceof GraphEdge){
+                console.log('vertex removed', removed)
+              }
+            }
+
+            break;
+
+          case 'attributes':
+            console.log('attribute changed', mutation)
+        }
+      }
+    }
+
+    this.observer = new MutationObserver(moCallback);
+    this.observer.observe(this, config);
+  }
+
   /**
    * 
    */
-  connectedCallback(){    
-    // setup canvas
+  connectedCallback(){
     this.canvas = document.createElement('canvas');
     this.shadowRoot.appendChild(this.canvas);
-
     this.setupScene();
+    this.setupObserver();
+
   }
 
   adoptedCallback(){
@@ -275,4 +323,6 @@ class GraphVisualization extends HTMLElement {
   }
 }
 
+customElements.define('graph-vertex', GraphVertex);
+customElements.define('graph-edge', GraphEdge)
 customElements.define('graph-visualization', GraphVisualization);

@@ -1,6 +1,7 @@
 graph-visualization {
-  resize: both;
-  background-color: greenyellow;
+  width: 500px;
+  height: 350px;
+  background-color: cornflowerblue;
 }
 
 .container {
