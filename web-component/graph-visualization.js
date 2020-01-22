@@ -115,11 +115,15 @@ class GraphVisualization extends HTMLElement {
 
   resizeRenderer(){
     this.renderer.setSize(this.clientWidth, this.clientHeight, true);
+
   }
 
   resizeCamera(){
     this.camera.aspect = this.clientWidth / this.clientHeight;
     this.camera.updateProjectionMatrix();
+
+    this.camera.position.set(0, 0, -20);
+    this.camera.lookAt(0, 0, 0)
   }
 
   /**
@@ -135,7 +139,7 @@ class GraphVisualization extends HTMLElement {
   setupScene(){
     this.scene = new THREE.Scene();
 
-    this.light = new THREE.AmbientLight( 0x404040 );
+    this.light = new THREE.AmbientLight( 0x404040, 1.0 );
     this.scene.add(this.light);
 
     this.renderer = new THREE.WebGLRenderer({
@@ -144,19 +148,26 @@ class GraphVisualization extends HTMLElement {
       alpha: true
     });
 
+    console.log('setupScene', this.width, this.height);
     this.setSize(this.width, this.height);
-    this.renderer.setClearAlpha(0.0)
+
+    this.renderer.setClearAlpha(0.0);
+
+    console.log(this.clientWidth, this.clientHeight);
 
     this.camera = new THREE.PerspectiveCamera( 75, this.clientWidth / this.clientHeight, 0.1, 1000 );
+
+
     this.scene.add(this.camera);
 
-    this.camera.position.set(0, 0, -20);
-    this.camera.lookAt(0, 0, 0);
+    this.camera.position.set(0, 0, -10);
+    this.camera.lookAt(0,0,0)
+    this.camera.updateProjectionMatrix();
   }
 
   test(){
     var geometry = new THREE.BoxGeometry( 10, 10, 10 );
-    var material = new THREE.MeshBasicMaterial( { color: 0xffffff } );
+    var material = new THREE.MeshBasicMaterial( { color: 0x000000 } );
     var cube = new THREE.Mesh( geometry, material );
     cube.position.set(0,0,0)
     this.scene.add( cube );
@@ -164,8 +175,6 @@ class GraphVisualization extends HTMLElement {
     var renderer = this.renderer,
       scene = this.scene,
       camera = this.camera;
-
-    camera.position.set()
 
     var animate = function () {
       requestAnimationFrame( animate );
@@ -187,10 +196,14 @@ class GraphVisualization extends HTMLElement {
 
   set width(val){
     this.setAttribute('width', val);
+    
+    this.setSize(val, this.height)
     if(this.canvas){
       this.resizeRenderer();
     }
-    this.setSize(val, this.height)
+    if(this.camera){
+      this.resizeCamera();
+    }
   }
 
   get height(){
@@ -199,10 +212,13 @@ class GraphVisualization extends HTMLElement {
 
   set height(val){
     this.setAttribute('height', val);
+    this.setSize(this.width, val);
     if(this.canvas){
       this.resizeRenderer();
     }
-    this.setSize(this.width, val);
+    if(this.camera){
+      this.resizeCamera();
+    }
   }
 
   /**
