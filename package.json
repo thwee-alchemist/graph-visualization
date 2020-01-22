@@ -1,0 +1,36 @@
+{
+  "name": "graph-visualization",
+  "version": "0.0.1",
+  "description": "A HTML Custom Element Dynamic Force Directed Graph Visualization",
+  "main": "graph-visualization.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/thwee-alchemist/graph-visualization.git"
+  },
+  "keywords": [
+    "dynamic",
+    "force",
+    "directed",
+    "graph",
+    "visualization",
+    "custom",
+    "element",
+    "html"
+  ],
+  "author": "moore.joshua@pm.me",
+  "license": "UNLICENSED",
+  "bugs": {
+    "url": "https://github.com/thwee-alchemist/graph-visualization/issues"
+  },
+  "homepage": "https://github.com/thwee-alchemist/graph-visualization#readme",
+  "dependencies": {
+    "express": "^4.17.1",
+    "serve-favicon": "^2.5.0"
+  }
+}

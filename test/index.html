@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Graph Visualization</title>
+    <link rel="stylesheet" href="test.css">
+    <script src="three.min.js"></script>
+    <script src="graph-visualization.js"></script>
+    
+  </head>
+  <body>
+    <script>
+      var graph = document.querySelector('graph-visualization');
+      function add_vertex(){
+        var graph = document.querySelector('graph-visualization');
+
+        var vertex = graph.addVertex();
+
+      }
+    </script>
+
+    <button onclick="add_vertex()">add vertex</button>
+    <graph-visualization
+      width="500px"
+      height="350px"></graph-visualization>
+
+
+  </body>
+</html>

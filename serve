@@ -1,0 +1,33 @@
+#!/usr/bin/env node
+
+const tls = require('tls');
+
+tls.DEFAULT_MAX_VERSION = tls.DEFAULT_MAX_VERSION;
+
+const fs = require('fs')
+const https = require('https')
+
+const express = require('express')
+const favicon = require('serve-favicon')
+const path = require('path')
+const app = express()
+
+express.static.mime.define({
+  'wasm': 'application/wasm',
+  'js': 'application/javascript',
+  'css': 'text/css'
+})
+
+app.use(favicon(path.join(__dirname, 'test', 'favicon.ico')))
+app.use('/', express.static(path.join(__dirname, 'test' )))
+
+var credentials = {
+  key: fs.readFileSync('/etc/ssl/localcerts/localhost.key'),
+  cert: fs.readFileSync('/etc/ssl/localcerts/localhost.pem')
+}
+
+const server = https.createServer(credentials, app)
+
+const port = 443
+server.listen(port)
+console.log(`Visit https://localhost:${port}/`)
