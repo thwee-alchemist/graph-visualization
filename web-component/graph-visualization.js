@@ -59,6 +59,8 @@ class GraphVisualization extends HTMLElement {
    * @param {dimension} height 
    */
   setSize(width, height){
+    console.log('setSize', width, height)
+
     var style = this.shadowRoot.querySelector('style.default');
 
     if(style){
@@ -67,7 +69,7 @@ class GraphVisualization extends HTMLElement {
 
     var styleTemplate = document.createElement('template');
     styleTemplate.innerHTML = `
-    <style>
+    <style class="default">
     :host {
       display: block;
       width: ${width};
@@ -77,51 +79,47 @@ class GraphVisualization extends HTMLElement {
       border: 1px dashed black;
       resize: both;
     }
+
+    canvas {
+      width: ${width};
+      height: ${height};
+    }
     </style>`;
 
     var style = styleTemplate.content.cloneNode(true);
-
-    this.canvas.width = this.clientWidth;
-    this.canvas.height = this.clientHeight;
-
-    this.canvas.style.width = this.clientWidth + "px";
-    this.canvas.style.height = this.clientHeight + 'px';
-
     this.shadowRoot.appendChild(style);
-  }
 
-  /**
-   * Precondition:
-   * - this.renderer is renderer is assigned a renderer
-   * - this.canvas is assigned a canvas
-   * 
-   * Optional Preconditions
-   * - this.camera can either be defined or undefined
-   * 
-   * Postcondition:
-   * - scene is set to canvas's size
-   * - camera perspective is considers canvas' size
-   * - renderer size is set.
-   */
-  adjustSceneSize(){
-    if(this.camera !== undefined){
-      this.scene.remove(this.camera);
-      delete this.camera;
+    this.style.width = width;
+    this.style.height = height;
+
+    if(this.canvas){
+      this.canvas.style.width = this.canvas.width = width;
+      this.canvas.style.height = this.canvas.height = height;
     }
 
-    this.setSize(
-      this.clientWidth,
-      this.clientHeight
-    )
+    this.shadowRoot.appendChild(style);
 
-    this.camera = new THREE.PerspectiveCamera( 75, this.clientWidth / this.clientHeight, 0.1, 1000 );
-    this.scene.add(this.camera);
-
-    this.camera.position.set(0, 0, -5);
-    this.camera.lookAt(0, 0, 0);
-    
     // resize the canvas
-    this.renderer.setSize( this.clientWidth, this.clientHeight );
+    if(this.renderer){
+      this.resizeRenderer();
+    }
+
+    // change the camera aspect
+    if(this.camera){
+      this.resizeCamera();
+    }
+
+    this.setAttribute('width', width);
+    this.setAttribute('height', height);
+  }
+
+  resizeRenderer(){
+    this.renderer.setSize(this.clientWidth, this.clientHeight, true);
+  }
+
+  resizeCamera(){
+    this.camera.aspect = this.clientWidth / this.clientHeight;
+    this.camera.updateProjectionMatrix();
   }
 
   /**
@@ -136,7 +134,6 @@ class GraphVisualization extends HTMLElement {
    */
   setupScene(){
     this.scene = new THREE.Scene();
-    this.scene.autoUpdate = true;
 
     this.light = new THREE.AmbientLight( 0x404040 );
     this.scene.add(this.light);
@@ -147,10 +144,14 @@ class GraphVisualization extends HTMLElement {
       alpha: true
     });
 
-    this.renderer.setSize(this.clientWidth, this.clientHeight);
-
-    // this.renderer.setClearColor(0x000000, 0.0)
+    this.setSize(this.width, this.height);
     this.renderer.setClearAlpha(0.0)
+
+    this.camera = new THREE.PerspectiveCamera( 75, this.clientWidth / this.clientHeight, 0.1, 1000 );
+    this.scene.add(this.camera);
+
+    this.camera.position.set(0, 0, -20);
+    this.camera.lookAt(0, 0, 0);
   }
 
   test(){
@@ -180,52 +181,39 @@ class GraphVisualization extends HTMLElement {
     this.cube = cube;
   }
 
+  get width(){
+    return this.getAttribute('width');
+  }
+
+  set width(val){
+    this.setAttribute('width', val);
+    if(this.canvas){
+      this.resizeRenderer();
+    }
+    this.setSize(val, this.height)
+  }
+
+  get height(){
+    return this.getAttribute('height');
+  }
+
+  set height(val){
+    this.setAttribute('height', val);
+    if(this.canvas){
+      this.resizeRenderer();
+    }
+    this.setSize(this.width, val);
+  }
+
   /**
    * 
    */
-  connectedCallback(){
-
-    this.style.width = this.getAttribute('width');
-    this.style.height = this.getAttribute('height');
-    
+  connectedCallback(){    
     // setup canvas
     this.canvas = document.createElement('canvas');
     this.shadowRoot.appendChild(this.canvas);
 
     this.setupScene();
-    this.adjustSceneSize();
-
-    // setup observer
-    var config = {
-      attributes: true,
-      childList: true,
-      subtree: true
-    };
-
-    var moCallback = function(mutations, observer){
-      for(var mutation of mutations){
-        switch(mutation.type){
-          case 'childList':
-            console.log('child added or removed', mutation);
-
-            for(var added of mutation.addedNodes){
-              console.log('added: ', added);
-            }
-
-            for(var removed of mutation.removedNodes){
-              console.log('removed', removed);
-            }
-            break;
-
-          case 'attributes':
-            console.log('attribute changed: ', mutation.attributeName);
-            break;
-        }
-      }
-    }
-
-    this.observer = new MutationObserver(moCallback);
-    this.observer.observe(this, config);
   }
 
   adoptedCallback(){

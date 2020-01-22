@@ -19,11 +19,17 @@
       function resize(){
         var graph = document.querySelector('graph-visualization');
         var size = prompt('Size: ', '250px');
-        graph.style.width = size;
-        graph.style.height = size;
+        graph.width = size;
+        graph.height = size;
+      }
+
+      function test(){
+        var graph = document.querySelector('graph-visualization');
+        graph.test();
       }
     </script>
 
+    <button onclick="test()">test</button>
     <button onclick="add_vertex()">add vertex</button>
     <button onclick="resize()">resize</button>
 
