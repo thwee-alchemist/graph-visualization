@@ -7,8 +7,7 @@ This will become a web component, force directed graph visualization.
 ```html
 <graph-visualization
   width="100%"
-  height="100%"
-  background-color="cornflowerblue">
+  height="350px">
 
   <graph-vertex id="home" size="10" face="url(home.png)">Home</vertex>
   <graph-vertex 
@@ -20,4 +19,3 @@ This will become a web component, force directed graph visualization.
   <graph-edge source="home" target="new" color="black" />
 </graph-visualization>
 ```
-
