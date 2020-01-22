@@ -114,7 +114,7 @@ class GraphVisualization extends HTMLElement {
       this.clientHeight
     )
 
-    this.camera = new THREE.PerspectiveCamera( 75, this.canvas.width / this.canvas.height, 0.1, 1000 );
+    this.camera = new THREE.PerspectiveCamera( 75, this.clientWidth / this.clientHeight, 0.1, 1000 );
     this.scene.add(this.camera);
 
     this.camera.position.set(0, 0, -5);
@@ -147,6 +147,8 @@ class GraphVisualization extends HTMLElement {
       alpha: true
     });
 
+    this.renderer.setSize(this.clientWidth, this.clientHeight);
+
     // this.renderer.setClearColor(0x000000, 0.0)
     this.renderer.setClearAlpha(0.0)
   }
@@ -161,6 +163,8 @@ class GraphVisualization extends HTMLElement {
     var renderer = this.renderer,
       scene = this.scene,
       camera = this.camera;
+
+    camera.position.set()
 
     var animate = function () {
       requestAnimationFrame( animate );

@@ -10,15 +10,23 @@
   <body>
     <script>
       var graph = document.querySelector('graph-visualization');
+      
       function add_vertex(){
         var graph = document.querySelector('graph-visualization');
-
         var vertex = graph.addVertex();
+      }
 
+      function resize(){
+        var graph = document.querySelector('graph-visualization');
+        var size = prompt('Size: ', '250px');
+        graph.style.width = size;
+        graph.style.height = size;
       }
     </script>
 
     <button onclick="add_vertex()">add vertex</button>
+    <button onclick="resize()">resize</button>
+
     <graph-visualization
       width="500px"
       height="350px"></graph-visualization>
