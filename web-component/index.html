@@ -17,8 +17,18 @@
       function add_vertex(){
         var graph = document.querySelector('graph-visualization');
         var vertex = document.createElement('graph-vertex');
+        vertex.id = prompt('ID: ')
         vertex.face = 'https://picsum.photos/200/300';
         graph.appendChild(vertex)
+      }
+
+      function add_edge(){
+        var graph = document.querySelector('graph-visualization');
+        var edge = document.createElement('graph-edge');
+        edge.color = 'black';
+        edge.source = prompt('Source: ');
+        edge.target = prompt('Target: ');
+        graph.appendChild(edge);
       }
 
       function resize(){
@@ -38,6 +48,7 @@
       <div class="row">
         <button onclick="test()">test</button>
         <button onclick="add_vertex()">add vertex</button>
+        <button onclick="add_edge()">add edge</button>
         <button onclick="resize()">resize</button>
       </div>
       <div class="row">

@@ -52,7 +52,18 @@ class GraphVertex extends HTMLElement {
 
 class GraphEdge extends HTMLElement {
   constructor(){
+    super();
 
+    this._color = undefined;
+  }
+
+  get color() {
+    return this._color;
+  }
+
+  set color(val){
+    this._color = val;
+    this.setAttribute('color', val);
   }
 
   connectedCallback(){
@@ -389,9 +400,9 @@ class GraphVisualization extends HTMLElement {
     var cube = new THREE.Mesh( geometry, material );
 
     cube.position.set(
-      Math.random(),
-      Math.random(),
-      Math.random()
+      Math.random() * 50,
+      Math.random() * 50,
+      Math.random() * 50
     );
 
     elem.cube = cube;
@@ -402,6 +413,8 @@ class GraphVisualization extends HTMLElement {
       requestAnimationFrame( animateCube );
       cube.rotation.x += 0.01;
       cube.rotation.y += 0.01;
+
+      cube.position.x += 0.1 * Math.random();
     };
 
     animateCube();
@@ -447,7 +460,39 @@ class GraphVisualization extends HTMLElement {
   }
 
   processAddEdge(elem){
+    var material = new THREE.LineBasicMaterial({ color: elem.color });
+    var geometry = new THREE.BufferGeometry();
 
+    var source = this.querySelector(elem.source);
+    var target = this.querySelector(elem.target);
+
+    var positions = new Float32Array( 2 *3 );
+    geometry.setAttribute('position', new THREE.BufferAttribute( positions, 3))
+
+    // geometry.vertices.push(source.cube.position, target.cube.position);
+
+    var line = new THREE.Line(geometry, material);
+    this.scene.add(line);
+
+    var animateLine = function () {
+      requestAnimationFrame( animateLine );
+      var positions = line.geometry.attributes.position.array;
+
+      var i = 0
+      positions[i++] = source.cube.position.x;
+      positions[i++] = source.cube.position.y;
+      positions[i++] = source.cube.position.z;
+
+      positions[i++] = target.cube.position.x;
+      positions[i++] = target.cube.position.y;
+      positions[i++] = target.cube.position.z;
+
+      line.geometry.attributes.position.needsUpdate = true;
+    };
+
+    animateLine();
+
+    elem.line = line;
   }
 
   processRemoveEdge(elem){
