@@ -37,9 +37,12 @@
 
       function add_edge(){
         var graph = document.querySelector('graph-visualization');
+        var proposedSource = document.querySelector('graph-vertex');
+        var proposedTarget = document.querySelector(`graph-vertex:not(#${proposedSource.id})`);
+
         var edge = document.createElement('graph-edge');
-        edge.source = prompt('Source: ');
-        edge.target = prompt('Target: ');
+        edge.source = prompt('Source: ', '#' + proposedSource.id);
+        edge.target = prompt('Target: ', '#' + proposedTarget.id);
         graph.appendChild(edge);
       }
 
