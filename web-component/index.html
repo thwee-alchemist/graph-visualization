@@ -61,15 +61,14 @@
         graph.height = size;
       }
 
-      function test(){
+      $(document).ready(function(){
         var graph = document.querySelector('graph-visualization');
-        graph.test();
-      }
+        graph.test()
+      })
     </script>
 
     <div class="container">
       <div class="row">
-        <button onclick="test()">test</button>
         <button onclick="add_vertex()">add vertex</button>
         <button onclick="add_edge()">add edge</button>
         <button onclick="remove_vertex()">remove vertex</button>
@@ -78,6 +77,8 @@
       </div>
       <div class="row">
         <graph-visualization 
+          width="500px"
+          height="350px"
           background-color="cornflowerblue">
         </graph-visualization>
       </div>

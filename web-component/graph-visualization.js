@@ -46,15 +46,6 @@ class GraphVertex extends HTMLElement {
     this._face = val;
     this.setAttribute('face', val);
   }
-
-  get onclick(){
-    return this._onclick;
-  }
-
-  set onclick(val){
-    this._onclick = val;
-    this.setAttribute('onclick', val);
-  }
 }
 
 
@@ -339,6 +330,10 @@ class GraphVisualization extends HTMLElement {
             if(mutation.target instanceof GraphVertex){
               self.updateVertex(mutation.target, mutation.attributeName);
             }
+
+            if(mutation.target instanceof GraphEdge){
+              self.updateEdge(mutation.target, mutation.attributeName);
+            }
             break;
         }
       }
@@ -521,6 +516,21 @@ class GraphVisualization extends HTMLElement {
 
       case 'onclick':
         // donothing
+        break;
+    }
+  }
+
+  updateEdge(elem, prop){
+    switch(prop){
+      case 'color':
+        console.log('updating color');
+        elem.line.material.dispose();
+        elem.line.material = new THREE.LineBasicMaterial({color: elem.color});
+        elem.line.material.needsUpdate = true;
+        break;
+
+      case 'strength':
+        console.log('todo');
         break;
     }
   }
