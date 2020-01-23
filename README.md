@@ -9,12 +9,12 @@ This will become a web component, force directed graph visualization.
   width="100%"
   height="350px">
 
-  <graph-vertex id="home" size="10" face="url(home.png)">Home</vertex>
+  <graph-vertex id="home" size="10" face="https://localhost/img/picture.jpg">Home</vertex>
   <graph-vertex 
     id="new" 
     size="10" 
     face="green">New...</vertex>
 
-  <graph-edge source="home" target="new" color="black" />
+  <graph-edge source="#home" target="#new" color="black" />
 </graph-visualization>
 ```
