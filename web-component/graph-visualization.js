@@ -64,6 +64,26 @@ class GraphEdge extends HTMLElement {
 
     this._color = undefined;
     this._strength = undefined;
+    this._source = undefined;
+    this._target = undefined;
+  }
+
+  get source(){
+    return this._source;
+  }
+
+  set source(val){
+    this._source = val;
+    this.setAttribute('source', val);
+  }
+
+  get target(){
+    return this._target;
+  }
+
+  set target(val){
+    this._target = val;
+    this.setAttribute('target', val);
   }
 
   get color() {
@@ -506,8 +526,21 @@ class GraphVisualization extends HTMLElement {
   }
 
   processRemoveVertex(elem){
+    console.log('removing edges');
+    var edges = this.querySelectorAll(`graph-edge[source="#${elem.id}"]`);
+    for(var edge of edges){
+      this.removeChild(edge);
+    }
+    edges = this.querySelectorAll(`graph-edge[target="#${elem.id}"]`);
+    for(var edge of edges){
+      this.removeChild(edge);
+    }
+
     console.log("removing vertex", elem.cube)
-    this.scene.remove(elem);
+    this.scene.remove(elem.cube);
+    if(elem.texture !== undefined){
+      elem.texture.dispose();
+    }
     elem.cube.material.dispose();
     elem.cube.geometry.dispose();
   }
@@ -557,7 +590,10 @@ class GraphVisualization extends HTMLElement {
   }
 
   processRemoveEdge(elem){
-
+    console.log("removing edge", elem.line)
+    this.scene.remove(elem.line);
+    elem.line.material.dispose();
+    elem.line.geometry.dispose();
   }
 }
 
