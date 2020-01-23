@@ -287,7 +287,7 @@ class GraphVisualization extends HTMLElement {
 
           case 'attributes':
             if(mutation.target instanceof GraphVertex){
-              self.updateVertex(mutation.target);
+              self.updateVertex(mutation.target, mutation.attributeName);
             }
             break;
         }
@@ -317,6 +317,8 @@ class GraphVisualization extends HTMLElement {
     this.setupScene();
     this.setupChildObserver();
     // this.setupResizeObserver();
+
+    this.textureLoader = new THREE.TextureLoader();
 
   }
 
@@ -379,8 +381,10 @@ class GraphVisualization extends HTMLElement {
       elem.size
     );
 
+    elem.texture = this.textureLoader.load( elem.face );
+
     var material = new THREE.MeshBasicMaterial( 
-      isValidUrl(elem.face) ? { 'map': new THREE.TextureLoader().load( elem.face ) } : { 'color': elem.face } 
+      isValidUrl(elem.face) ? { 'map': elem.texture } : { 'color': elem.face } 
     );
     var cube = new THREE.Mesh( geometry, material );
 
@@ -403,15 +407,43 @@ class GraphVisualization extends HTMLElement {
     animateCube();
   }
 
-  updateVertex(elem){
-    elem.cube.material = new THREE.MeshBasicMaterial( 
-      isValidUrl(elem.face) ? { 'map': new THREE.TextureLoader().load( elem.face ) } : { 'color': elem.face } 
-    );
-    elem.cube.material.needsUpdate = true;
+  updateVertex(elem, prop){
+    switch(prop){
+      case 'face':
+        
+        if(elem.texture !== undefined){
+          elem.texture.dispose();
+        }
+
+        elem.cube.material.dispose();
+
+        if(isValidUrl(elem.face)){
+          if(elem.texture !== undefined){
+            elem.texture.dispose();
+            elem.cube.material.dispose();
+          }
+
+          elem.texture = this.textureLoader.load( elem.face );
+          elem.cube.material = new THREE.MeshBasicMaterial({ map: elem.texture });
+          elem.cube.material.needsUpdate = true;
+        }else{
+          elem.cube.material = new THREE.MeshBasicMaterial({ color: elem.face });
+        }
+        break;
+
+      case 'size':
+        elem.cube.geometry.dispose();
+        elem.cube.geometry = new THREE.BoxGeometry( elem.size, elem.size, elem.size );
+        elem.cube.geometry.verticesNeedUpdate = true;
+        break;
+    }
   }
 
   processRemoveVertex(elem){
-
+    console.log("removing vertex", elem.cube)
+    this.scene.remove(elem);
+    elem.cube.material.dispose();
+    elem.cube.geometry.dispose();
   }
 
   processAddEdge(elem){
