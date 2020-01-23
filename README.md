@@ -244,10 +244,10 @@ How much should the edge pull the vertices together?
   height="350px"
   background-color="cornflowerblue">
 
-  <vertex id="home" size="10" face="https://localhost/home.png)">Home</vertex>
-  <vertex id="menu" size="10" face="green"></vertex>
+  <graph-vertex id="home" size="10" face="https://localhost/home.png)">Home</graph-vertex>
+  <graph-vertex id="menu" size="10" face="green"></graph-vertex>
 
-  <edge source="#home" target="#menu" color="black" />
+  <graph-edge source="#home" target="#menu" color="black"></graph-edge>
 </graph-visualization>
 ```
 
