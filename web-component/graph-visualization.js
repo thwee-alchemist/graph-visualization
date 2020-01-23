@@ -48,6 +48,23 @@ class GraphVertex extends HTMLElement {
   }
 }
 
+class VertexLabel extends HTMLElement {
+  constructor(){
+    super();
+
+    this._reference = undefined;
+  }
+
+  get ref(){
+    return this._reference;
+  }
+
+  set ref(val){
+    this._reference = val;
+    this.setAttribute('ref', val);
+  }
+}
+
 
 class GraphEdge extends HTMLElement {
   constructor(){
@@ -243,22 +260,31 @@ class GraphVisualization extends HTMLElement {
     this.camera.position.set(0, 0, -50);
     this.camera.lookAt(0,0,0)
     this.camera.updateProjectionMatrix();
+
+
+  }
+
+  setupControls(){
+    var controls = new THREE.OrbitControls(this.camera, this.canvas);
+    this.controls = controls;
+    this.controls.update();
   }
 
   test(){
+    this.setupControls();
+
     var renderer = this.renderer,
       scene = this.scene,
       camera = this.camera,
-      cube = this.cube; // todo remove
+      controls = this.controls;
 
     var animate = function () {
       requestAnimationFrame( animate );
+      controls.update();
       renderer.render( scene, camera );
     };
 
     animate();
-
-    this.cube = cube;
   }
 
   get width(){
@@ -364,12 +390,15 @@ class GraphVisualization extends HTMLElement {
     // this.setupResizeObserver();
 
     this.textureLoader = new THREE.TextureLoader();
-    document.addEventListener('click', this.resolve_click.bind(this), false);
+    
+    document.addEventListener('dblclick', this.resolve_click.bind(this, 'dblclick'), false);
+    document.addEventListener('click', this.resolve_click.bind(this, 'click'), false);
+    
 
   }
 
-  resolve_click(e){
-    var bounds = $(this).offset();
+  resolve_click(type, e){
+    console.log('click', e)
     var raycaster = new THREE.Raycaster();
     var mouse = new THREE.Vector2();
     
@@ -381,17 +410,12 @@ class GraphVisualization extends HTMLElement {
     var intersects = raycaster.intersectObjects(this.scene.children, true);
 
     if(intersects.length > 0){
-      var event = new Event('click');
-      console.log('intersected', intersects[0])
-
+      var event = new Event(type);
       var element = intersects[0].object.element;
-      var temp = element.face;
-      element.face = "black";
-
-      setTimeout(() => {
-        element.face = temp;
-      }, 250)
       element.dispatchEvent(event);
+    }else{
+      var event = new Event(type);
+      this.dispatchEvent(event);
     }
 
     e.stopPropagation();

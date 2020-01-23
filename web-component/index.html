@@ -7,12 +7,13 @@
     <script src="js/three.min.js"></script>
     <script src="js/jquery-3.4.1.min.js"></script>
     <script src="js/bootstrap.min.js"></script>
+    <script src="js/OrbitControls.js"></script>
     <script src="graph-visualization.js"></script>
     
   </head>
   <body>
     <script>
-      var graph = document.querySelector('graph-visualization');
+
       
       function add_vertex(){
         var graph = document.querySelector('graph-visualization');
@@ -22,8 +23,13 @@
         vertex.face = 'https://picsum.photos/200/300';
 
         graph.appendChild(vertex)
+
         vertex.addEventListener('click', function(e){
           console.log(e.target.id, 'clicked')
+        })
+
+        vertex.addEventListener('dblclick', function(e){
+          graph.controls.target = e.target.cube.position;
         })
 
       }
@@ -66,6 +72,11 @@
 
       $(document).ready(function(){
         var graph = document.querySelector('graph-visualization');
+
+        graph.addEventListener('dblclick', function(e){
+          graph.controls.target = new THREE.Vector3(0, 0, 0)
+        })
+        
         graph.test()
       })
     </script>
