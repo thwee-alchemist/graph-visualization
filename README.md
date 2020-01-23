@@ -13,8 +13,7 @@ This will become a web component, force directed graph visualization.
   <graph-vertex 
     id="new" 
     size="10" 
-    face="green" 
-    onclick="someFunction">New...</vertex>
+    face="green">New...</vertex>
 
   <graph-edge source="home" target="new" color="black" />
 </graph-visualization>

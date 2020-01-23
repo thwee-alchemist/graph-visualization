@@ -14,9 +14,8 @@ class GraphVertex extends HTMLElement {
 
     this._size = undefined;
     this._face = undefined;
-  }
-
-  
+    this._onclick = undefined;
+  }  
 
   connectedCallback(){
     console.log('vertex connected')
@@ -47,6 +46,15 @@ class GraphVertex extends HTMLElement {
     this._face = val;
     this.setAttribute('face', val);
   }
+
+  get onclick(){
+    return this._onclick;
+  }
+
+  set onclick(val){
+    this._onclick = val;
+    this.setAttribute('onclick', val);
+  }
 }
 
 
@@ -55,6 +63,7 @@ class GraphEdge extends HTMLElement {
     super();
 
     this._color = undefined;
+    this._strength = undefined;
   }
 
   get color() {
@@ -64,6 +73,15 @@ class GraphEdge extends HTMLElement {
   set color(val){
     this._color = val;
     this.setAttribute('color', val);
+  }
+
+  get strength(){
+    return this._strength;
+  }
+
+  set strength(val){
+    this._strength = val;
+    this.setAttribute('strength', val);
   }
 
   connectedCallback(){
@@ -91,7 +109,8 @@ class GraphVisualization extends HTMLElement {
         face: 'black'
       },
       edge: {
-        color: 'black'
+        color: 'black',
+        strength: 1.0
       }
     }
   }
@@ -330,7 +349,37 @@ class GraphVisualization extends HTMLElement {
     // this.setupResizeObserver();
 
     this.textureLoader = new THREE.TextureLoader();
+    document.addEventListener('click', this.resolve_click.bind(this), false);
 
+  }
+
+  resolve_click(e){
+    var bounds = $(this).offset();
+    var raycaster = new THREE.Raycaster();
+    var mouse = new THREE.Vector2();
+    
+    // https://stackoverflow.com/a/23755254/5865620
+    mouse.x = ( ( e.clientX - this.canvas.offsetLeft ) / this.canvas.width ) * 2 - 1;
+    mouse.y = - ( ( e.clientY - this.canvas.offsetTop ) / this.canvas.height ) * 2 + 1;
+    
+    raycaster.setFromCamera(mouse, this.camera);
+    var intersects = raycaster.intersectObjects(this.scene.children, true);
+
+    if(intersects.length > 0){
+      var event = new Event('click');
+      console.log('intersected', intersects[0])
+
+      var element = intersects[0].object.element;
+      var temp = element.face;
+      element.face = "black";
+
+      setTimeout(() => {
+        element.face = temp;
+      }, 250)
+      element.dispatchEvent(event);
+    }
+
+    e.stopPropagation();
   }
 
   adoptedCallback(){
@@ -406,6 +455,7 @@ class GraphVisualization extends HTMLElement {
     );
 
     elem.cube = cube;
+    cube.element = elem;
 
     this.scene.add( cube );
 
@@ -414,7 +464,7 @@ class GraphVisualization extends HTMLElement {
       cube.rotation.x += 0.01;
       cube.rotation.y += 0.01;
 
-      cube.position.x += 0.1 * Math.random();
+      // cube.position.x += 0.1 * Math.random();
     };
 
     animateCube();
@@ -423,7 +473,6 @@ class GraphVisualization extends HTMLElement {
   updateVertex(elem, prop){
     switch(prop){
       case 'face':
-        
         if(elem.texture !== undefined){
           elem.texture.dispose();
         }
@@ -449,6 +498,10 @@ class GraphVisualization extends HTMLElement {
         elem.cube.geometry = new THREE.BoxGeometry( elem.size, elem.size, elem.size );
         elem.cube.geometry.verticesNeedUpdate = true;
         break;
+
+      case 'onclick':
+        // donothing
+        break;
     }
   }
 
@@ -460,6 +513,14 @@ class GraphVisualization extends HTMLElement {
   }
 
   processAddEdge(elem){
+    if(elem.color === undefined){
+      elem.color = this.defaults.edge.color;
+    }
+
+    if(elem.strength === undefined){
+      elem.strength = this.defaults.edge.strength;
+    }
+
     var material = new THREE.LineBasicMaterial({ color: elem.color });
     var geometry = new THREE.BufferGeometry();
 

@@ -16,16 +16,21 @@
       
       function add_vertex(){
         var graph = document.querySelector('graph-visualization');
+
         var vertex = document.createElement('graph-vertex');
         vertex.id = prompt('ID: ')
         vertex.face = 'https://picsum.photos/200/300';
+
         graph.appendChild(vertex)
+        vertex.addEventListener('click', function(e){
+          console.log(e.target.id, 'clicked')
+        })
+
       }
 
       function add_edge(){
         var graph = document.querySelector('graph-visualization');
         var edge = document.createElement('graph-edge');
-        edge.color = 'black';
         edge.source = prompt('Source: ');
         edge.target = prompt('Target: ');
         graph.appendChild(edge);
