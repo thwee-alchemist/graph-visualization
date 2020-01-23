@@ -4,23 +4,20 @@
     <title>Graph Visualization</title>
     <link rel="stylesheet" href="css/bootstrap.min.css">
     <link rel="stylesheet" href="test.css">
-    <script src="js/three.min.js"></script>
     <script src="js/jquery-3.4.1.min.js"></script>
     <script src="js/bootstrap.min.js"></script>
+    <script src="js/three.min.js"></script>
     <script src="js/OrbitControls.js"></script>
     <script src="graph-visualization.js"></script>
-    
   </head>
   <body>
     <script>
-
-      
       function add_vertex(){
         var graph = document.querySelector('graph-visualization');
 
         var vertex = document.createElement('graph-vertex');
         vertex.id = prompt('ID: ')
-        vertex.face = 'https://picsum.photos/200/300';
+        vertex.face = `https://picsum.photos/200?random=${Math.random()}`;
 
         graph.appendChild(vertex)
 
@@ -31,7 +28,6 @@
         vertex.addEventListener('dblclick', function(e){
           graph.controls.target = e.target.cube.position;
         })
-
       }
 
       function remove_vertex(){
@@ -76,7 +72,7 @@
         graph.addEventListener('dblclick', function(e){
           graph.controls.target = new THREE.Vector3(0, 0, 0)
         })
-        
+
         graph.test()
       })
     </script>
