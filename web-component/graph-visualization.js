@@ -1,8 +1,22 @@
+// https://stackoverflow.com/a/43467144/5865620
+var isValidUrl = (string) => {
+  try {
+    new URL(string);
+    return true;
+  } catch (_) {
+    return false;  
+  }
+}
+
 class GraphVertex extends HTMLElement {
-  constructor(size=10, face="black", ){
+  constructor(){
     super();
 
+    this._size = undefined;
+    this._face = undefined;
   }
+
+  
 
   connectedCallback(){
     console.log('vertex connected')
@@ -14,6 +28,24 @@ class GraphVertex extends HTMLElement {
 
   disconnectedCallback(){
     console.log('vertex disconnected')
+  }
+
+  get size(){
+    return this._size;
+  }
+
+  set size(val){
+    this._size = val;
+    this.setAttribute('size', val);
+  }
+
+  get face(){
+    return this._face;
+  }
+
+  set face(val){
+    this._face = val;
+    this.setAttribute('face', val);
   }
 }
 
@@ -41,6 +73,16 @@ class GraphVisualization extends HTMLElement {
   constructor(width='100px', height="100px"){
     super(width, height);
     this.attachShadow({mode: 'open'});
+
+    this._defaults = {
+      vertex: {
+        size: 10,
+        face: 'black'
+      },
+      edge: {
+        color: 'black'
+      }
+    }
   }
 
   /**
@@ -163,22 +205,13 @@ class GraphVisualization extends HTMLElement {
   }
 
   test(){
-    var geometry = new THREE.BoxGeometry( 10, 10, 10 );
-    var material = new THREE.MeshBasicMaterial( { color: 0x000000 } );
-    var cube = new THREE.Mesh( geometry, material );
-    cube.position.set(0,0,0)
-    this.scene.add( cube );
-
     var renderer = this.renderer,
       scene = this.scene,
-      camera = this.camera;
+      camera = this.camera,
+      cube = this.cube; // todo remove
 
     var animate = function () {
       requestAnimationFrame( animate );
-
-      cube.rotation.x += 0.01;
-      cube.rotation.y += 0.01;
-
       renderer.render( scene, camera );
     };
 
@@ -218,9 +251,9 @@ class GraphVisualization extends HTMLElement {
     }
   }
 
-  setupObserver(){
+  setupChildObserver(){
     var config = {
-      attributes: false,
+      attributes: true,
       childList: true,
       subtree: true
     };
@@ -230,43 +263,49 @@ class GraphVisualization extends HTMLElement {
       for(var mutation of mutations){
         switch(mutation.type){
           case 'childList':
-            console.log('child added or removed', mutation);
-
             for(var added of mutation.addedNodes){
-              console.log('added', added);
               if(added instanceof GraphVertex){
-                console.log('vertex added ', added)
-                // todo
+                self.processAddVertex(added)
               }
 
               if(added instanceof GraphEdge){
-                console.log('edge added', added)
-                // added
+                self.processAddEdge(added);
               }
             }
 
             for(var removed of mutation.removedNodes){
-              console.log('removed', removed)
-
               if(removed instanceof GraphVertex){
-                console.log('vertex removed', removed);
+                self.processRemoveVertex(removed)
               }
 
               if(removed instanceof GraphEdge){
-                console.log('vertex removed', removed)
+                self.processRemoveEdge(removed);
               }
             }
 
             break;
 
           case 'attributes':
-            console.log('attribute changed', mutation)
+            if(mutation.target instanceof GraphVertex){
+              self.updateVertex(mutation.target);
+            }
+            break;
         }
       }
     }
 
     this.observer = new MutationObserver(moCallback);
     this.observer.observe(this, config);
+  }
+
+  setupResizeObserver(){
+    this.ro = new ResizeObserver(entries => {
+      for(var entry of entries){
+        this.setSize(entry.contentRect.width + 'px', entry.contentRect.height + 'px')
+      }
+    });
+
+    this.ro.observe(this);
   }
 
   /**
@@ -276,7 +315,8 @@ class GraphVisualization extends HTMLElement {
     this.canvas = document.createElement('canvas');
     this.shadowRoot.appendChild(this.canvas);
     this.setupScene();
-    this.setupObserver();
+    this.setupChildObserver();
+    // this.setupResizeObserver();
 
   }
 
@@ -302,6 +342,7 @@ class GraphVisualization extends HTMLElement {
     this.scene.dispose();
 
     this.observer.disconnect();
+    this.ro.disconnect();
   }
 
   attributeChangedCallback(attr, oldVal, newVal){
@@ -315,11 +356,70 @@ class GraphVisualization extends HTMLElement {
     }
   }
 
-  addVertex(){
-    var vertex = document.createElement('graph-vertex')
-    this.appendChild(vertex);
+  set defaults(val){
+    Object.assign(this._defaults, val);
+  }
 
-    return vertex;
+  get defaults(){
+    return this._defaults;
+  }
+
+  processAddVertex(elem){
+    if(elem.face === undefined){
+      elem.face = this.defaults.vertex.face;
+    }
+
+    if(elem.size === undefined){
+      elem.size = this.defaults.vertex.size;
+    }
+
+    var geometry = new THREE.BoxGeometry(
+      elem.size,
+      elem.size,
+      elem.size
+    );
+
+    var material = new THREE.MeshBasicMaterial( 
+      isValidUrl(elem.face) ? { 'map': new THREE.TextureLoader().load( elem.face ) } : { 'color': elem.face } 
+    );
+    var cube = new THREE.Mesh( geometry, material );
+
+    cube.position.set(
+      Math.random(),
+      Math.random(),
+      Math.random()
+    );
+
+    elem.cube = cube;
+
+    this.scene.add( cube );
+
+    var animateCube = function () {
+      requestAnimationFrame( animateCube );
+      cube.rotation.x += 0.01;
+      cube.rotation.y += 0.01;
+    };
+
+    animateCube();
+  }
+
+  updateVertex(elem){
+    elem.cube.material = new THREE.MeshBasicMaterial( 
+      isValidUrl(elem.face) ? { 'map': new THREE.TextureLoader().load( elem.face ) } : { 'color': elem.face } 
+    );
+    elem.cube.material.needsUpdate = true;
+  }
+
+  processRemoveVertex(elem){
+
+  }
+
+  processAddEdge(elem){
+
+  }
+
+  processRemoveEdge(elem){
+
   }
 }
 

@@ -16,7 +16,9 @@
       
       function add_vertex(){
         var graph = document.querySelector('graph-visualization');
-        var vertex = graph.addVertex();
+        var vertex = document.createElement('graph-vertex');
+        vertex.face = 'https://picsum.photos/200/300';
+        graph.appendChild(vertex)
       }
 
       function resize(){
