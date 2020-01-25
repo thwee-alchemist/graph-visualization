@@ -51468,11 +51468,11 @@ var Remote = {
 
 
 
-// https://stackoverflow.com/a/48485007/5865620
-function isValidColor(strColor){
-  var s = new Option().style;
+// https://stackoverflow.com/a/56266358/5865620
+const isValidColor = (strColor) => {
+  const s = new Option().style;
   s.color = strColor;
-  return s.color == strColor;
+  return s.color !== '';
 }
 
 // https://stackoverflow.com/a/43467144/5865620
@@ -51793,20 +51793,7 @@ class graph_visualization_GraphVisualization extends HTMLElement {
   }
 
   test(){
-    this.setupControls();
 
-    var renderer = this.renderer,
-      scene = this.scene,
-      camera = this.camera,
-      controls = this.controls;
-
-    var animate = function () {
-      requestAnimationFrame( animate );
-      controls.update();
-      renderer.render( scene, camera );
-    };
-
-    animate();
   }
 
   get width(){
@@ -51919,6 +51906,21 @@ class graph_visualization_GraphVisualization extends HTMLElement {
     // this.setupResizeObserver();
 
     this.textureLoader = new TextureLoader();
+
+    this.setupControls();
+
+    var renderer = this.renderer,
+      scene = this.scene,
+      camera = this.camera,
+      controls = this.controls;
+
+    var animate = function () {
+      requestAnimationFrame( animate );
+      controls.update();
+      renderer.render( scene, camera );
+    };
+
+    animate();
     
     document.addEventListener('dblclick', this.resolve_click.bind(this, 'dblclick'), false);
     document.addEventListener('click', this.resolve_click.bind(this, 'click'), false);
@@ -52009,7 +52011,9 @@ class graph_visualization_GraphVisualization extends HTMLElement {
       elem.size
     );
 
-    elem.texture = this.textureLoader.load( elem.face );
+    if(!isValidColor(elem.face)){
+      elem.texture = this.textureLoader.load( elem.face );
+    }
 
     var material = new MeshBasicMaterial( 
       isValidColor(elem.face) ? { 'color': elem.face } : { 'map': elem.texture }
@@ -52047,7 +52051,7 @@ class graph_visualization_GraphVisualization extends HTMLElement {
 
         elem.cube.material.dispose();
 
-        if(isValidUrl(elem.face)){
+        if(!isValidColor(elem.face)){
           if(elem.texture !== undefined){
             elem.texture.dispose();
             elem.cube.material.dispose();
@@ -52076,9 +52080,6 @@ class graph_visualization_GraphVisualization extends HTMLElement {
   updateEdge(elem, prop){
     switch(prop){
       case 'color':
-        if(elem.line){
-          elem.line.material.dispose();
-        }
         elem.line.material = new LineBasicMaterial({color: elem.color});
         elem.line.material.needsUpdate = true;
         break;
@@ -52146,6 +52147,8 @@ class graph_visualization_GraphVisualization extends HTMLElement {
 
     var line = new Line(geometry, material);
     line.frustumCulled = false;
+
+    elem.line = line;
     this.scene.add(line);
 
     var animateLine = function () {
@@ -52165,8 +52168,6 @@ class graph_visualization_GraphVisualization extends HTMLElement {
     };
 
     animateLine();
-
-    elem.line = line;
   }
 
   processRemoveEdge(elem){
