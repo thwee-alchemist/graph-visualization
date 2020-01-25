@@ -98,18 +98,32 @@
 
     <div class="container">
       <div class="row">
-        <button onclick="add_vertex()">add vertex</button>
-        <button onclick="add_edge()">add edge</button>
-        <button onclick="remove_vertex()">remove vertex</button>
-        <button onclick="remove_edge()">remove edge</button>
-        <button onclick="resize()">resize</button>
+        <div class="col-sm-12">
+          <button onclick="add_vertex()">add vertex</button>
+          <button onclick="add_edge()">add edge</button>
+          <button onclick="remove_vertex()">remove vertex</button>
+          <button onclick="remove_edge()">remove edge</button>
+          <button onclick="resize()">resize</button>
+        </div>
       </div>
+
+      <graph-visualization 
+        width="100%"
+        height="500px">
+      </graph-visualization>
+
       <div class="row">
-        <graph-visualization 
-          width="500px"
-          height="350px"
-          background-color="cornflowerblue">
-        </graph-visualization>
+        <div class="col-sm-12">
+          <ol>
+            <li>Click "add vertex" to specify an id for a new vertex.</li> 
+            <li>Click "add edge" to specify the ids of two previously added vertices, (be sure to prefix it with a #)</li>
+            <li>Rotate your graph by holding the left mouse button clicked, and dragging it across the area.</li>
+          </ol>
+          <p>
+            This is a dynamic graph visualization. It's still pretty simple, in terms of Math and Computer Science, as I was focusing on getting something out. 
+            It is based on <a href="https://arxiv.org/abs/0712.1549">this paper</a>, a paper which is taking me the better part of a decade's free time to understand. 
+          </p>
+        </div>
       </div>
     </div>
   </body>
