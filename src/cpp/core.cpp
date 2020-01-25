@@ -16,8 +16,8 @@ using namespace sc;
 using namespace emscripten;
 
 Settings* default_settings(){
-  double _attraction = 0.0002;
-  double _repulsion = 15;
+  double _attraction = 20;
+  double _repulsion = 25;
   double _epsilon = 1e-3;
   double _inner_distance = 50;
   double _friction = 8e-1;

@@ -591,49 +591,51 @@ class GraphVisualization extends HTMLElement {
   }
 
   updateVertex(elem, prop){
-    switch(prop){
-      case 'face':
-        if(elem.texture !== undefined){
-          elem.texture.dispose();
-        }
-
-        elem.cube.material.dispose();
-
-        if(elem.face === null){
-          elem.face = this.defaults.vertex.face;
-        }
-
-        if(!isValidColor(elem.face)){
+    if(elem.cube){
+      switch(prop){
+        case 'face':
           if(elem.texture !== undefined){
             elem.texture.dispose();
-            elem.cube.material.dispose();
           }
 
-          elem.texture = this.textureLoader.load( elem.face );
-          elem.cube.material = new THREE.MeshBasicMaterial({ map: elem.texture });
-          elem.cube.material.needsUpdate = true;
-        }else{
-          elem.cube.material = new THREE.MeshBasicMaterial({ color: elem.face });
-        }
-        break;
+          elem.cube.material.dispose();
 
-      case 'size':
-        if(elem.size === null){
-          elem.size = this.defaults.vertex.size;
-        }
+          if(elem.face === null){
+            elem.face = this.defaults.vertex.face;
+          }
 
-        elem.cube.geometry.dispose();
-        elem.cube.geometry = new THREE.BoxGeometry( elem.size, elem.size, elem.size );
-        elem.cube.geometry.verticesNeedUpdate = true;
-        break;
+          if(!isValidColor(elem.face)){
+            if(elem.texture !== undefined){
+              elem.texture.dispose();
+              elem.cube.material.dispose();
+            }
 
-      case 'onclick':
-        // donothing
-        break;
+            elem.texture = this.textureLoader.load( elem.face );
+            elem.cube.material = new THREE.MeshBasicMaterial({ map: elem.texture });
+            elem.cube.material.needsUpdate = true;
+          }else{
+            elem.cube.material = new THREE.MeshBasicMaterial({ color: elem.face });
+          }
+          break;
 
-      case 'dblclick':
-        // donothing
-        break;
+        case 'size':
+          if(elem.size === null){
+            elem.size = this.defaults.vertex.size;
+          }
+
+          elem.cube.geometry.dispose();
+          elem.cube.geometry = new THREE.BoxGeometry( elem.size, elem.size, elem.size );
+          elem.cube.geometry.verticesNeedUpdate = true;
+          break;
+
+        case 'onclick':
+          // donothing
+          break;
+
+        case 'dblclick':
+          // donothing
+          break;
+      }
     }
   }
 
