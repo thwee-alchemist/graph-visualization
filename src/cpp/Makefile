@@ -18,3 +18,4 @@ wasm: Settings.h Settings.cpp Vertex.h Vertex.cpp Edge.h Edge.cpp BarnesHutNode3
 	$(CC) $(CFLAGS) $(DEPS) build/Settings.o build/Vertex.o build/Edge.o build/BarnesHutNode3.o build/DynamicMatching.o build/LayoutGraph.o core.cpp --bind -o build/core.js
 	cp build/core.* ../js/.
 	cp build/core.* ../../dist/.
+	cp build/core.* ../../docs/.

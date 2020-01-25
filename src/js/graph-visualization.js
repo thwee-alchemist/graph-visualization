@@ -278,26 +278,44 @@ class GraphVisualization extends HTMLElement {
 
   }
 
-  setupCore(){
+  async setupCore(){
     this.layout = Remote;
-    this.layout.started.then(() => {
-      console.log('layout started');
-      var layout = Remote;
-      var self = this;
-      var animateLayout = function(){
-        requestAnimationFrame(animateLayout);
-        layout.layout().then(data => {
-          var updates = data.V;
-          for(var update of updates){
-            var elem = self.querySelector(`[data-layout-id="${update.id}"]`);
-            elem.cube.position.set(update.x, update.y, update.z)
-          }
+    return new Promise((resolve, reject) => {
+      this.layout.started.then(() => {
+        console.log('layout started');
 
-        })
-      }
+        resolve();
 
-      animateLayout();
-    })
+        var layout = Remote;
+        var self = this;
+        var animateLayout = function(){
+          requestAnimationFrame(animateLayout);
+          layout.layout().then(data => {
+            var updates = data.V;
+            for(var update of updates){
+              var elem = self.querySelector(`graph-vertex[data-layout-id="${update.id}"]`);
+              elem.cube.position.set(update.x, update.y, update.z)
+            }
+
+          })
+        }
+
+        animateLayout();
+      })
+    });  
+  }
+
+  renderInitial(){
+    var vs = this.querySelectorAll('graph-vertex');
+    var es = this.querySelectorAll('graph-edge');
+
+    for(var v of vs){
+      this.processAddVertex(v);
+    }
+
+    for(var e of es){
+      this.processAddEdge(e);
+    }
   }
 
   setupControls(){
@@ -355,6 +373,7 @@ class GraphVisualization extends HTMLElement {
   }
 
   setupChildObserver(){
+    console.log('observing dom tree')
     var config = {
       attributes: true,
       childList: true,
@@ -362,7 +381,7 @@ class GraphVisualization extends HTMLElement {
     };
 
     var self = this;
-    var moCallback = function(mutations, observer){
+    var moCallback = function(mutations){
       for(var mutation of mutations){
         switch(mutation.type){
           case 'childList':
@@ -399,10 +418,10 @@ class GraphVisualization extends HTMLElement {
             break;
         }
       }
-    }
+    };
 
-    this.observer = new MutationObserver(moCallback);
-    this.observer.observe(this, config);
+    self.observer = new MutationObserver(moCallback);
+    self.observer.observe(this, config);
   }
 
   setupResizeObserver(){
@@ -418,12 +437,12 @@ class GraphVisualization extends HTMLElement {
   /**
    * 
    */
-  connectedCallback(){
+  async connectedCallback(){
     this.canvas = document.createElement('canvas');
     this.shadowRoot.appendChild(this.canvas);
     this.setupScene();
-    this.setupCore();
-    this.setupChildObserver();
+    await this.setupCore();
+    this.setupChildObserver()
     // this.setupResizeObserver();
 
     this.textureLoader = new THREE.TextureLoader();
