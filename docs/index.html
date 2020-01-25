@@ -46,7 +46,7 @@
 
         vertex.addEventListener('dblclick', function(e){
           graph.controls.target = e.target.cube.position;
-        })
+        })  
       }
 
       function remove_vertex(){
@@ -92,7 +92,6 @@
           graph.controls.target = new THREE.Vector3(0, 0, 0)
         })
 
-        graph.test()
       })
     </script>
 
@@ -111,12 +110,12 @@
         width="100%"
         height="500px">
 
-        <graph-vertex id="one" size="10" color="blue"></graph-vertex>
-        <graph-vertex id="two" size="10" color="green"></graph-vertex>
-        <graph-vertex id="three" size="10" color="red"></graph-vertex>
-        <graph-vertex id="four" size="10" color="purple"></graph-vertex>
+        <graph-vertex id="one" size="10" face="blue"></graph-vertex>
+        <graph-vertex id="two" size="10" face="green"></graph-vertex>
+        <graph-vertex id="three" size="10" face="red"></graph-vertex>
+        <graph-vertex id="four" size="10" face="purple"></graph-vertex>
         
-        <graph-edge source="#one" target="#two"></graph-edge>
+        <graph-edge source="#one" target="#two" color="red"></graph-edge>
         <graph-edge source="#one" target="#three"></graph-edge>
         <graph-edge source="#one" target="#four"></graph-edge>
         <graph-edge source="#two" target="#three"></graph-edge>

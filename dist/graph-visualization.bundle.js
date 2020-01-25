@@ -51499,6 +51499,9 @@ class GraphVertex extends HTMLElement {
   }  
 
   connectedCallback(){
+    this.size = this.getAttribute('size');
+    this.face = this.getAttribute('face');
+
     console.log('vertex connected')
   }
 
@@ -51594,6 +51597,10 @@ class GraphEdge extends HTMLElement {
   }
 
   connectedCallback(){
+
+    this.color = this.getAttribute('color');
+    this.strength = this.getAttribute('strength');
+
     console.log('edge connected');
   }
 
@@ -51922,8 +51929,8 @@ class graph_visualization_GraphVisualization extends HTMLElement {
 
     animate();
     
-    document.addEventListener('dblclick', this.resolve_click.bind(this, 'dblclick'), false);
-    document.addEventListener('click', this.resolve_click.bind(this, 'click'), false);
+    document.addEventListener('dblclick', this.resolve_click.bind(this, 'dblclick'));
+    document.addEventListener('click', this.resolve_click.bind(this, 'click'));
 
   }
 
@@ -51947,7 +51954,7 @@ class graph_visualization_GraphVisualization extends HTMLElement {
       this.dispatchEvent(event);
     }
 
-    e.stopPropagation();
+    // e.stopPropagation();
   }
 
   adoptedCallback(){
@@ -51997,11 +52004,11 @@ class graph_visualization_GraphVisualization extends HTMLElement {
   async processAddVertex(elem){
     elem.setAttribute('data-layout-id', await this.layout.add_vertex());
 
-    if(elem.face === undefined){
+    if(elem.face === null){
       elem.face = this.defaults.vertex.face;
     }
 
-    if(elem.size === undefined){
+    if(elem.size === null){
       elem.size = this.defaults.vertex.size;
     }
 
@@ -52051,6 +52058,10 @@ class graph_visualization_GraphVisualization extends HTMLElement {
 
         elem.cube.material.dispose();
 
+        if(elem.face === null){
+          elem.face = this.defaults.vertex.face;
+        }
+
         if(!isValidColor(elem.face)){
           if(elem.texture !== undefined){
             elem.texture.dispose();
@@ -52066,6 +52077,10 @@ class graph_visualization_GraphVisualization extends HTMLElement {
         break;
 
       case 'size':
+        if(elem.size === null){
+          elem.size = this.defaults.vertex.size;
+        }
+
         elem.cube.geometry.dispose();
         elem.cube.geometry = new BoxGeometry( elem.size, elem.size, elem.size );
         elem.cube.geometry.verticesNeedUpdate = true;
@@ -52080,6 +52095,10 @@ class graph_visualization_GraphVisualization extends HTMLElement {
   updateEdge(elem, prop){
     switch(prop){
       case 'color':
+        if(elem.color === null){
+          elem.color = this.defaults.edge.color;
+        }
+
         if(elem.line){
           elem.line.material.dispose();
           elem.line.material = new LineBasicMaterial({color: elem.color});
@@ -52115,11 +52134,11 @@ class graph_visualization_GraphVisualization extends HTMLElement {
   }
 
   async processAddEdge(elem){
-    if(elem.color === undefined){
+    if(elem.color === null){
       elem.color = this.defaults.edge.color;
     }
 
-    if(elem.strength === undefined){
+    if(elem.strength === null){
       elem.strength = this.defaults.edge.strength;
       elem.setAttribute('strength', elem.strength);
     }
