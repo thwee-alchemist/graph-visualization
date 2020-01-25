@@ -51480,7 +51480,7 @@ var isValidUrl = (string) => {
   if(isValidColor(string)){
     return false;
   }
-  
+
   try {
     new URL(string);
     return true;
@@ -51776,12 +51776,11 @@ class graph_visualization_GraphVisualization extends HTMLElement {
 
   renderInitial(){
     var vs = this.querySelectorAll('graph-vertex');
-    var es = this.querySelectorAll('graph-edge');
-
     for(var v of vs){
       this.processAddVertex(v);
     }
 
+    var es = this.querySelectorAll('graph-edge');
     for(var e of es){
       this.processAddEdge(e);
     }
@@ -51843,6 +51842,7 @@ class graph_visualization_GraphVisualization extends HTMLElement {
 
   setupChildObserver(){
     console.log('observing dom tree')
+
     var config = {
       attributes: true,
       childList: true,
@@ -51912,13 +51912,16 @@ class graph_visualization_GraphVisualization extends HTMLElement {
     this.setupScene();
     this.setupCore()
     .then(this.setupChildObserver.bind(this));
+
+    this.layout.started.then(() => {
+      this.renderInitial();
+    });
     // this.setupResizeObserver();
 
     this.textureLoader = new TextureLoader();
     
     document.addEventListener('dblclick', this.resolve_click.bind(this, 'dblclick'), false);
     document.addEventListener('click', this.resolve_click.bind(this, 'click'), false);
-    
 
   }
 
@@ -52009,7 +52012,7 @@ class graph_visualization_GraphVisualization extends HTMLElement {
     elem.texture = this.textureLoader.load( elem.face );
 
     var material = new MeshBasicMaterial( 
-      isValidUrl(elem.face) ? { 'map': elem.texture } : { 'color': elem.face } 
+      isValidColor(elem.face) ? { 'color': elem.face } : { 'map': elem.texture }
     );
     var cube = new Mesh( geometry, material );
 
@@ -52120,8 +52123,8 @@ class graph_visualization_GraphVisualization extends HTMLElement {
     var material = new LineBasicMaterial({ color: elem.color });
     var geometry = new BufferGeometry();
 
-    var source = this.querySelector(elem.source);
-    var target = this.querySelector(elem.target);
+    var source = this.querySelector(elem.getAttribute('source'));
+    var target = this.querySelector(elem.getAttribute('target'));
 
     var source_layout_id = parseInt(source.getAttribute('data-layout-id'));
     var target_layout_id = parseInt(target.getAttribute('data-layout-id'));
@@ -52142,6 +52145,7 @@ class graph_visualization_GraphVisualization extends HTMLElement {
     // geometry.vertices.push(source.cube.position, target.cube.position);
 
     var line = new Line(geometry, material);
+    line.frustumCulled = false;
     this.scene.add(line);
 
     var animateLine = function () {

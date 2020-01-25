@@ -317,12 +317,11 @@ class GraphVisualization extends HTMLElement {
 
   renderInitial(){
     var vs = this.querySelectorAll('graph-vertex');
-    var es = this.querySelectorAll('graph-edge');
-
     for(var v of vs){
       this.processAddVertex(v);
     }
 
+    var es = this.querySelectorAll('graph-edge');
     for(var e of es){
       this.processAddEdge(e);
     }
@@ -398,15 +397,11 @@ class GraphVisualization extends HTMLElement {
           case 'childList':
             for(var added of mutation.addedNodes){
               if(added instanceof GraphVertex){
-                self.started.then(() => {
-                  self.processAddVertex(added)
-                })
+                self.processAddVertex(added)
               }
 
               if(added instanceof GraphEdge){
-                self.started.then(() => {
-                  self.processAddEdge(added);
-                });
+                self.processAddEdge(added);
               }
             }
 
@@ -459,15 +454,15 @@ class GraphVisualization extends HTMLElement {
     this.setupCore()
     .then(this.setupChildObserver.bind(this));
 
-
-
+    this.layout.started.then(() => {
+      this.renderInitial();
+    });
     // this.setupResizeObserver();
 
     this.textureLoader = new THREE.TextureLoader();
     
     document.addEventListener('dblclick', this.resolve_click.bind(this, 'dblclick'), false);
     document.addEventListener('click', this.resolve_click.bind(this, 'click'), false);
-    
 
   }
 
@@ -558,7 +553,7 @@ class GraphVisualization extends HTMLElement {
     elem.texture = this.textureLoader.load( elem.face );
 
     var material = new THREE.MeshBasicMaterial( 
-      isValidUrl(elem.face) ? { 'map': elem.texture } : { 'color': elem.face } 
+      isValidColor(elem.face) ? { 'color': elem.face } : { 'map': elem.texture }
     );
     var cube = new THREE.Mesh( geometry, material );
 
@@ -669,8 +664,8 @@ class GraphVisualization extends HTMLElement {
     var material = new THREE.LineBasicMaterial({ color: elem.color });
     var geometry = new THREE.BufferGeometry();
 
-    var source = this.querySelector(elem.source);
-    var target = this.querySelector(elem.target);
+    var source = this.querySelector(elem.getAttribute('source'));
+    var target = this.querySelector(elem.getAttribute('target'));
 
     var source_layout_id = parseInt(source.getAttribute('data-layout-id'));
     var target_layout_id = parseInt(target.getAttribute('data-layout-id'));
@@ -691,6 +686,7 @@ class GraphVisualization extends HTMLElement {
     // geometry.vertices.push(source.cube.position, target.cube.position);
 
     var line = new THREE.Line(geometry, material);
+    line.frustumCulled = false;
     this.scene.add(line);
 
     var animateLine = function () {
