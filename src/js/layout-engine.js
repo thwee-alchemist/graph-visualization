@@ -61,6 +61,7 @@ fetch(request).then((response) => {
                 
                 if(e.data.set){
                   switch(e.data.setting){
+                    /*
                     case 'dampening':
                       result = self.settings.dampening = e.data.value;
                       break;
@@ -85,6 +86,7 @@ fetch(request).then((response) => {
                     case 'time_dilation':
                       result = self.settings.time_dilation = e.data.value;
                       break;
+                      */
                     default: 
                       result = self.settings[e.data.setting] = e.data.value;
                       break;

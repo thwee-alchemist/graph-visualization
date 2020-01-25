@@ -431,7 +431,8 @@ class GraphVisualization extends HTMLElement {
   setupResizeObserver(){
     this.ro = new ResizeObserver(entries => {
       for(var entry of entries){
-        this.setSize(entry.contentRect.width + 'px', entry.contentRect.height + 'px')
+        console.log(entry)
+        this.onresize();
       }
     });
 
@@ -451,7 +452,7 @@ class GraphVisualization extends HTMLElement {
     this.layout.started.then(() => {
       this.renderInitial();
     });
-    // this.setupResizeObserver();
+    this.setupResizeObserver();
 
     this.textureLoader = new THREE.TextureLoader();
 
@@ -473,6 +474,14 @@ class GraphVisualization extends HTMLElement {
     document.addEventListener('dblclick', this.resolve_click.bind(this, 'dblclick'));
     document.addEventListener('click', this.resolve_click.bind(this, 'click'));
 
+
+  }
+
+  onresize(){
+    this.camera.aspect = this.clientWidth / this.clientHeight;
+    this.camera.updateProjectionMatrix();
+
+    this.renderer.setSize(this.clientWidth, this.clientHeight);
   }
 
   resolve_click(type, e){

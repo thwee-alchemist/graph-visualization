@@ -51339,7 +51339,7 @@ async function layout_engine_remote_toJSON(){
   return result;
 };
 
-async function setting({set, setting, value}){
+async function setting(set, setting, value){
   var result = await post({_type: 'setting', "set": set, 'setting': setting, 'value': value, "get": !set});
   return result;
 }
@@ -51350,8 +51350,8 @@ function end(){
 
 class Settings {
   constructor(obj){
-    this._attraction = obj ? obj.attraction : 4e-1;
-    this._repulsion = obj ? obj.repulsion : 1e-2;
+    this._attraction = obj ? obj.attraction : 8;
+    this._repulsion = obj ? obj.repulsion : 4;
     this._epsilon = obj ? obj.epsilon : 1e-4;
     this._inner_distance = obj ? obj.inner_distance : 9e-3;
     this._time_dilation = obj ? obj.time_dilation : 0.1;
@@ -51360,20 +51360,31 @@ class Settings {
   }
 
   get attraction(){
-    this._attraction = setting(false, 'attraction').result;
-    return this._attraction;
+    return new Promise(async (resolve, reject) => {
+      this._attraction = (await setting(false, 'attraction'));
+      resolve(this._attraction);
+    })
   }
 
   set attraction(value){
-    return this._attraction = setting(true, 'attraction', value).result;
+    return new Promise(async (resolve, reject) => {
+      this._attraction = (await setting(true, 'attraction', value));
+      resolve(this._attraction); // poetic!
+    })
   }
 
   get repulsion(){
-    return this._repulsion = setting(false, 'repulsion').result;
+    return new Promise(async (resolve, reject) => {
+      this._repulsion = (await setting(false, 'repulsion'));
+      resolve(this._repulsion);
+    })
   }
 
   set repulsion(value){
-    return this._repulsion = setting(true, 'repulsion', value).result;
+    return new Promise(async (resolve, reject) => {
+      this._repulsion = (await setting(true, 'repulsion', value));
+      resolve(this._repulsion)
+    })
   }
 
   get epsilon(){
@@ -51413,7 +51424,7 @@ class Settings {
   }
 
   set time_dilation(value){
-    return this._time_dilation = setting(true, 'time_dilation', value);
+    return this._time_dilation = setting(true, 'time_dilation', value).result;
   }
 
 }
@@ -51890,7 +51901,8 @@ class graph_visualization_GraphVisualization extends HTMLElement {
   setupResizeObserver(){
     this.ro = new ResizeObserver(entries => {
       for(var entry of entries){
-        this.setSize(entry.contentRect.width + 'px', entry.contentRect.height + 'px')
+        console.log(entry)
+        this.onresize();
       }
     });
 
@@ -51910,7 +51922,7 @@ class graph_visualization_GraphVisualization extends HTMLElement {
     this.layout.started.then(() => {
       this.renderInitial();
     });
-    // this.setupResizeObserver();
+    this.setupResizeObserver();
 
     this.textureLoader = new TextureLoader();
 
@@ -51932,6 +51944,14 @@ class graph_visualization_GraphVisualization extends HTMLElement {
     document.addEventListener('dblclick', this.resolve_click.bind(this, 'dblclick'));
     document.addEventListener('click', this.resolve_click.bind(this, 'click'));
 
+
+  }
+
+  onresize(){
+    this.camera.aspect = this.clientWidth / this.clientHeight;
+    this.camera.updateProjectionMatrix();
+
+    this.renderer.setSize(this.clientWidth, this.clientHeight);
   }
 
   resolve_click(type, e){
