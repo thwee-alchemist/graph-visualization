@@ -9,7 +9,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "source ../../emsdk/emsdk_env.sh && cd src/cpp && make wasm && cd ../.. && webpack --display-modules && cp src/js/core.wasm dist/. && cp src/js/layout-engine.js dist/. && cp src/js/layout-engine.js docs/.",
-    "pages": "cp test/* docs/. -r && cp dist/* docs/."
+    "pages": "cp dist/* docs/."
   },
   "repository": {
     "type": "git",
