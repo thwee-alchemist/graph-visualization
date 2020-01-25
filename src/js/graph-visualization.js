@@ -630,6 +630,10 @@ class GraphVisualization extends HTMLElement {
       case 'onclick':
         // donothing
         break;
+
+      case 'dblclick':
+        // donothing
+        break;
     }
   }
 
