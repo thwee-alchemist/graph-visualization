@@ -585,8 +585,9 @@ class GraphVisualization extends HTMLElement {
   updateEdge(elem, prop){
     switch(prop){
       case 'color':
-        console.log('updating color');
-        elem.line.material.dispose();
+        if(elem.line.material){
+          elem.line.material.dispose();
+        }
         elem.line.material = new THREE.LineBasicMaterial({color: elem.color});
         elem.line.material.needsUpdate = true;
         break;

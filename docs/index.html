@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Graph Visualization</title>
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <link rel="stylesheet" href="test.css">
+    <script src="js/jquery-3.4.1.min.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+    <script src="js/three.min.js"></script>
+    <script src="graph-visualization.bundle.js"></script>
+  </head>
+  <body>
+    <script>
+
+      var names = ['first', 'second', 'third'];
+      var namesI = 0;
+
+      function add_vertex(){
+        var graph = document.querySelector('graph-visualization');
+
+        var vertex = document.createElement('graph-vertex');
+        vertex.id = prompt('ID: ', namesI < names.length ? names[namesI++] : 'someid')
+        vertex.face = 'black';
+
+        graph.appendChild(vertex)
+
+        vertex.addEventListener('click', function(e){
+          console.log(e.target.id, 'clicked')
+        })
+
+        vertex.addEventListener('dblclick', function(e){
+          graph.controls.target = e.target.cube.position;
+        })
+      }
+
+      function remove_vertex(){
+        var graph = document.querySelector('graph-visualization');
+
+        var vertex = document.querySelector(prompt('ID: ', '#' + document.querySelector('graph-vertex').id));
+        vertex.remove();
+      }
+
+      function add_edge(){
+        var graph = document.querySelector('graph-visualization');
+        var proposedSource = document.querySelector('graph-vertex');
+        var proposedTarget = document.querySelector(`graph-vertex:not(#${proposedSource.id})`);
+
+        var edge = document.createElement('graph-edge');
+        edge.source = prompt('Source: ', '#' + proposedSource.id);
+        edge.target = prompt('Target: ', '#' + proposedTarget.id);
+        graph.appendChild(edge);
+      }
+
+      function remove_edge(){
+        var graph = document.querySelector('graph-visualization');
+
+        var proposed = document.querySelector('graph-edge');
+        var source = prompt("Source: ", proposed.source);
+        var target = prompt('Target: ', proposed.target);
+
+        var edge = document.querySelector(`graph-edge[source='${source}'][target='${target}']`)
+        edge.remove();
+      }
+
+      function resize(){
+        var graph = document.querySelector('graph-visualization');
+        var size = prompt('Size: ', '250px');
+        graph.width = size;
+        graph.height = size;
+      }
+
+      $(document).ready(function(){
+        var graph = document.querySelector('graph-visualization');
+
+        graph.addEventListener('dblclick', function(e){
+          graph.controls.target = new THREE.Vector3(0, 0, 0)
+        })
+
+        graph.test()
+      })
+    </script>
+
+    <div class="container">
+      <div class="row">
+        <button onclick="add_vertex()">add vertex</button>
+        <button onclick="add_edge()">add edge</button>
+        <button onclick="remove_vertex()">remove vertex</button>
+        <button onclick="remove_edge()">remove edge</button>
+        <button onclick="resize()">resize</button>
+      </div>
+      <div class="row">
+        <graph-visualization 
+          width="500px"
+          height="350px"
+          background-color="cornflowerblue">
+        </graph-visualization>
+      </div>
+    </div>
+  </body>
+</html>
