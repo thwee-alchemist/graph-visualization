@@ -12,6 +12,22 @@
   <body>
     <script>
 
+      // Thanks bendc! https://gist.github.com/bendc/76c48ce53299e6078a76
+      const randomColor = (() => {
+        "use strict";
+
+        const randomInt = (min, max) => {
+          return Math.floor(Math.random() * (max - min + 1)) + min;
+        };
+
+        return () => {
+          var h = randomInt(0, 360);
+          var s = randomInt(42, 98);
+          var l = randomInt(40, 90);
+          return `hsl(${h},${s}%,${l}%)`;
+        };
+      })();
+
       var names = ['first', 'second', 'third'];
       var namesI = 0;
 
@@ -20,7 +36,7 @@
 
         var vertex = document.createElement('graph-vertex');
         vertex.id = prompt('ID: ', namesI < names.length ? names[namesI++] : 'someid')
-        vertex.face = 'black';
+        vertex.face = randomColor();
 
         graph.appendChild(vertex)
 
