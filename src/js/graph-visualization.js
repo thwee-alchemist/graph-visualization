@@ -435,7 +435,6 @@ class GraphVisualization extends HTMLElement {
   }
 
   resolve_click(type, e){
-    console.log('click', e)
     var raycaster = new THREE.Raycaster();
     var mouse = new THREE.Vector2();
     

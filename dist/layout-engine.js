@@ -131,7 +131,6 @@ fetch(request).then((response) => {
               var result;
               try{
                 result = self.lg.add_vertex();
-                console.log('vertex added', result)
               }catch(e){
                 console.error(e);
               }finally{
