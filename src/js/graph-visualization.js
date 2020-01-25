@@ -3,20 +3,11 @@
   graph-visualization.js
   Joshua Marshall Moore
   January 24th, 2020
-
-
 */
 
-var core = require('./core.js');
-
-core.onRuntimeInitialized = function(){
-  core.noExitRuntime = true;
-
-  window.LayoutGraph = core.LayoutGraph;
-  window.default_settings = core.default_settings;
-
-
-}
+import * as THREE from '../../node_modules/three';
+import { OrbitControls } from '../../node_modules/three/examples/jsm/controls/OrbitControls.js';
+import Remote from "./layout-engine-remote.js";
 
 
 // https://stackoverflow.com/a/43467144/5865620
@@ -162,6 +153,8 @@ class GraphVisualization extends HTMLElement {
         strength: 1.0
       }
     }
+
+
   }
 
   /**
@@ -286,11 +279,29 @@ class GraphVisualization extends HTMLElement {
   }
 
   setupCore(){
+    this.layout = Remote;
+    this.layout.started.then(() => {
+      console.log('layout started');
+      var layout = Remote;
+      var self = this;
+      var animateLayout = function(){
+        requestAnimationFrame(animateLayout);
+        layout.layout().then(data => {
+          var updates = data.V;
+          for(var update of updates){
+            var elem = self.querySelector(`[data-layout-id="${update.id}"]`);
+            elem.cube.position.set(update.x, update.y, update.z)
+          }
 
+        })
+      }
+
+      animateLayout();
+    })
   }
 
   setupControls(){
-    var controls = new THREE.OrbitControls(this.camera, this.canvas);
+    var controls = new OrbitControls(this.camera, this.canvas);
     this.controls = controls;
     this.controls.update();
   }
@@ -411,6 +422,7 @@ class GraphVisualization extends HTMLElement {
     this.canvas = document.createElement('canvas');
     this.shadowRoot.appendChild(this.canvas);
     this.setupScene();
+    this.setupCore();
     this.setupChildObserver();
     // this.setupResizeObserver();
 
@@ -490,7 +502,9 @@ class GraphVisualization extends HTMLElement {
     return this._defaults;
   }
 
-  processAddVertex(elem){
+  async processAddVertex(elem){
+    elem.setAttribute('data-layout-id', await this.layout.add_vertex());
+
     if(elem.face === undefined){
       elem.face = this.defaults.vertex.face;
     }
@@ -602,15 +616,17 @@ class GraphVisualization extends HTMLElement {
     }
     elem.cube.material.dispose();
     elem.cube.geometry.dispose();
+    this.layout.remove_vertex(parseInt(elem.getAttribute('data-layout-id')))
   }
 
-  processAddEdge(elem){
+  async processAddEdge(elem){
     if(elem.color === undefined){
       elem.color = this.defaults.edge.color;
     }
 
     if(elem.strength === undefined){
       elem.strength = this.defaults.edge.strength;
+      elem.setAttribute('strength', elem.strength);
     }
 
     var material = new THREE.LineBasicMaterial({ color: elem.color });
@@ -618,6 +634,19 @@ class GraphVisualization extends HTMLElement {
 
     var source = this.querySelector(elem.source);
     var target = this.querySelector(elem.target);
+
+    var source_layout_id = parseInt(source.getAttribute('data-layout-id'));
+    var target_layout_id = parseInt(target.getAttribute('data-layout-id'));
+
+    var id = await this.layout.add_edge({
+      source: source_layout_id, 
+      target: target_layout_id, 
+      options: {
+        directed: false, 
+        strength: parseFloat(elem.strength)
+      }
+    });
+    elem.setAttribute('data-layout-id', id);
 
     var positions = new Float32Array( 2 *3 );
     geometry.setAttribute('position', new THREE.BufferAttribute( positions, 3))
@@ -653,6 +682,8 @@ class GraphVisualization extends HTMLElement {
     this.scene.remove(elem.line);
     elem.line.material.dispose();
     elem.line.geometry.dispose();
+
+    this.layout.remove_edge(parseInt(elem.getAttribute('data-layout-id')));
   }
 }
 

@@ -1,7 +1,11 @@
+const webpack = require("webpack");
 const path = require('path');
 
 module.exports = {
-  mode: 'production',
+  mode: 'development',
+  optimization: {
+    minimize: false
+  },
   entry: './src/js/graph-visualization.js',
   output: {
     path: path.resolve(__dirname, './dist/'),
@@ -9,6 +13,12 @@ module.exports = {
   },
   target: "web",
   module: {
+    defaultRules: [
+      {
+        type: "javascript/auto",
+        resolve: {}
+      }
+    ],
     rules: [
       // Emscripten JS files define a global. With `exports-loader` we can 
       // load these files correctly (provided the global’s name is the same
@@ -25,7 +35,15 @@ module.exports = {
         options: {
           publicPath: "dist/"
         }
+      },
+      {
+        test: /\layout-engine.js$/,
+        use: { 
+          loader: 'worker-loader',
+          options: {inline: true}
+        }
       }
     ]
-  }
+  },
+  plugins: [new webpack.IgnorePlugin(/(fs)/)]
 }

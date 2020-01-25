@@ -7,16 +7,19 @@
     <script src="js/jquery-3.4.1.min.js"></script>
     <script src="js/bootstrap.min.js"></script>
     <script src="js/three.min.js"></script>
-    <script src="js/OrbitControls.js"></script>
     <script src="graph-visualization.bundle.js"></script>
   </head>
   <body>
     <script>
+
+      var names = ['first', 'second', 'third'];
+      var namesI = 0;
+
       function add_vertex(){
         var graph = document.querySelector('graph-visualization');
 
         var vertex = document.createElement('graph-vertex');
-        vertex.id = prompt('ID: ')
+        vertex.id = prompt('ID: ', namesI < names.length ? names[namesI++] : 'someid')
         vertex.face = `https://picsum.photos/200?random=${Math.random()}`;
 
         graph.appendChild(vertex)

@@ -39,3 +39,5 @@
     });
 
     this.ro.observe(this);
+
+    Scene, AmbientLight, WebGLRenderer, PerspectiveCamera, TextureLoader, Raycaster, Vector2, BoxGeometry, MeshBasicMaterial, Mesh, LineBasicMaterial, BufferGeometry, BufferAttribute, Line
