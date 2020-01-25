@@ -1,10 +1,4 @@
 graph-visualization {
-
-  background-color: cornflowerblue;
   resize: both;
   overflow: hidden;
-}
-
-.container {
-  background-color: rebeccapurple;
 }
