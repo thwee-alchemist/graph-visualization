@@ -17,7 +17,7 @@ This is the January 2020 rewrite of fourd, incorporating lessons learned from [f
 ## Building
 
 ```
-todo
+npm run-script build
 ```
 
 ## Testing

@@ -18,8 +18,9 @@ express.static.mime.define({
   'css': 'text/css'
 })
 
-app.use(favicon(path.join(__dirname, 'web-component', 'favicon.ico')))
-app.use('/', express.static(path.join(__dirname, 'web-component' )))
+app.use(favicon(path.join(__dirname, 'test', 'favicon.ico')))
+app.use('/', express.static(path.join(__dirname, 'test')))
+app.use('/', express.static(path.join(__dirname, 'dist')));
 
 var credentials = {
   key: fs.readFileSync('/etc/ssl/localcerts/localhost.key'),
