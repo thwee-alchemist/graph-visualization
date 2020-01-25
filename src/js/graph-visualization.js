@@ -21,7 +21,7 @@ var isValidUrl = (string) => {
   if(isValidColor(string)){
     return false;
   }
-  
+
   try {
     new URL(string);
     return true;
@@ -384,6 +384,7 @@ class GraphVisualization extends HTMLElement {
 
   setupChildObserver(){
     console.log('observing dom tree')
+
     var config = {
       attributes: true,
       childList: true,
@@ -397,11 +398,15 @@ class GraphVisualization extends HTMLElement {
           case 'childList':
             for(var added of mutation.addedNodes){
               if(added instanceof GraphVertex){
-                self.processAddVertex(added)
+                self.started.then(() => {
+                  self.processAddVertex(added)
+                })
               }
 
               if(added instanceof GraphEdge){
-                self.processAddEdge(added);
+                self.started.then(() => {
+                  self.processAddEdge(added);
+                });
               }
             }
 
@@ -453,6 +458,9 @@ class GraphVisualization extends HTMLElement {
     this.setupScene();
     this.setupCore()
     .then(this.setupChildObserver.bind(this));
+
+
+
     // this.setupResizeObserver();
 
     this.textureLoader = new THREE.TextureLoader();
