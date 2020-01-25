@@ -8,7 +8,7 @@
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "source ../../emsdk/emsdk_env.sh && cd src/cpp && make wasm && cd ../.. && webpack --display-modules && cp src/js/core.wasm dist/. && cp src/js/layout-engine.js dist/. && cp src/js/layout-engine.js docs/.",
+    "build": "source ../../emsdk/emsdk_env.sh && cd src/cpp && make wasm && cd ../.. && webpack --display-modules && cp src/js/core.* dist/. && cp src/js/layout-engine.js dist/. && cp dist/* docs/.",
     "pages": "cp dist/* docs/.",
     "serve": "sudo ./serve"
   },

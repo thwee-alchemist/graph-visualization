@@ -9,9 +9,19 @@ import * as THREE from '../../node_modules/three';
 import { OrbitControls } from '../../node_modules/three/examples/jsm/controls/OrbitControls.js';
 import Remote from "./layout-engine-remote.js";
 
+// https://stackoverflow.com/a/48485007/5865620
+function isValidColor(strColor){
+  var s = new Option().style;
+  s.color = strColor;
+  return s.color == strColor;
+}
 
 // https://stackoverflow.com/a/43467144/5865620
 var isValidUrl = (string) => {
+  if(isValidColor(string)){
+    return false;
+  }
+  
   try {
     new URL(string);
     return true;
@@ -437,12 +447,12 @@ class GraphVisualization extends HTMLElement {
   /**
    * 
    */
-  async connectedCallback(){
+  connectedCallback(){
     this.canvas = document.createElement('canvas');
     this.shadowRoot.appendChild(this.canvas);
     this.setupScene();
-    await this.setupCore();
-    this.setupChildObserver()
+    this.setupCore()
+    .then(this.setupChildObserver.bind(this));
     // this.setupResizeObserver();
 
     this.textureLoader = new THREE.TextureLoader();
