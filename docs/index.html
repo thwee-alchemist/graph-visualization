@@ -40,6 +40,14 @@
         graph.controls.target = target.cube.position;
       }
 
+      function select(target){
+        var remember = target.face;
+        target.face = 'black';
+        setTimeout(function(){
+          target.face = remember;
+        }, 100)
+      }
+
       function add_vertex(){
         var graph = document.querySelector('graph-visualization');
 
@@ -94,7 +102,6 @@
         graph.height = size;
       }
 
-
     </script>
 
     <div class="container">
@@ -118,6 +125,7 @@
           <button onclick="remove_vertex()">remove vertex</button>
           <button onclick="remove_edge()">remove edge</button>
           <button onclick="resize()">resize</button>
+          <button ng-disabled="selected == null" ng-click="changePicture()">Change Picture of Selected Vertex</button>
         </div>
       </div>
 
@@ -125,10 +133,10 @@
         width="100%"
         height="500px">
 
-        <graph-vertex id="one" size="10" face="blue" ondblclick="centerAround(this)"></graph-vertex>
-        <graph-vertex id="two" size="10" face="green" ondblclick="centerAround(this)"></graph-vertex>
-        <graph-vertex id="three" size="10" face="red" ondblclick="centerAround(this)"></graph-vertex>
-        <graph-vertex id="four" size="10" face="purple" ondblclick="centerAround(this)"></graph-vertex>
+        <graph-vertex id="one" size="10" face="blue" ondblclick="centerAround(this)" onclick="select(this)" ></graph-vertex>
+        <graph-vertex id="two" size="10" face="green" ondblclick="centerAround(this)" onclick="select(this)" ></graph-vertex>
+        <graph-vertex id="three" size="10" face="red" ondblclick="centerAround(this)" onclick="select(this)" ></graph-vertex>
+        <graph-vertex id="four" size="10" face="purple" ondblclick="centerAround(this)" onclick="select(this)" ></graph-vertex>
         
         <graph-edge source="#one" target="#two" color="red"></graph-edge>
         <graph-edge source="#one" target="#three"></graph-edge>

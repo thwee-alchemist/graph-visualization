@@ -88,13 +88,14 @@ fetch(request).then((response) => {
                       break;
                       */
                     default: 
-                      result = self.settings[e.data.setting] = e.data.value;
+                      result = self.settings[e.data.setting] = parseFloat(e.data.value);
                       break;
                   }
                 }
                 
                 if(e.data.get){
                   switch(e.data.setting){
+                    /*
                     case 'dampening':
                       result = self.settings.dampening;
                       break;
@@ -119,6 +120,7 @@ fetch(request).then((response) => {
                     case 'time_dilation':
                       result = self.settings.time_dilation;
                       break;
+                      */
                     default: 
                       result = self.settings[e.data.setting];
                       break;
