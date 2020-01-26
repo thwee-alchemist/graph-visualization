@@ -247,26 +247,36 @@ Eigen::MatrixXd LayoutGraph::beta__(){
 }
 
 void LayoutGraph::two_level_dynamics(){
+
+  std::cout << "two level dynamics" << id << std::endl;
+
   auto vs = vertices();
   
   auto a__ = alpha__();
-  auto b__ = beta__();
+  std::cout << "alpha called" << std::endl;
 
-  Eigen::MatrixXd sum;
+  auto b__ = beta__();
+  std::cout << "beta called" << std::endl;
+
+  Eigen::MatrixXd sum = Eigen::MatrixXd(1, 3);
   sum.setZero();
 
   Vertex* v;
+  Vertex* y;
   for(unsigned int vid : vs){
     v = V->at(vid);
-    
-    Eigen::MatrixXd d__ = *v->velocity;  
-    Eigen::MatrixXd y = *v->coarser->position;
-    sum += d__ + b__;
-    sum += (a__ * y);
-    sum += (2 * alpha_ * y);
+    y = v->coarser;
+
+    sum += b__;
+    sum += (a__ * (*y->position));
+    sum += (2 * alpha_ * (*y->velocity));
     sum += (alpha * (*v->coarser->acceleration));
 
-    *v->acceleration = sum;
+    Eigen::MatrixXd proj_accel = sum;
+
+    Eigen::MatrixXd d__ = *v->acceleration;
+
+    *v->acceleration = d__ + proj_accel;
   }
 }
 
