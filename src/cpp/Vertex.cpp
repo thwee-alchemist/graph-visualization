@@ -80,18 +80,18 @@ void Vertex::add_finer(Vertex* fine){
   }
 }
 
-Eigen::MatrixXd Vertex::pairwise_repulsion(Eigen::MatrixXd* one, Eigen::MatrixXd* two, Settings* settings){
+Eigen::MatrixXd Vertex::pairwise_repulsion(Eigen::MatrixXd* one, Eigen::MatrixXd* two, Settings& settings){
 
   Eigen::MatrixXd diff = (*one - *two);
 
   Eigen::MatrixXd epsilon = Eigen::MatrixXd(1, 3);
-  epsilon << settings->get_epsilon(), settings->get_epsilon(), settings->get_epsilon();
+  epsilon << settings.epsilon, settings.epsilon, settings.epsilon;
 
   Eigen::MatrixXd friction = Eigen::MatrixXd(1, 3);
-  friction << settings->get_friction(), settings->get_friction(), settings->get_friction();
+  friction << settings.friction, settings.friction, settings.friction;
 
-  double firstDenominator = (settings->get_epsilon() + diff.norm()) * (settings->get_epsilon() + diff.norm());
-  Eigen::MatrixXd repulsion = (settings->get_friction() / firstDenominator) * (diff / (settings->get_epsilon() + diff.norm()));
+  double firstDenominator = (settings.epsilon + diff.norm()) * (settings.epsilon + diff.norm());
+  Eigen::MatrixXd repulsion = (settings.friction / firstDenominator) * (diff / (settings.epsilon + diff.norm()));
 
   return repulsion;
 }

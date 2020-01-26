@@ -6,12 +6,12 @@
 
 using namespace sc;
 
-BarnesHutNode3::BarnesHutNode3(Settings* _settings){
+BarnesHutNode3::BarnesHutNode3(Settings& _settings){
   count = 0;
   center_sum = Eigen::MatrixXd(1, 3);
   center_sum.setZero();
 
-  settings = _settings;
+  settings = &_settings;
 
   inners = new std::map<unsigned int, Vertex*>();
   outers = new std::map<std::string, BarnesHutNode3*>();
@@ -73,25 +73,25 @@ void BarnesHutNode3::place_inner(Vertex* vertex){
 void BarnesHutNode3::place_outer(Vertex* vertex){
   std::string octant = get_octant(vertex->position);
   if((*outers)[octant] == NULL){
-    (*outers)[octant] = new BarnesHutNode3(settings);
+    (*outers)[octant] = new BarnesHutNode3(*settings);
   }
 
   (*outers)[octant]->insert(vertex);
 }
 
-Eigen::MatrixXd BarnesHutNode3::estimate(Vertex* vertex, Eigen::MatrixXd (*force_fn)(Eigen::MatrixXd* one, Eigen::MatrixXd* two, Settings* settings)){  
+Eigen::MatrixXd BarnesHutNode3::estimate(Vertex* vertex, Eigen::MatrixXd (*force_fn)(Eigen::MatrixXd* one, Eigen::MatrixXd* two, Settings& settings)){  
   Eigen::MatrixXd force = Eigen::MatrixXd(1, 3);
   force.setZero();
 
   if(inners->size() == 0){
     for(auto inner : *inners){
       if(inner.first != vertex->id){
-        force += force_fn(vertex->position, inner.second->position, settings);
+        force += force_fn(vertex->position, inner.second->position, *settings);
       }
     }
   }else{
     auto c = center();
-    force += force_fn(vertex->position, &c, settings);
+    force += force_fn(vertex->position, &c, *settings);
   }
 
   for(auto outer : *outers){

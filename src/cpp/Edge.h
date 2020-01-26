@@ -41,7 +41,7 @@ namespace sc {
       bool depends(const Edge* other);
       unsigned int count; 
 
-      Eigen::MatrixXd attraction(Settings*);
+      Eigen::MatrixXd attraction(Settings&);
       bool shares_vertex_with(Edge*);
       bool depends(Edge*);
 

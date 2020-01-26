@@ -309,6 +309,7 @@ class GraphVisualization extends HTMLElement {
           requestAnimationFrame(animateLayout);
           layout.layout().then(data => {
             var updates = data.V;
+            console.log(data.V);
             for(var update of updates){
               var elem = self.querySelector(`graph-vertex[data-layout-id="${update.id}"]`);
               elem.cube.position.set(update.x, update.y, update.z)

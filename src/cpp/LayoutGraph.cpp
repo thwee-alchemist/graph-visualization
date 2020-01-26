@@ -38,6 +38,11 @@ LayoutGraph::LayoutGraph(Settings* _settings, int levels){
   }else{
     dm = NULL;
   }
+
+  alpha = Eigen::MatrixXd(3, 3);
+  alpha.setZero();
+  alpha_ = Eigen::MatrixXd(3, 3);
+  alpha.setZero();
 }
 
 /*
@@ -176,31 +181,6 @@ Eigen::MatrixXd LayoutGraph::checkNan(Eigen::MatrixXd potential, Eigen::MatrixXd
   }
 }
 
-Eigen::MatrixXd LayoutGraph::alpha__(){
-  Eigen::MatrixXd sum = Eigen::MatrixXd(3, 3);
-  sum.setZero();
-
-  Vertex* v;
-  for(auto id : vertices()){
-    v = (*V)[id];
-    sum += (*v->displacement * v->position->transpose()) + (*v->position * v->displacement->transpose());
-  }
-
-  return sum * (1.0 / (V->size()));
-}
-
-Eigen::MatrixXd LayoutGraph::beta__(){
-  Eigen::MatrixXd sum = Eigen::MatrixXd(1, 3);
-
-  Vertex* v;
-  for(auto id : vertices()){
-    v = (*V)[id];
-    sum += (*v->displacement);
-  }
-
-  return sum *= (1.0 / V->size());
-}
-
 /**
  * string layout()
  * 
@@ -208,83 +188,96 @@ Eigen::MatrixXd LayoutGraph::beta__(){
  * coarsest graph of the Dynamic Matching. 
  */
 std::string LayoutGraph::layout(){
-  /**
-   * Conventions and Outline
-   * 
-   * x - position
-   * x_ - velocity
-   * x__ - acceleration
-   * 
-   * V - potential energy
-   * V = Sum(for every pair (xi, xj) of E)(add (1/2)*K*abs(xi, xj)^2)
-   *     + Sum(for every pair of distinct vertices (vi, vj))(add f0/(epsilon_R + abs(xi - xj)))
-   * 
-   * Equation (2)
-   * T - kinetic energy
-   * T = Sum(vi of E)((1/2)*abs(x_i)^2)
-   * 
-   * Equation (3)
-   * L = T - V
-   * 0 = L[d/dt*delta/(delta*x_i) - delta/(delta*xi)]
-   * 
-   * Equation (4) - Single Level Dynamics
-   * x__i = (spring forces:)Sum(for every pair of vertices (vi, vj))(add -K*(xi - xj)))
-   *        + (repulsion forces:)Sum(for every pair of distinct vertices (vi, vj, vi != vj))(add f0/(epsilon_R + abs(xi - xj)^2)*(xi - xj)/abs(xi - xj))
-   *        + -d*x_i
-   * 
-   * Two-Level Dynamics:
-   * 
-   * di - some displacement
-   * 
-   * yi - coarse version of xi
-   * 
-   * Equation (5)
-   * xi = di + alpha*yi + beta
-   * 
-   * Frame Dynamics:
-   * 
-   * Equation (6)
-   * alpha__ = 1/n * Sum(i)(di*yi(^T) + yi*di(^T))
-   * 
-   * Equation (7)
-   * beta__ = 1/n * Sum(i)(di)
-   * 
-   * -d_alpha * alpha_
-   * -d_beta * beta_
-   * 
-   * Time Dilation:
-   * 
-   * Equation (8)
-   * xi = di + beta + alpha*yi
-   * 
-   * Equation (9)
-   * x_i = d_i + beta_ + alpha_*yi + alpha*yi
-   * 
-   * Equation (10)
-   * x__i = d__i + beta__ + alpha__*yi + 2*alpha_*yi + alpha*y__i
-   * 
-   * Equation (11)
-   * delta__i = Fi - (beta__ + alpha__*yi + 2*alpha_*y_i + alpha*y__i)
-   * 
-   * Equation (12)
-   * xi(t) = d(t) + beta(t) + alpha(t)*yi*(omega*t)
-   * 
-   * Equation (13)
-   * d__i = Fi - (beta__ + alpha__*yi + 2*alpha_*omega*y_i + alpha*y__i*omega^2)
-   */
+  if(dm == NULL){
+    single_level_dynamics();
+    return toJSON(false);
+  }
 
-  single_level_dynamics();
+  dm->coarser->layout();
+
+  two_level_dynamics();
+
+  Vertex* v;
+  for(auto id : vertices()){
+    v = V->at(id);
+
+    *v->velocity += *v->acceleration;
+    *v->position += *v->velocity;
+  }
+
   return toJSON(false);
+}
 
+Eigen::MatrixXd LayoutGraph::alpha__(){
+  Eigen::MatrixXd sum = Eigen::MatrixXd(3, 3); // Thanks Natalie!
+  sum.setZero();
+  
+  Vertex* v;
+  Eigen::MatrixXd y;
+  for(auto id : vertices()){
+    v = (*V)[id];
+    y = *v->coarser->position;
+    sum += (*v->velocity * y.transpose()) + (y * v->velocity->transpose());
+  }
+
+  Eigen::MatrixXd a__ = Eigen::MatrixXd(3, 3);
+  a__ = sum / (V->size() + 0.00001);
+
+  alpha_ += a__;
+  alpha += alpha_;
+
+  return a__;
+}
+
+Eigen::MatrixXd LayoutGraph::beta__(){
+  Eigen::MatrixXd sum = Eigen::MatrixXd(1, 3); // Thanks, Natalie!
+  sum.setZero();
+
+  Vertex* v;
+  for(auto id : vertices()){
+    v = V->at(id);
+    sum += *v->velocity;
+  }
+
+  Eigen::MatrixXd b__ = sum / (V->size() + 0.00001);
+  beta_ += b__;
+  beta += beta_;
+
+  return b__;
+}
+
+void LayoutGraph::two_level_dynamics(){
+  auto vs = vertices();
+  
+  auto a__ = alpha__();
+  auto b__ = beta__();
+
+  Eigen::MatrixXd sum;
+  sum.setZero();
+
+  Vertex* v;
+  for(unsigned int vid : vs){
+    v = V->at(vid);
+    
+    Eigen::MatrixXd d__ = *v->velocity;  
+    Eigen::MatrixXd y = *v->coarser->position;
+    sum += d__ + b__;
+    sum += (a__ * y);
+    sum += (2 * alpha_ * y);
+    sum += (alpha * (*v->coarser->acceleration));
+
+    *v->acceleration = sum;
+  }
 }
 
 /**
  * Applicable if this is the coarsest graph
  */
 void LayoutGraph::single_level_dynamics(){
+  std::cout << "single level layout" << id << std::endl;
   auto vs = vertices();
 
-  BarnesHutNode3* tree = new BarnesHutNode3(settings);
+  BarnesHutNode3* tree = new BarnesHutNode3(*settings);
   for(auto id : vs){
     auto v = V->at(id);
     tree->insert(v);
@@ -315,7 +308,7 @@ void LayoutGraph::single_level_dynamics(){
     Eigen::MatrixXd xi = *e->source->position;
     Eigen::MatrixXd xj = *e->target->position;
 
-    auto force = ((xi - xj) * -settings->get_attraction()) * settings->get_dampening();
+    auto force = ((xi - xj) * -settings->attraction) * settings->dampening;
 
     *e->source->acceleration += force;
     *e->target->acceleration -= force;
@@ -324,7 +317,7 @@ void LayoutGraph::single_level_dynamics(){
   for(auto id : vs){
     Vertex* v = V->at(id);
 
-    *v->acceleration -= (*v->velocity * settings->get_dampening());
+    *v->acceleration -= (*v->velocity * settings->dampening);
 
     *v->velocity += *v->acceleration;
     *v->position += *v->velocity;

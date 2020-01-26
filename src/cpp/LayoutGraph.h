@@ -57,8 +57,15 @@ namespace sc {
       DynamicMatching* dm;
       Eigen::MatrixXd center;
       Eigen::MatrixXd checkNan(Eigen::MatrixXd, Eigen::MatrixXd);
+   
       Eigen::MatrixXd alpha__();
       Eigen::MatrixXd beta__();
+
+      Eigen::MatrixXd alpha_;
+      Eigen::MatrixXd beta_;
+
+      Eigen::MatrixXd alpha;
+      Eigen::MatrixXd beta;
       
       std::map<unsigned int, Vertex*>* V;
       std::map<unsigned int, Edge*>* E;
@@ -75,8 +82,8 @@ namespace sc {
       unsigned int edge_spawn;
 
       void single_level_dynamics();
-      /*
       void two_level_dynamics();
+      /*
       void frame_dynamics();
       void time_dilation();
       */

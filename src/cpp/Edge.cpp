@@ -53,12 +53,12 @@ bool Edge::depends(const Edge* other){
   return (order < other->order) && ((source == other->source) || (source == other->target) || (target == other->source) || (target == other->target));
 }
 
-Eigen::MatrixXd Edge::attraction(Settings* settings){
-  Eigen::MatrixXd a = (*source->position - *target->position) * (-1.0 * settings->attraction) * strength;
+Eigen::MatrixXd Edge::attraction(Settings& settings){
+  Eigen::MatrixXd a = (*source->position - *target->position) * (-1.0 * settings.attraction) * strength;
   if(directed){
     double distance = (*source->position - *target->position).norm();
     Eigen::MatrixXd gravity(1, 3);
-    gravity << 0, settings->gravity, 0;
+    gravity << 0, settings.gravity, 0;
     a += gravity * distance * strength;
   }
   

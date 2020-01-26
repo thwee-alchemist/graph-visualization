@@ -1,3 +1,16 @@
 {
-  "C_Cpp.dimInactiveRegions": false
+  "C_Cpp.dimInactiveRegions": false,
+  "files.associations": {
+    "core": "cpp",
+    "superlusupport": "cpp",
+    "*.evaluator": "cpp",
+    "*.traits": "cpp",
+    "alignedvector3": "cpp",
+    "autodiff": "cpp",
+    "bvh": "cpp",
+    "eulerangles": "cpp",
+    "fft": "cpp",
+    "numericaldiff": "cpp",
+    "specialfunctions": "cpp"
+  }
 }

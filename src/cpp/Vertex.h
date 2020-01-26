@@ -49,7 +49,7 @@ namespace sc {
 
       void add_finer(Vertex*);
       bool has(unsigned int);
-      static Eigen::MatrixXd pairwise_repulsion(Eigen::MatrixXd*, Eigen::MatrixXd*, Settings* settings);
+      static Eigen::MatrixXd pairwise_repulsion(Eigen::MatrixXd*, Eigen::MatrixXd*, Settings& settings);
 
       friend class LayoutGraph;
       friend class BarnesHutNode3;

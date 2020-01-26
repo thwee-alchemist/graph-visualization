@@ -19,13 +19,13 @@ namespace sc {
 
   class BarnesHutNode3 {
     public: 
-      BarnesHutNode3(Settings*);
+      BarnesHutNode3(Settings&);
       ~BarnesHutNode3();
 
       Eigen::MatrixXd center() const;
 
       void insert(Vertex*);
-      Eigen::MatrixXd estimate(Vertex* vertex, Eigen::MatrixXd (*force_fn)(Eigen::MatrixXd*, Eigen::MatrixXd*, Settings*));
+      Eigen::MatrixXd estimate(Vertex* vertex, Eigen::MatrixXd (*force_fn)(Eigen::MatrixXd*, Eigen::MatrixXd*, Settings&));
       unsigned int size();
 
     private:
