@@ -1,6 +1,7 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" ng-app="App">
   <head>
+    <meta charset="utf-8">
     <title>Graph Visualization</title>
     <link rel="stylesheet" href="css/bootstrap.min.css">
     <link rel="stylesheet" href="test.css">
@@ -11,7 +12,7 @@
     <script src="js/angular.min.js"></script>
     <script src="js/app.js"></script>
   </head>
-  <body>
+  <body ng-controller="AppCtrl">
     <script>
 
 
@@ -98,6 +99,19 @@
 
     <div class="container">
       <div class="row">
+        <div class="col-sm" ng-repeat="(prop, val) in settings">
+          <label>{{ prop }}</label>
+          <input 
+            type="number" 
+            ng-model="settings[prop]" 
+            ng-change="update_setting(prop, this)" 
+            ng-model-options="{updateOn : 'change blur'}">
+        </div>
+      </div>
+      
+      <hr>
+
+      <div class="row">
         <div class="col-sm-12">
           <button onclick="add_vertex()">add vertex</button>
           <button onclick="add_edge()">add edge</button>
@@ -123,6 +137,8 @@
         <graph-edge source="#two" target="#four"></graph-edge>
         <graph-edge source="#three" target="#four"></graph-edge>
       </graph-visualization>
+
+      <hr>
 
       <div class="row">
         <div class="col-sm-12">

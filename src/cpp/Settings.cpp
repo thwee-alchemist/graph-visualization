@@ -1,4 +1,5 @@
 #include "Settings.h"
+#include <iostream>
 
 using namespace sc;
 
@@ -27,6 +28,7 @@ double Settings::get_attraction() const {
 }
 
 void Settings::set_attraction(double val){
+  std::cout << "attraction" << val << std::endl;
   attraction = val;
 }
 
@@ -35,6 +37,7 @@ double Settings::get_repulsion() const {
 }
 
 void Settings::set_repulsion(double val){
+  std::cout << "repulsion" << val << std::endl;
   repulsion = val;
 }
 
