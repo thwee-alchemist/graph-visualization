@@ -40,13 +40,21 @@
         graph.controls.target = target.cube.position;
       }
 
+
+      var selected = null;
       function select(target){
         var remember = target.face;
         target.face = 'black';
         setTimeout(function(){
           target.face = remember;
-        }, 100)
+        }, 100);
+
+        selected = target;
       }
+
+      function changePicture(){
+        selected.face = `img/${Math.round(Math.random() * 5)}.png`;
+      } 
 
       function add_vertex(){
         var graph = document.querySelector('graph-visualization');
@@ -125,7 +133,7 @@
           <button onclick="remove_vertex()">remove vertex</button>
           <button onclick="remove_edge()">remove edge</button>
           <button onclick="resize()">resize</button>
-          <button ng-disabled="selected == null" ng-click="changePicture()">Change Picture of Selected Vertex</button>
+          <button onclick="changePicture()">Change Picture of Selected Vertex</button>
         </div>
       </div>
 
