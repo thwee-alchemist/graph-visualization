@@ -8,6 +8,8 @@
     <script src="js/bootstrap.min.js"></script>
     <script src="js/three.min.js"></script>
     <script src="graph-visualization.bundle.js"></script>
+    <script src="js/angular.min.js"></script>
+    <script src="js/app.js"></script>
   </head>
   <body>
     <script>
@@ -120,13 +122,14 @@
         <graph-edge source="#two" target="#three"></graph-edge>
         <graph-edge source="#two" target="#four"></graph-edge>
         <graph-edge source="#three" target="#four"></graph-edge>
-
-
-
       </graph-visualization>
 
       <div class="row">
         <div class="col-sm-12">
+          <p>
+            This is a dynamic graph visualization. It's still pretty simple, in terms of Math and Computer Science, as I was focusing on getting something out. 
+            It is based on <a href="https://arxiv.org/abs/0712.1549">this paper</a>, a paper which is taking me the better part of a decade's free time to understand. 
+          </p>
           <ol>
             <li>Click "add vertex" to specify an id for a new vertex.</li> 
             <li>Click "add edge" to specify the ids of two previously added vertices, (be sure to prefix it with a #)</li>
@@ -134,8 +137,38 @@
             <li>Double click an item to center it, double click empty space to return the camera to normal.</li>
           </ol>
           <p>
-            This is a dynamic graph visualization. It's still pretty simple, in terms of Math and Computer Science, as I was focusing on getting something out. 
-            It is based on <a href="https://arxiv.org/abs/0712.1549">this paper</a>, a paper which is taking me the better part of a decade's free time to understand. 
+            The code for this simple graph looks like this: 
+
+            <code><pre>
+&lt;graph-visualization 
+  width=&quot;100%&quot;
+  height=&quot;500px&quot;&gt;
+
+  &lt;graph-vertex id=&quot;one&quot; size=&quot;10&quot; face=&quot;blue&quot; ondblclick=&quot;centerAround(this)&quot;&gt;&lt;/graph-vertex&gt;
+  &lt;graph-vertex id=&quot;two&quot; size=&quot;10&quot; face=&quot;green&quot; ondblclick=&quot;centerAround(this)&quot;&gt;&lt;/graph-vertex&gt;
+  &lt;graph-vertex id=&quot;three&quot; size=&quot;10&quot; face=&quot;red&quot; ondblclick=&quot;centerAround(this)&quot;&gt;&lt;/graph-vertex&gt;
+  &lt;graph-vertex id=&quot;four&quot; size=&quot;10&quot; face=&quot;purple&quot; ondblclick=&quot;centerAround(this)&quot;&gt;&lt;/graph-vertex&gt;
+  
+  &lt;graph-edge source=&quot;#one&quot; target=&quot;#two&quot; color=&quot;red&quot;&gt;&lt;/graph-edge&gt;
+  &lt;graph-edge source=&quot;#one&quot; target=&quot;#three&quot;&gt;&lt;/graph-edge&gt;
+  &lt;graph-edge source=&quot;#one&quot; target=&quot;#four&quot;&gt;&lt;/graph-edge&gt;
+  &lt;graph-edge source=&quot;#two&quot; target=&quot;#three&quot;&gt;&lt;/graph-edge&gt;
+  &lt;graph-edge source=&quot;#two&quot; target=&quot;#four&quot;&gt;&lt;/graph-edge&gt;
+  &lt;graph-edge source=&quot;#three&quot; target=&quot;#four&quot;&gt;&lt;/graph-edge&gt;
+&lt;/graph-visualization&gt;
+</pre></code>
+
+            Coming soon: 
+            <ul>
+              <li>Vertex Labels</li>
+              <li>Edge Labels</li>
+              <li>Heavier Math</li>
+            </ul>
+          </p>
+          <hr>
+          <p>
+            I am currently looking for work, either remote or in the Las Vegas area.
+            <a href="mailto:joshua.moore@leudla.net">joshua.moore@leudla.net</a>
           </p>
         </div>
       </div>
