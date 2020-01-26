@@ -17,7 +17,8 @@ namespace sc {
         double _time_dilation,
         double _dampening,
         double _drag,
-        double _theta
+        double _theta,
+        double _spread
       );
 
       double get_dampening() const;
@@ -50,6 +51,9 @@ namespace sc {
       double get_theta() const;
       void set_theta(double val);
 
+      double get_spread() const;
+      void set_spread(double val);
+
       double dampening;
       double repulsion;
       double epsilon;
@@ -60,6 +64,7 @@ namespace sc {
       double time_dilation;
       double drag;
       double theta;
+      double spread;
   };
 }
 

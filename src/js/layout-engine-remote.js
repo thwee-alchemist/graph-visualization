@@ -93,15 +93,37 @@ function end(){
 
 class Settings {
   constructor(obj){
-    this._attraction = obj ? obj.attraction : 8;
-    this._repulsion = obj ? obj.repulsion : 4;
-    this._epsilon = obj ? obj.epsilon : 1e-4;
+    this._attraction     = obj ? obj.attraction     : 8;
+    this._repulsion      = obj ? obj.repulsion      : 4;
+    this._epsilon        = obj ? obj.epsilon        : 1e-4;
     this._inner_distance = obj ? obj.inner_distance : 9e-3;
-    this._time_dilation = obj ? obj.time_dilation : 0.1;
-    this._friction = obj ? obj.friction : 8e-1;
-    this._gravity = obj ? obj.gravity : 1e1;
-  }
+    this._time_dilation  = obj ? obj.time_dilation  : 0.1;
+    this._friction       = obj ? obj.friction       : 8e-1;
+    this._gravity        = obj ? obj.gravity        : 1e1;
+    this._dampening      = obj ? obj.dampening      : 1e-1;
+    this._drag           = obj ? obj.drag           : 1e-1 ;
+    this._theta          = obj ? obj.theta          : 0.15;
+    this._spread         = obj ? obj.spread         : 1e3;
 
+    for(var prop in this){
+      Object.defineProperty(this, prop.substring(1), {
+        get: function(){
+          return new Promise(async (resolve, reject) => {
+            this[prop] = (await setting(false, prop.substring(1))).result;
+            return this[prop];
+          })
+        },
+        set: function(value){
+          return new Promise(async (resolve, reject) => {
+            console.log('Settings set', prop, value)
+            this[prop] = await setting(true, prop.substring(1), value)
+            resolve(this[prop]);
+          })
+        }
+      })
+    }
+  }
+/*
   get attraction(){
     return new Promise(async (resolve, reject) => {
       this._attraction = (await setting(false, 'attraction'));
@@ -169,6 +191,39 @@ class Settings {
   set time_dilation(value){
     return this._time_dilation = setting(true, 'time_dilation', value).result;
   }
+
+  get dampening(){
+    return this._dampening = setting(false, 'dampening').result;
+  }
+
+  set dampening(value){
+    return this._dampening = setting(true, 'dampening', value).result
+  }
+
+  get drag(){
+    return this._drag = setting(false, 'drag').result;
+  }
+
+  set drag(value){
+    return this._drag = setting(true, 'drag', value).result
+  }
+
+  get theta(){
+    return this._theta = setting(false, 'theta').result;
+  }
+
+  set theta(value){
+    return this._theta = setting(true, 'theta', value).result
+  }
+
+  get spread(){
+    return this._spread = setting(false, 'spread').result;
+  }
+
+  set spread(value){
+    return this._spread = setting(true, 'spread', value).result
+  }
+  */
 
 }
 

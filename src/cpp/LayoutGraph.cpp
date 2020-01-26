@@ -193,6 +193,9 @@ std::string LayoutGraph::layout(){
 
     *v->velocity += *v->acceleration;
     *v->position += *v->velocity;
+    std::cout << "before" << *v->position << std::endl;
+    *v->position * settings->spread;
+    std::cout << "after" << *v->position << std::endl;
   }
 
   return toJSON(false);

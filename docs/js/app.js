@@ -12,7 +12,8 @@ var AppCtrl = App.controller('AppCtrl', ['$scope', async function($scope){
     gravity        : 1e-1,
     dampening      : 1e-1,
     drag           : 1e-3,
-    theta          : 0.25
+    theta          : 0.25,
+    spread         : 1e4
   };
 
   $scope.graph = document.querySelector('graph-visualization');

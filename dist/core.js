@@ -614,8 +614,8 @@ var wasmMemory;
 // In the wasm backend, we polyfill the WebAssembly object,
 // so this creates a (non-native-wasm) table for us.
 var wasmTable = new WebAssembly.Table({
-  'initial': 433,
-  'maximum': 433 + 0,
+  'initial': 435,
+  'maximum': 435 + 0,
   'element': 'anyfunc'
 });
 
@@ -1214,11 +1214,11 @@ function updateGlobalBufferAndViews(buf) {
 }
 
 var STATIC_BASE = 1024,
-    STACK_BASE = 5271952,
+    STACK_BASE = 5272000,
     STACKTOP = STACK_BASE,
-    STACK_MAX = 29072,
-    DYNAMIC_BASE = 5271952,
-    DYNAMICTOP_PTR = 28896;
+    STACK_MAX = 29120,
+    DYNAMIC_BASE = 5272000,
+    DYNAMICTOP_PTR = 28944;
 
 assert(STACK_BASE % 16 === 0, 'stack must start aligned');
 assert(DYNAMIC_BASE % 16 === 0, 'heap must start aligned');
@@ -1732,7 +1732,7 @@ var ASM_CONSTS = {
 
 
 
-// STATICTOP = STATIC_BASE + 28048;
+// STATICTOP = STATIC_BASE + 28096;
 /* global initializers */  __ATINIT__.push({ func: function() { ___wasm_call_ctors() } });
 
 
@@ -5996,7 +5996,7 @@ var ASM_CONSTS = {
     }
 
   function _emscripten_get_sbrk_ptr() {
-      return 28896;
+      return 28944;
     }
 
   function _emscripten_memcpy_big(dest, src, num) {
@@ -6849,11 +6849,11 @@ asm["dynCall_iii"] = function() {
   return real_dynCall_iii.apply(null, arguments);
 };
 
-var real_dynCall_iiiiiiiiiii = asm["dynCall_iiiiiiiiiii"];
-asm["dynCall_iiiiiiiiiii"] = function() {
+var real_dynCall_iiiiiiiiiiii = asm["dynCall_iiiiiiiiiiii"];
+asm["dynCall_iiiiiiiiiiii"] = function() {
   assert(runtimeInitialized, 'you need to wait for the runtime to be ready (e.g. wait for main() to be called)');
   assert(!runtimeExited, 'the runtime was exited (use NO_EXIT_RUNTIME to keep it alive after main() exits)');
-  return real_dynCall_iiiiiiiiiii.apply(null, arguments);
+  return real_dynCall_iiiiiiiiiiii.apply(null, arguments);
 };
 
 var real_dynCall_di = asm["dynCall_di"];
@@ -6905,11 +6905,11 @@ asm["dynCall_viii"] = function() {
   return real_dynCall_viii.apply(null, arguments);
 };
 
-var real_dynCall_iidddddddddd = asm["dynCall_iidddddddddd"];
-asm["dynCall_iidddddddddd"] = function() {
+var real_dynCall_iiddddddddddd = asm["dynCall_iiddddddddddd"];
+asm["dynCall_iiddddddddddd"] = function() {
   assert(runtimeInitialized, 'you need to wait for the runtime to be ready (e.g. wait for main() to be called)');
   assert(!runtimeExited, 'the runtime was exited (use NO_EXIT_RUNTIME to keep it alive after main() exits)');
-  return real_dynCall_iidddddddddd.apply(null, arguments);
+  return real_dynCall_iiddddddddddd.apply(null, arguments);
 };
 
 var real_dynCall_iiiiiid = asm["dynCall_iiiiiid"];
@@ -7137,10 +7137,10 @@ var dynCall_iii = Module["dynCall_iii"] = function() {
   return Module["asm"]["dynCall_iii"].apply(null, arguments)
 };
 
-var dynCall_iiiiiiiiiii = Module["dynCall_iiiiiiiiiii"] = function() {
+var dynCall_iiiiiiiiiiii = Module["dynCall_iiiiiiiiiiii"] = function() {
   assert(runtimeInitialized, 'you need to wait for the runtime to be ready (e.g. wait for main() to be called)');
   assert(!runtimeExited, 'the runtime was exited (use NO_EXIT_RUNTIME to keep it alive after main() exits)');
-  return Module["asm"]["dynCall_iiiiiiiiiii"].apply(null, arguments)
+  return Module["asm"]["dynCall_iiiiiiiiiiii"].apply(null, arguments)
 };
 
 var dynCall_di = Module["dynCall_di"] = function() {
@@ -7185,10 +7185,10 @@ var dynCall_viii = Module["dynCall_viii"] = function() {
   return Module["asm"]["dynCall_viii"].apply(null, arguments)
 };
 
-var dynCall_iidddddddddd = Module["dynCall_iidddddddddd"] = function() {
+var dynCall_iiddddddddddd = Module["dynCall_iiddddddddddd"] = function() {
   assert(runtimeInitialized, 'you need to wait for the runtime to be ready (e.g. wait for main() to be called)');
   assert(!runtimeExited, 'the runtime was exited (use NO_EXIT_RUNTIME to keep it alive after main() exits)');
-  return Module["asm"]["dynCall_iidddddddddd"].apply(null, arguments)
+  return Module["asm"]["dynCall_iiddddddddddd"].apply(null, arguments)
 };
 
 var dynCall_iiiiiid = Module["dynCall_iiiiiid"] = function() {

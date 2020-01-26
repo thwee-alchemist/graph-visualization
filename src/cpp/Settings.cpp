@@ -13,7 +13,8 @@ Settings::Settings(
   double _time_dilation,
   double _dampening,
   double _drag,
-  double _theta){
+  double _theta,
+  double _spread){
 
   attraction = _attraction;
   repulsion = _repulsion;
@@ -25,6 +26,7 @@ Settings::Settings(
   dampening = _dampening;
   drag = _drag;
   theta = _theta;
+  spread = _spread;
 };
 
 double Settings::get_attraction() const {
@@ -105,4 +107,12 @@ double Settings::get_theta() const {
 
 void Settings::set_theta(double val){
   theta = val;
+}
+
+double Settings::get_spread() const {
+  return spread;
+}
+
+void Settings::set_spread(double val){
+  spread = val;
 }

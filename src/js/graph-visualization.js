@@ -171,8 +171,121 @@ class GraphVisualization extends HTMLElement {
       }
     }
 
-
+    /*
+    this._attraction     = undefined;
+    this._repulsion      = undefined;
+    this._epsilon        = undefined;
+    this._inner_distance = undefined;
+    this._time_dilation  = undefined;
+    this._friction       = undefined;
+    this._gravity        = undefined;
+    this._dampening      = undefined;
+    this._drag           = undefined;
+    this._theta          = undefined;
+    this._spread         = undefined;
+    */
   }
+
+  /*
+  get attraction(){
+    return this._attraction;
+  }
+
+  set attraction(val){
+    this._attraction = val;
+    this.setAttribute('attraction', val);
+  }
+
+  get repulsion(){
+    return this._repulsion;
+  }
+
+  set repulsion(val){
+    this._repulsion = val;
+    this.setAttribute('repulsion', val);
+  }
+
+  get epsilon(){
+    return this._epsilon;
+  }
+
+  set epsilon(val){
+    this._epsilon = val;
+    this.setAttribute('epsilon', val);
+  }
+
+  get inner_distance(){
+    return this._inner_distance;
+  }
+
+  set inner_distance(val){
+    this._inner_distance = val;
+    this.setAttribute('inner-distance', val);
+  }
+
+  get time_dilation(){
+    return this._time_dilation;
+  }
+
+  set time_dilation(val){
+    this._time_dilation = val;
+    this.setAttribute('time-dilation', val);
+  }
+
+  get friction(){
+    return this._friction;
+  }
+
+  set friction(val){
+    this._friction = val;
+    this.setAttribute('friction', val);
+  }
+
+  get gravity(){
+    return this._gravity;
+  }
+
+  set gravity(val){
+    this._gravity = val;
+    this.setAttribute('gravity', val);
+  }
+
+  get dampening(){
+    return this._dampening;
+  }
+
+  set dampening(val){
+    this._dampening = val;
+    this.setAttribute('dampening', val);
+  }
+
+  get drag(){
+    return this._drag;
+  }
+
+  set drag(val){
+    this._drag = val;
+    this.setAttribute('drag', val); 
+  }
+
+  get theta(){
+    return this._theta;
+  }
+
+  set theta(val){
+    this._theta = val;
+    this.setAttribute('theta', val);
+  }
+
+  get spread(){
+    return this._spread;
+  }
+
+  set spread(val){
+    this._spread = val;
+    this.setAttribute('spread', val);
+  }
+  */
 
   /**
    * setSize(width, height)
@@ -297,6 +410,29 @@ class GraphVisualization extends HTMLElement {
 
   async setupCore(){
     this.layout = Remote;
+
+    for(var prop in this.layout.settings){
+      prop = prop.substring(1);
+      console.log('prop', prop);
+      this['_' + prop] = this.layout.settings[prop];
+      Object.defineProperty(this, prop, {
+        get: function(){
+          return this.layout.settings[prop];
+        },
+        set: function(val){
+          this.setAttribute(prop.replace('_', '-'), val);
+          this['_' + prop] = val;
+          this.layout.settings[prop] = val;
+        }
+      })
+
+      if(this.getAttribute(prop.replace('_', '-')) == null){
+        this[prop] = await this.layout.settings[prop]
+      }else{
+        this[prop] = parseFloat(this.getAttribute(prop.replace('_', '-')));
+      }
+    }
+
     return new Promise((resolve, reject) => {
       this.layout.started.then(() => {
         console.log('layout started');
@@ -309,7 +445,6 @@ class GraphVisualization extends HTMLElement {
           requestAnimationFrame(animateLayout);
           layout.layout().then(data => {
             var updates = data.V;
-            console.log(data.V);
             for(var update of updates){
               var elem = self.querySelector(`graph-vertex[data-layout-id="${update.id}"]`);
               elem.cube.position.set(update.x, update.y, update.z)
@@ -419,6 +554,14 @@ class GraphVisualization extends HTMLElement {
 
             if(mutation.target instanceof GraphEdge){
               self.updateEdge(mutation.target, mutation.attributeName);
+            }
+
+            if(mutation.target instanceof GraphVisualization){
+              try{
+                console.log(mutation.attributeName, this.getAttribute(mutation.attributeName))
+                self.layout.settings[mutation.attributeName.replace('-', '_')] = parseFloat(this.getAttribute(mutation.attributeName));
+              }catch(_){
+              }
             }
             break;
         }
