@@ -35,7 +35,7 @@ fetch(request).then((response) => {
 
         // self.lg = null
         self.settings = Core.default_settings();
-        self.lg = new Core.LayoutGraph(self.settings, 1);
+        self.lg = new Core.LayoutGraph(self.settings, 0);
         console.log('LayoutGraph initialized')
 
         postMessage({re: 0, result: 'started'});
@@ -46,7 +46,7 @@ fetch(request).then((response) => {
               var generateReply = (async (e) => {
                 return await new Promise((resolve, reject) => {
                   self.settings = Core.default_settings();
-                  self.lg = new Core.LayoutGraph(self.settings, 1);
+                  self.lg = new Core.LayoutGraph(self.settings, 0);
                   resolve(self.lg);
                   return self.lg;
                 });

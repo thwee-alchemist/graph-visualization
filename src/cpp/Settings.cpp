@@ -11,7 +11,9 @@ Settings::Settings(
   double _friction, 
   double _gravity,
   double _time_dilation,
-  double _dampening){
+  double _dampening,
+  double _drag,
+  double _theta){
 
   attraction = _attraction;
   repulsion = _repulsion;
@@ -21,6 +23,8 @@ Settings::Settings(
   gravity = _gravity;
   time_dilation = _time_dilation;
   dampening = _dampening;
+  drag = _drag;
+  theta = _theta;
 };
 
 double Settings::get_attraction() const {
@@ -28,7 +32,6 @@ double Settings::get_attraction() const {
 }
 
 void Settings::set_attraction(double val){
-  std::cout << "attraction" << val << std::endl;
   attraction = val;
 }
 
@@ -37,7 +40,6 @@ double Settings::get_repulsion() const {
 }
 
 void Settings::set_repulsion(double val){
-  std::cout << "repulsion" << val << std::endl;
   repulsion = val;
 }
 
@@ -87,4 +89,20 @@ double Settings::get_time_dilation() const {
 
 void Settings::set_time_dilation(double val){
   time_dilation = val;
+}
+
+double Settings::get_drag() const {
+  return drag;
+}
+
+void Settings::set_drag(double val){
+  drag = val;
+}
+
+double Settings::get_theta() const {
+  return theta;
+}
+
+void Settings::set_theta(double val){
+  theta = val;
 }

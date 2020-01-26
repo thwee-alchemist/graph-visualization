@@ -24,6 +24,8 @@ Settings* default_settings(){
   double _gravity = 1e1;
   double _time_dilation = 0.1;
   double _dampening = 0.25;
+  double _drag = 0.001;
+  double _theta = 0.25;
 
   return new Settings(
     _attraction,
@@ -33,14 +35,16 @@ Settings* default_settings(){
     _friction,
     _gravity,
     _time_dilation,
-    _dampening
+    _dampening,
+    _drag,
+    _theta
   );
 };
 
 EMSCRIPTEN_KEEPALIVE
 EMSCRIPTEN_BINDINGS(core){
   emscripten::class_<Settings>("Settings")
-    .constructor<double, double, double, double, double, double, double, double>()
+    .constructor<double, double, double, double, double, double, double, double, double, double>()
     .property("attraction", &Settings::get_attraction, &Settings::set_attraction)
     .property("repulsion", &Settings::get_repulsion, &Settings::set_repulsion)
     .property("epsilon", &Settings::get_epsilon, &Settings::set_epsilon)
@@ -48,7 +52,9 @@ EMSCRIPTEN_BINDINGS(core){
     .property("friction", &Settings::get_friction, &Settings::set_friction)
     .property("gravity", &Settings::get_gravity, &Settings::set_gravity)
     .property("time_dilation", &Settings::get_time_dilation, &Settings::set_time_dilation)
-    .property("dampening", &Settings::get_dampening, &Settings::set_dampening);
+    .property("dampening", &Settings::get_dampening, &Settings::set_dampening)
+    .property("drag", &Settings::get_drag, &Settings::set_drag)
+    .property("theta", &Settings::get_theta, &Settings::set_theta);
   emscripten::function("default_settings", &default_settings, allow_raw_pointers());
   emscripten::class_<LayoutGraph>("LayoutGraph")
     .constructor<Settings*, int>()

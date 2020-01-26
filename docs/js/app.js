@@ -10,7 +10,9 @@ var AppCtrl = App.controller('AppCtrl', ['$scope', async function($scope){
     time_dilation  : 0.1,
     friction       : 8e-1,
     gravity        : 1e-1,
-    dampening      : 1e-1
+    dampening      : 1e-1,
+    drag           : 1e-3,
+    theta          : 0.25
   };
 
   $scope.graph = document.querySelector('graph-visualization');

@@ -74,7 +74,6 @@ LayoutGraph::~LayoutGraph(){
 }
 
 unsigned int LayoutGraph::add_vertex(){
-  // std::cout << "LG-" << id << "::add_vertex " << vertex_spawn + 1 << std::endl;
   Vertex* vertex = new Vertex(++vertex_spawn, this);
   V->emplace(vertex->id, vertex);
 
@@ -86,7 +85,6 @@ unsigned int LayoutGraph::add_vertex(){
 }
 
 unsigned int LayoutGraph::add_edge(unsigned int source, unsigned int target, bool directed, double strength){
-  // std::cout << "LG-" << id << "::add_edge " << edge_spawn + 1 << std::endl;
   if(V->find(source) == V->end() || V->find(target) == V->end()){
     return 0;
   }
@@ -109,7 +107,6 @@ unsigned int LayoutGraph::add_edge(unsigned int source, unsigned int target, boo
 }
 
 bool LayoutGraph::remove_vertex(unsigned int vertex_id){
-  // std::cout << "LG-" << id << "::remove_vertex " << vertex_id << std::endl; 
   Vertex* v = (*V)[vertex_id];
   if(v == NULL){
     return false;
@@ -131,7 +128,6 @@ bool LayoutGraph::remove_vertex(unsigned int vertex_id){
 }
 
 bool LayoutGraph::remove_edge(unsigned int edge_id){
-  // std::cout << "LG-" << id << "::remove_edge " << edge_id << std::endl; 
   if(E->find(edge_id) == E->end()){
     return false;
   }
@@ -191,8 +187,6 @@ std::string LayoutGraph::layout(){
 
   two_level_dynamics();
 
-  std::cout << "back to layout" << std::endl;
-
   Vertex* v;
   for(auto id : vertices()){
     v = V->at(id);
@@ -201,7 +195,6 @@ std::string LayoutGraph::layout(){
     *v->position += *v->velocity;
   }
 
-  std::cout << toJSON(false) << std::endl;
   return toJSON(false);
 }
 
@@ -257,13 +250,8 @@ Eigen::MatrixXd LayoutGraph::beta__(){
 }
 
 void LayoutGraph::two_level_dynamics(){
-  std::cout << "two level dynamics" << id << std::endl;
-  
   auto a__ = alpha__();
-  std::cout << id << " alpha called" << std::endl;
-
   auto b__ = beta__();
-  std::cout << id << " beta called" << std::endl;
 
   Eigen::MatrixXd sum = Eigen::MatrixXd(1, 3);
   sum.setZero();
@@ -273,20 +261,24 @@ void LayoutGraph::two_level_dynamics(){
   Eigen::MatrixXd proj_accel;
   Eigen::MatrixXd d__;
   auto vs = vertices();
-  std::cout << id << " vertices called" << std::endl;
   for(auto vid : vs){
-    std::cout << id << " inner loop" << std::endl;
     v = V->at(vid);
     y = v->coarser;
 
-    sum += b__;
-    sum += (a__ * (*y->position));
-    sum += (2 * alpha_ * (*y->velocity));
-    sum += (alpha * (*y->acceleration));
-    proj_accel = sum;
+    if(y != NULL){
+      sum += b__;
+      sum += (a__ * (*y->position));
+      sum += (2 * alpha_ * settings->theta * (*y->velocity));
+      sum += (alpha * (*y->acceleration) * (settings->theta)*(settings->theta));
+      proj_accel = sum;
 
-    d__ = *y->acceleration - proj_accel;
-    *v->acceleration = d__ + proj_accel;
+      d__ = *y->acceleration - proj_accel;
+      *v->acceleration = d__ + proj_accel;
+    }else{
+      v->acceleration->setZero();
+    }
+
+    *v->acceleration -= *v->velocity * settings->drag;
   }
 }
 
@@ -294,7 +286,6 @@ void LayoutGraph::two_level_dynamics(){
  * Applicable if this is the coarsest graph
  */
 void LayoutGraph::single_level_dynamics(){
-  std::cout << "single level layout" << id << std::endl;
   auto vs = vertices();
 
   BarnesHutNode3* tree = new BarnesHutNode3(*settings);
