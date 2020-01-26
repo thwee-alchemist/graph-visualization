@@ -41,21 +41,15 @@ LayoutGraph::LayoutGraph(Settings* _settings, int levels){
 
   alpha = Eigen::MatrixXd(3, 3);
   alpha.setZero();
-  alpha_ = Eigen::MatrixXd(3, 3);
-  alpha.setZero();
-}
 
-/*
-  This raises a question of taxonomy: What all belongs to it?
-*/
-LayoutGraph::LayoutGraph(const LayoutGraph& other){
-   
-   vertex_spawn = other.vertex_spawn;
-   edge_spawn = other.edge_spawn;
-   V = other.V;
-   E = other.E;
-   settings = other.settings;
-   dm = other.dm; 
+  alpha_ = Eigen::MatrixXd(3, 3);
+  alpha_.setZero();
+
+  beta = Eigen::MatrixXd(1, 3);
+  beta.setZero();
+
+  beta_ = Eigen::MatrixXd(1, 3);
+  beta_.setZero();
 }
 
 LayoutGraph::~LayoutGraph(){
@@ -197,6 +191,8 @@ std::string LayoutGraph::layout(){
 
   two_level_dynamics();
 
+  std::cout << "back to layout" << std::endl;
+
   Vertex* v;
   for(auto id : vertices()){
     v = V->at(id);
@@ -205,23 +201,30 @@ std::string LayoutGraph::layout(){
     *v->position += *v->velocity;
   }
 
+  std::cout << toJSON(false) << std::endl;
   return toJSON(false);
 }
 
 Eigen::MatrixXd LayoutGraph::alpha__(){
+  
   Eigen::MatrixXd sum = Eigen::MatrixXd(3, 3); // Thanks Natalie!
   sum.setZero();
   
-  Vertex* v;
-  Eigen::MatrixXd y;
-  for(auto id : vertices()){
-    v = (*V)[id];
-    y = *v->coarser->position;
-    sum += (*v->velocity * y.transpose()) + (y * v->velocity->transpose());
+  if(V->size() == 0){
+    return sum;
   }
 
-  Eigen::MatrixXd a__ = Eigen::MatrixXd(3, 3);
-  a__ = sum / (V->size() + 0.00001);
+  Vertex* v;
+  Vertex* y;
+  for(auto id : vertices()){
+    v = V->at(id);
+    y = v->coarser;
+    if(y != NULL){
+      sum += (*v->velocity * y->position->transpose()) + (*y->position * v->velocity->transpose());
+    }
+  }
+
+  Eigen::MatrixXd a__ = sum / (V->size());
 
   alpha_ += a__;
   alpha += alpha_;
@@ -230,16 +233,23 @@ Eigen::MatrixXd LayoutGraph::alpha__(){
 }
 
 Eigen::MatrixXd LayoutGraph::beta__(){
+
   Eigen::MatrixXd sum = Eigen::MatrixXd(1, 3); // Thanks, Natalie!
   sum.setZero();
 
+  if(V->size() == 0){
+    return sum;
+  }
+
+  auto vs = vertices();
+
   Vertex* v;
-  for(auto id : vertices()){
+  for(auto id : vs){
     v = V->at(id);
     sum += *v->velocity;
   }
 
-  Eigen::MatrixXd b__ = sum / (V->size() + 0.00001);
+  Eigen::MatrixXd b__ = sum / (V->size());
   beta_ += b__;
   beta += beta_;
 
@@ -247,35 +257,35 @@ Eigen::MatrixXd LayoutGraph::beta__(){
 }
 
 void LayoutGraph::two_level_dynamics(){
-
   std::cout << "two level dynamics" << id << std::endl;
-
-  auto vs = vertices();
   
   auto a__ = alpha__();
-  std::cout << "alpha called" << std::endl;
+  std::cout << id << " alpha called" << std::endl;
 
   auto b__ = beta__();
-  std::cout << "beta called" << std::endl;
+  std::cout << id << " beta called" << std::endl;
 
   Eigen::MatrixXd sum = Eigen::MatrixXd(1, 3);
   sum.setZero();
 
   Vertex* v;
   Vertex* y;
-  for(unsigned int vid : vs){
+  Eigen::MatrixXd proj_accel;
+  Eigen::MatrixXd d__;
+  auto vs = vertices();
+  std::cout << id << " vertices called" << std::endl;
+  for(auto vid : vs){
+    std::cout << id << " inner loop" << std::endl;
     v = V->at(vid);
     y = v->coarser;
 
     sum += b__;
     sum += (a__ * (*y->position));
     sum += (2 * alpha_ * (*y->velocity));
-    sum += (alpha * (*v->coarser->acceleration));
+    sum += (alpha * (*y->acceleration));
+    proj_accel = sum;
 
-    Eigen::MatrixXd proj_accel = sum;
-
-    Eigen::MatrixXd d__ = *v->acceleration;
-
+    d__ = *y->acceleration - proj_accel;
     *v->acceleration = d__ + proj_accel;
   }
 }
@@ -398,11 +408,14 @@ std::vector<unsigned int> LayoutGraph::incident_edges(Vertex* vertex){
     return n;
   }
 
-  for(auto it : *E){
-    if(it.second != NULL && (
-      ((it.second->source != NULL) && (it.second->source->id == vertex->id)
-      || (it.second->target != NULL) && (it.second->target->id == vertex->id)))){
-      n.push_back(it.first);
+  auto es = edges();
+  Edge* e;
+  for(auto it : es){
+    e = E->at(it);
+    if(e != NULL && (
+      ((e->source != NULL) && (e->source->id == vertex->id)
+      || (e->target != NULL) && (e->target->id == vertex->id)))){
+      n.push_back(it);
     }
   }
   

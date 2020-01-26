@@ -34,7 +34,7 @@ namespace sc {
   class LayoutGraph {
     public: 
       LayoutGraph(Settings*, int);
-      LayoutGraph(const LayoutGraph& other);
+      /*LayoutGraph(const LayoutGraph& other);*/
       ~LayoutGraph();
 
       int id; // debug
