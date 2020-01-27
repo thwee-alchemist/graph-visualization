@@ -311,7 +311,7 @@ void LayoutGraph::single_level_dynamics(){
     *vi->acceleration = tree->estimate(vi, Vertex::pairwise_repulsion);
   }
 
-  double dampening = settings->dampening;
+  double friction = settings->friction;
   double attraction = settings->attraction;
 
   auto es = edges();
@@ -321,16 +321,16 @@ void LayoutGraph::single_level_dynamics(){
     Eigen::MatrixXd xi = *e->source->position;
     Eigen::MatrixXd xj = *e->target->position;
 
-    auto force = ((xi - xj) * -attraction) * dampening;
+    auto force = ((xi - xj) * -attraction);
 
-    *e->source->acceleration += force;
-    *e->target->acceleration -= force;
+    *e->source->acceleration -= force;
+    *e->target->acceleration += force;
   }
 
   for(auto id : vs){
     Vertex* v = V->at(id);
 
-    *v->acceleration -= (*v->velocity * dampening);
+    *v->acceleration -= (*v->velocity * friction);
 
     *v->velocity += *v->acceleration;
     *v->position += *v->velocity;
@@ -349,23 +349,9 @@ std::string LayoutGraph::get_center(){
 std::string LayoutGraph::toJSON(bool recursive){
   std::stringstream stream;
   unsigned int i = 0;
-
-  /*
-  stream << "{";
-  stream << "\"settings\":{";
-  stream << "\"attraction\":" << settings->attraction;
-  stream << ",\"repulsion\":" << settings->repulsion;
-  stream << ",\"inner_distance\":" << settings->inner_distance;
-  stream << ",\"time_dilation\":" << settings->time_dilation;
-  stream << ",\"friction\":" << settings->friction;
-  stream << ",\"gravity\":" << settings->gravity;
-  stream << "}";
-  stream << ",\"V\":[";
-  */
-
   stream << "{\"V\": [";
   
-  std::vector<unsigned int> vs = vertices();
+  auto vs = vertices();
   for(auto it : vs){
     stream << V->at(it)->toJSON();
     if(i++ < ((vs.size())-1)){
@@ -374,23 +360,6 @@ std::string LayoutGraph::toJSON(bool recursive){
   }
 
   stream << "]}";
-
-  /*
-  stream<< "],";
-  stream << "\"E\":[";
-  i = 0;
-  auto es = edges();
-  for(auto it : es){
-    stream << E->at(it)->toJSON();
-    if(i++ < ((es.size())-1)){
-      stream << ",";
-    }
-  }
-  stream << "],\"DM\":";
-  stream << (dm != NULL ? dm->toJSON() : "null");
-
-  stream << "}";
-  */
 
   return stream.str();
 }

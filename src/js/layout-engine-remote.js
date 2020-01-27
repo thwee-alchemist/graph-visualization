@@ -111,13 +111,13 @@ class Settings {
       Object.defineProperty(this, prop.substring(1), {
         get: () => {
           return new Promise(async (resolve, reject) => {
-            this[prop] = (await setting(false, prop.substring(1))).result;
-            return this[prop];
+            this[prop] = await setting(false, prop.substring(1));
+            resolve(this[prop]);
           })
         },
         set: (value) => {
           return new Promise(async (resolve, reject) => {
-            this[prop] = await setting(true, prop.substring(1), value)
+            this[prop] = await setting(true, prop.substring(1), value);
             resolve(this[prop]);
           })
         }

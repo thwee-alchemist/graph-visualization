@@ -83,7 +83,7 @@ Eigen::MatrixXd BarnesHutNode3::estimate(Vertex* vertex, Eigen::MatrixXd (*force
   Eigen::MatrixXd force = Eigen::MatrixXd(1, 3);
   force.setZero();
 
-  if(inners->size() == 0){
+  if(inners->find(vertex->id) != inners->end()){
     for(auto inner : *inners){
       if(inner.first != vertex->id){
         force += force_fn(vertex->position, inner.second->position, *settings);
@@ -91,11 +91,12 @@ Eigen::MatrixXd BarnesHutNode3::estimate(Vertex* vertex, Eigen::MatrixXd (*force
     }
   }else{
     auto c = center();
-    force += force_fn(vertex->position, &c, *settings);
+    force += force_fn(vertex->position, &c, *settings) * (double)inners->size();
   }
 
   for(auto outer : *outers){
-    force += outer.second->estimate(vertex, force_fn);
+    auto c = outer.second->center();
+    force += force_fn(vertex->position, &c, *settings) * (double)outer.second->count;
   }
 
   return force;
