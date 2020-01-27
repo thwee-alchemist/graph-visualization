@@ -2,6 +2,9 @@ var App = angular.module('App', []);
 
 var AppCtrl = App.controller('AppCtrl', ['$scope', async function($scope){
   $scope.output = "Nothing yet";
+  
+  $scope.graph = document.querySelector('graph-visualization');
+  /*
   $scope.settings = {
     attraction     : 4e-1,
     repulsion      : 1e-2,
@@ -15,12 +18,6 @@ var AppCtrl = App.controller('AppCtrl', ['$scope', async function($scope){
     theta          : 0.25,
     spread         : 1e4
   };
+  */
 
-  $scope.graph = document.querySelector('graph-visualization');
-  
-  $scope.update_setting = function(prop, elem){
-    console.log(prop, elem)
-    console.log('changed', prop, $scope.settings[prop])
-    $scope.graph.layout.settings[prop] = $scope.settings[prop];
-  }
 }]);

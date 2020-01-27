@@ -105,23 +105,27 @@ class Settings {
     this._theta          = obj ? obj.theta          : 0.15;
     this._spread         = obj ? obj.spread         : 1e3;
 
-    for(var prop in this){
+    console.log('own', Object.getOwnPropertyNames(this))
+    var owns = Object.getOwnPropertyNames(this).filter(prop => prop[0] == '_');
+
+    owns.forEach((prop) => {
+      console.log('LER setting up prop', prop)
       Object.defineProperty(this, prop.substring(1), {
-        get: function(){
+        get: () => {
           return new Promise(async (resolve, reject) => {
             this[prop] = (await setting(false, prop.substring(1))).result;
             return this[prop];
           })
         },
-        set: function(value){
+        set: (value) => {
           return new Promise(async (resolve, reject) => {
-            console.log('Settings set', prop, value)
+            console.log(2, 'Settings set', prop, value)
             this[prop] = await setting(true, prop.substring(1), value)
             resolve(this[prop]);
           })
         }
-      })
-    }
+      });
+    });
   }
 /*
   get attraction(){

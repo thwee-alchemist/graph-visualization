@@ -412,26 +412,49 @@ class GraphVisualization extends HTMLElement {
     this.layout = Remote;
 
     for(var prop in this.layout.settings){
-      prop = prop.substring(1);
-      console.log('prop', prop);
-      this['_' + prop] = this.layout.settings[prop];
-      Object.defineProperty(this, prop, {
-        get: function(){
-          return this.layout.settings[prop];
-        },
-        set: function(val){
-          this.setAttribute(prop.replace('_', '-'), val);
-          this['_' + prop] = val;
-          this.layout.settings[prop] = val;
-        }
-      })
+      ((prop) => {
+        var readSetting = prop;
+        var propertyName = prop.substring(1);
+        var attributeName = propertyName.replace('_', '-');
+        var valueName = prop;
 
-      if(this.getAttribute(prop.replace('_', '-')) == null){
-        this[prop] = await this.layout.settings[prop]
-      }else{
-        this[prop] = parseFloat(this.getAttribute(prop.replace('_', '-')));
-      }
+  /*
+        console.log('setting up', {
+          'readSetting': prop,
+          'propertyName': propertyName,
+          'attributeName': attributeName,
+          'valueName': valueName
+        })*/
+
+        // this._prop
+        this[prop] = undefined;
+
+        // this.prop
+        Object.defineProperty(this, propertyName, {
+          get: function(){
+            return this[valueName];
+          },
+          set:  function(value){
+            console.log(1);
+            this[valueName] = value;
+            this.setAttribute(attributeName, value)
+            this.layout.settings[propertyName] = value;
+          }
+        })
+
+        this[propertyName] = this.hasAttribute(attributeName) ? parseFloat(this.getAttribute(attributeName)) : this.layout.settings[readSetting];
+
+        if(this.hasAttribute(attributeName)){
+          console.log(0, 'has ', attributeName)
+          this[propertyName] = parseFloat(this.getAttribute(attributeName));
+          this.layout.settings[propertyName] = this[propertyName];
+        }else{
+          this.propertyName = this.layout.settings[readSetting];
+        }
+      })(prop)
     }
+
+    console.log(this.layout.settings);
 
     return new Promise((resolve, reject) => {
       this.layout.started.then(() => {
