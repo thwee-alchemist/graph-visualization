@@ -6,6 +6,8 @@
     <link rel="stylesheet" href="css/bootstrap.min.css">
     <link rel="stylesheet" href="test.css">
     <script src="js/jquery-3.4.1.min.js"></script>
+    <script src="js/jquery-ui.min.js"></script>
+    <script src="js/jquery.ui.touch-punch.min.js"></script>
     <script src="js/bootstrap.min.js"></script>
     <script src="js/three.min.js"></script>
     <script src="graph-visualization.bundle.js"></script>
@@ -134,6 +136,8 @@
           <button onclick="remove_edge()">remove edge</button>
           <button onclick="resize()">resize</button>
           <button onclick="changePicture()">Change Picture of Selected Vertex</button>
+          <button ng-click="addVertices()">++</button>
+          <button ng-click="addEdges()">--</button>
         </div>
       </div>
 
@@ -147,7 +151,8 @@
         friction="0.1"
         dampening="0.1"
         theta="0.15">
-        
+
+        <!--
         <graph-vertex id="one" size="5" face="blue" ondblclick="centerAround(this)" onclick="select(this)" ></graph-vertex>
         <graph-vertex id="two" size="5" face="green" ondblclick="centerAround(this)" onclick="select(this)" ></graph-vertex>
         <graph-vertex id="three" size="5" face="red" ondblclick="centerAround(this)" onclick="select(this)" ></graph-vertex>
@@ -159,6 +164,7 @@
         <graph-edge source="#two" target="#three"></graph-edge>
         <graph-edge source="#two" target="#four"></graph-edge>
         <graph-edge source="#three" target="#four"></graph-edge>
+    -->
       </graph-visualization>
 
       <hr>
