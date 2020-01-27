@@ -32,7 +32,9 @@
     "url": "https://github.com/thwee-alchemist/graph-visualization/issues"
   },
   "homepage": "https://github.com/thwee-alchemist/graph-visualization#readme",
-  "dependencies": {},
+  "dependencies": {
+    "roughjs": "^4.0.4"
+  },
   "devDependencies": {
     "copy-webpack-plugin": "^5.0.5",
     "exports-loader": "^0.7.0",

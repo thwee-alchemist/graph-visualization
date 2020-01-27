@@ -370,7 +370,10 @@ void LayoutGraph::single_level_dynamics(){
     auto force = ((xi - xj) * -attraction);
 
     *e->source->acceleration -= force;
+    *e->source->acceleration -= (settings->dampening * (*e->source->velocity));
+
     *e->target->acceleration += force;
+    *e->target->acceleration -= (settings->dampening * (*e->target->velocity));
   }
 
   for(auto id : vs){

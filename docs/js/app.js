@@ -13,11 +13,23 @@ var AppCtrl = App.controller('AppCtrl', ['$scope', async function($scope){
     return arr;
   }
 
+  var canvas = document.createElement('canvas');
+  canvas.width = 100;
+  canvas.height = 100;
+  var rc = rough.canvas(canvas);
+
   $scope.i = 0;
   $scope.addVertex = function add_vertex(){
+    rc.rectangle(0, 0, 100, 100, {
+      fill: randomColor(),
+      hachureAngle: 60, // angle of hachure,
+      hachureGap: 4
+    });
+
+
     var vertex = document.createElement('graph-vertex');
     vertex.id = `id-${$scope.i++}`;
-    vertex.face = randomColor();
+    vertex.face = rc.canvas.toDataURL();
     vertex.size = 5;
 
     $scope.graph.appendChild(vertex)

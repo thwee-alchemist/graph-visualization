@@ -35,7 +35,7 @@ fetch(request).then((response) => {
 
         // self.lg = null
         self.settings = Core.default_settings();
-        self.lg = new Core.LayoutGraph(self.settings, 3);
+        self.lg = new Core.LayoutGraph(self.settings, 1);
         console.log('LayoutGraph initialized')
 
         postMessage({re: 0, result: 'started'});

@@ -51565,8 +51565,6 @@ class GraphEdge extends HTMLElement {
 
     this.color = this.getAttribute('color');
     this.strength = this.getAttribute('strength');
-
-    console.log('edge connected');
   }
 
   adoptedCallback(){
