@@ -193,9 +193,7 @@ std::string LayoutGraph::layout(){
 
     *v->velocity += *v->acceleration;
     *v->position += *v->velocity;
-    std::cout << "before" << *v->position << std::endl;
-    *v->position * settings->spread;
-    std::cout << "after" << *v->position << std::endl;
+    *v->position *= settings->spread;
   }
 
   return toJSON(false);
@@ -263,6 +261,7 @@ void LayoutGraph::two_level_dynamics(){
   Vertex* y;
   Eigen::MatrixXd proj_accel;
   Eigen::MatrixXd d__;
+
   auto vs = vertices();
   for(auto vid : vs){
     v = V->at(vid);
@@ -303,9 +302,6 @@ void LayoutGraph::single_level_dynamics(){
   Eigen::MatrixXd repulsion_forces = Eigen::MatrixXd(1, 3);
   repulsion_forces.setZero();
 
-  Eigen::MatrixXd motion = Eigen::MatrixXd(1, 3);
-  motion.setZero();
-
   for(auto idi : vs){
 
     Vertex* vi = V->at(idi);
@@ -315,6 +311,9 @@ void LayoutGraph::single_level_dynamics(){
     *vi->acceleration = tree->estimate(vi, Vertex::pairwise_repulsion);
   }
 
+  double dampening = settings->dampening;
+  double attraction = settings->attraction;
+
   auto es = edges();
   for(auto id : es){
     auto e = E->at(id);
@@ -322,7 +321,7 @@ void LayoutGraph::single_level_dynamics(){
     Eigen::MatrixXd xi = *e->source->position;
     Eigen::MatrixXd xj = *e->target->position;
 
-    auto force = ((xi - xj) * -settings->attraction) * settings->dampening;
+    auto force = ((xi - xj) * -attraction) * dampening;
 
     *e->source->acceleration += force;
     *e->target->acceleration -= force;
@@ -331,7 +330,7 @@ void LayoutGraph::single_level_dynamics(){
   for(auto id : vs){
     Vertex* v = V->at(id);
 
-    *v->acceleration -= (*v->velocity * settings->dampening);
+    *v->acceleration -= (*v->velocity * dampening);
 
     *v->velocity += *v->acceleration;
     *v->position += *v->velocity;

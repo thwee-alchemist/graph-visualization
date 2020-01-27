@@ -435,7 +435,6 @@ class GraphVisualization extends HTMLElement {
             return this[valueName];
           },
           set:  function(value){
-            console.log(1);
             this[valueName] = value;
             this.setAttribute(attributeName, value)
             this.layout.settings[propertyName] = value;
@@ -445,7 +444,6 @@ class GraphVisualization extends HTMLElement {
         this[propertyName] = this.hasAttribute(attributeName) ? parseFloat(this.getAttribute(attributeName)) : this.layout.settings[readSetting];
 
         if(this.hasAttribute(attributeName)){
-          console.log(0, 'has ', attributeName)
           this[propertyName] = parseFloat(this.getAttribute(attributeName));
           this.layout.settings[propertyName] = this[propertyName];
         }else{

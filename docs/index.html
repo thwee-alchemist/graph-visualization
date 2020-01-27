@@ -53,7 +53,7 @@
       }
 
       function changePicture(){
-        selected.face = `img/${Math.round(Math.random() * 5)}.png`;
+        selected.face = `img/${Math.floor((Math.random() * 5)+1)}.png`;
       } 
 
       function add_vertex(){
@@ -139,8 +139,9 @@
       <graph-visualization 
         width="100%"
         height="500px"
-        attraction="1e4"
-        repulsion="1e4">
+        attraction="1000.0"
+        repulsion="1000.0"
+        spread="100">
 
         <graph-vertex id="one" size="10" face="blue" ondblclick="centerAround(this)" onclick="select(this)" ></graph-vertex>
         <graph-vertex id="two" size="10" face="green" ondblclick="centerAround(this)" onclick="select(this)" ></graph-vertex>

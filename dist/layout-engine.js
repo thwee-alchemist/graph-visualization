@@ -43,6 +43,7 @@ fetch(request).then((response) => {
         self.onmessage = async (e) => {
           switch(e.data._type){
             case 'start':
+              /*
               var generateReply = (async (e) => {
                 return await new Promise((resolve, reject) => {
                   self.settings = Core.default_settings();
@@ -53,6 +54,7 @@ fetch(request).then((response) => {
               }).bind(self, e);
 
               self.postMessage.call(self, {re: e.data.msgId, 'result': (await generateReply())});
+              */
               break;
 
             case 'setting':
@@ -61,32 +63,7 @@ fetch(request).then((response) => {
                 
                 if(e.data.set){
                   switch(e.data.setting){
-                    /*
-                    case 'dampening':
-                      result = self.settings.dampening = e.data.value;
-                      break;
-                    case 'attraction':
-                      result = self.settings.attraction = e.data.value;
-                      break;
-                    case 'repulsion':
-                      result = self.settings.repulsion = e.data.value;
-                      break;
-                    case 'epsilon':
-                      result = self.settings.epsilon = e.data.value;
-                      break;
-                    case 'inner_distance':
-                      result = self.settings.inner_distance = e.data.value;
-                      break;
-                    case 'friction':
-                      result = self.settings.friction = e.data.value;
-                      break;
-                    case 'gravity':
-                      result = self.settings.gravity = e.data.value;
-                      break;
-                    case 'time_dilation':
-                      result = self.settings.time_dilation = e.data.value;
-                      break;
-                      */
+
                     default: 
                       result = self.settings[e.data.setting] = parseFloat(e.data.value);
                       break;
@@ -95,32 +72,6 @@ fetch(request).then((response) => {
                 
                 if(e.data.get){
                   switch(e.data.setting){
-                    /*
-                    case 'dampening':
-                      result = self.settings.dampening;
-                      break;
-                    case 'attraction':
-                      result = self.settings.attraction;
-                      break;
-                    case 'repulsion':
-                      result = self.settings.repulsion;
-                      break;
-                    case 'epsilon':
-                      result = self.settings.epsilon;
-                      break;
-                    case 'inner_distance':
-                      result = self.settings.inner_distance;
-                      break;
-                    case 'friction':
-                      result = self.settings.friction;
-                      break;
-                    case 'gravity':
-                      result = self.settings.gravity;
-                      break;
-                    case 'time_dilation':
-                      result = self.settings.time_dilation;
-                      break;
-                      */
                     default: 
                       result = self.settings[e.data.setting];
                       break;

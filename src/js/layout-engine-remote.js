@@ -103,13 +103,11 @@ class Settings {
     this._dampening      = obj ? obj.dampening      : 1e-1;
     this._drag           = obj ? obj.drag           : 1e-1 ;
     this._theta          = obj ? obj.theta          : 0.15;
-    this._spread         = obj ? obj.spread         : 1e3;
+    this._spread         = obj ? obj.spread         : 1.0;
 
-    console.log('own', Object.getOwnPropertyNames(this))
     var owns = Object.getOwnPropertyNames(this).filter(prop => prop[0] == '_');
 
     owns.forEach((prop) => {
-      console.log('LER setting up prop', prop)
       Object.defineProperty(this, prop.substring(1), {
         get: () => {
           return new Promise(async (resolve, reject) => {
@@ -119,7 +117,6 @@ class Settings {
         },
         set: (value) => {
           return new Promise(async (resolve, reject) => {
-            console.log(2, 'Settings set', prop, value)
             this[prop] = await setting(true, prop.substring(1), value)
             resolve(this[prop]);
           })
