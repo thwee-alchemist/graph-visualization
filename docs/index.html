@@ -35,6 +35,21 @@
         };
       })();
 
+      function getRandomColor() {
+        var letters = '0123456789ABCDEF';
+        var color = '#';
+        for (var i = 0; i < 6; i++) {
+          color += letters[Math.floor(Math.random() * 16)];
+        }
+        return color;
+      }
+
+      var convertColor = (strColor) => {
+        const s = new Option().style;
+        s.color = strColor;
+        return s.color.toString();
+      }
+
       var names = ['first', 'second', 'third'];
       var namesI = 0;
 

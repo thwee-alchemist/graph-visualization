@@ -18,12 +18,16 @@ var AppCtrl = App.controller('AppCtrl', ['$scope', async function($scope){
   canvas.height = 100;
   var rc = rough.canvas(canvas);
 
+  var context = canvas.getContext('2d')
+
   $scope.i = 0;
   $scope.addVertex = function add_vertex(){
+    context.clearRect(0, 0, canvas.width, canvas.height);
+
     rc.rectangle(0, 0, 100, 100, {
-      fill: randomColor(),
+      fill: getRandomColor(),
       hachureAngle: 60, // angle of hachure,
-      hachureGap: 4
+      hachureGap: 8
     });
 
 
@@ -62,12 +66,14 @@ var AppCtrl = App.controller('AppCtrl', ['$scope', async function($scope){
     var source = `#id-${Math.round(Math.random() * l)}`;
     var target = `#id-${Math.round(Math.random() * l)}`;
 
-    var edge = document.createElement('graph-edge');
-    edge.color = 'black';
-    edge.source = source;
-    edge.target = target;
+    if($scope.graph.querySelector(source) && $scope.graph.querySelector(target)){   
+      var edge = document.createElement('graph-edge');
+      edge.color = 'black';
+      edge.source = source;
+      edge.target = target;
 
-    $scope.graph.appendChild(edge);
+      $scope.graph.appendChild(edge);
+    }
   }
 
   $scope.addEdges = function(){
