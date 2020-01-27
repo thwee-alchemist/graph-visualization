@@ -202,7 +202,7 @@ Eigen::MatrixXd LayoutGraph::alpha__(){
   Eigen::MatrixXd sum = Eigen::MatrixXd(3, 3); // Thanks Natalie!
   sum.setZero();
   
-  if(V->size() == 0){
+  if((V->size() == 0) || (dm->coarser->V->size() == 0)){
     return sum;
   }
 
@@ -213,10 +213,20 @@ Eigen::MatrixXd LayoutGraph::alpha__(){
     v = V->at(id);
     y = dm->get_corresponding_vertex(v);
 
-    sum += (*v->velocity * y->position->transpose()) + (*y->position * v->velocity->transpose());
+    if(y == NULL){
+      continue;
+    }
+    sum += (*v->displacement * y->position->transpose()) + (*y->position * v->displacement->transpose());
   }
 
-  Eigen::MatrixXd a__ = sum / (dm->coarser->V->size() + settings->epsilon);
+  Eigen::MatrixXd a__;
+  if(dm->coarser->V->size() != 0){
+    a__ = sum / (dm->coarser->V->size());
+  }else{
+    a__.setZero();
+  }
+
+  a__ -= settings->dampening * alpha_;
 
   alpha_ += a__;
   alpha += alpha_;
@@ -229,7 +239,7 @@ Eigen::MatrixXd LayoutGraph::beta__(){
   Eigen::MatrixXd sum = Eigen::MatrixXd(1, 3); // Thanks, Natalie!
   sum.setZero();
 
-  if(V->size() == 0){
+  if((V->size() == 0) || (dm->coarser->V->size() == 0)){
     return sum;
   }
 
@@ -238,10 +248,13 @@ Eigen::MatrixXd LayoutGraph::beta__(){
   Vertex* v;
   for(auto id : vs){
     v = V->at(id);
-    sum += *v->velocity;
+    sum += *v->displacement;
   }
 
-  Eigen::MatrixXd b__ = sum / ((double)V->size() + settings->epsilon);
+  Eigen::MatrixXd b__ = sum / ((double)dm->coarser->V->size());
+
+  b__ -= settings->dampening * beta_;
+
   beta_ += b__;
   beta += beta_;
 
@@ -251,9 +264,6 @@ Eigen::MatrixXd LayoutGraph::beta__(){
 void LayoutGraph::two_level_dynamics(){
   auto a__ = alpha__();
   auto b__ = beta__();
-
-  std::cout << "alpha__: \n" << a__ << std::endl;
-  std::cout << "beta__ : \n" << b__ << std::endl;
 
   Vertex* v;
   Vertex* y;
@@ -270,25 +280,14 @@ void LayoutGraph::two_level_dynamics(){
     
     v = V->at(vid);
     y = dm->get_corresponding_vertex(v);
-
-    if(y != NULL){
-      sum += b__;
-      sum += (a__ * (*y->position));
-      sum += (2 * alpha_ * settings->theta * (*y->velocity));
-      sum += ((alpha * (*y->acceleration) * (settings->theta)*(settings->theta)));
-      *v->proj_accel = sum;
-
-      d__ = *y->acceleration - proj_accel;
-      // *v->acceleration = d__ + proj_accel;
+    if(y == NULL){
+      continue;
     }
-    
-    /*
-    else{
-      v->acceleration->setZero();
-    }
-    */
-
-    // *v->acceleration -= (*v->velocity * settings->drag);
+    sum += b__;
+    sum += (a__ * (*y->position));
+    sum += (2 * alpha_ * settings->theta * (*y->velocity));
+    sum += ((alpha * (*y->acceleration) * (settings->theta)*(settings->theta)));
+    *v->proj_accel = sum;
   }
 
   single_level_dynamics();
@@ -296,7 +295,7 @@ void LayoutGraph::two_level_dynamics(){
   for(auto id : vs){
     Vertex* v = V->at(id);
     *v->displacement__ = *v->acceleration - *v->proj_accel;
-    *v->displacement += *v->displacement__;
+    *v->displacement_ += *v->displacement__;
     *v->displacement += *v->displacement_;
 
     *v->acceleration = *v->displacement__ + *v->proj_accel;

@@ -62,16 +62,17 @@
         var vertex = document.createElement('graph-vertex');
         vertex.id = prompt('ID: ', namesI < names.length ? names[namesI++] : 'someid')
         vertex.face = randomColor();
+        vertex.size = 5;
 
         graph.appendChild(vertex)
 
-        vertex.addEventListener('click', function(e){
+        vertex.onclick = function(e){
           select(e.target);
-        })
+        }
 
-        vertex.addEventListener('dblclick', function(e){
+        vertex.ondblclick = function(e){
           centerAround(e.target);
-        })  
+        }
       }
 
       function remove_vertex(){
@@ -139,16 +140,15 @@
       <graph-visualization 
         width="100%"
         height="500px"
-        epsilon="0.0000001"
-        attraction="0.0001"
-        repulsion="0.0001"
+        epsilon="0.001"
+        attraction="1.0"
+        repulsion="1.0"
         spread="10.0"
         inner-distance="100"
         friction="0.9"
         dampening="0.75"
         theta="0.75">
-
-        <!--
+    <!--
         <graph-vertex id="one" size="5" face="blue" ondblclick="centerAround(this)" onclick="select(this)" ></graph-vertex>
         <graph-vertex id="two" size="5" face="green" ondblclick="centerAround(this)" onclick="select(this)" ></graph-vertex>
         <graph-vertex id="three" size="5" face="red" ondblclick="centerAround(this)" onclick="select(this)" ></graph-vertex>
@@ -160,7 +160,7 @@
         <graph-edge source="#two" target="#three"></graph-edge>
         <graph-edge source="#two" target="#four"></graph-edge>
         <graph-edge source="#three" target="#four"></graph-edge>
-        -->
+    -->
       </graph-visualization>
 
       <hr>

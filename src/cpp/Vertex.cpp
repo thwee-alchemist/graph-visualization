@@ -42,6 +42,7 @@ Vertex::Vertex(unsigned int _id, LayoutGraph* _graph) {
   displacement__->setZero();
 
   proj_accel = new Eigen::MatrixXd(1, 3);
+  proj_accel->setZero();
 }
 
 Vertex::~Vertex(){

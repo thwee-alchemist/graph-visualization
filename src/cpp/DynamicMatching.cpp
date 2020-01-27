@@ -56,7 +56,7 @@ Vertex* DynamicMatching::get_corresponding_vertex(Vertex* v){
   if(it == V->end()){
     return NULL;
   }else{
-    return (*coarser->V)[it->second];
+    return coarser->V->at(it->second);
   }
 }
 
@@ -65,7 +65,7 @@ Edge* DynamicMatching::get_corresponding_edge(Edge* e){
   if(it == E->end()){
     return NULL;
   }else{
-    return (*coarser->E)[it->second];
+    return coarser->E->at(it->second);
   }
 }
 
@@ -73,7 +73,7 @@ void DynamicMatching::add_vertex(Vertex* vertex){
   // std::cout << "DM-" << graph->id << "::add_vertex " << vertex->id << std::endl;
   // auto id = coarser->add_vertex();
   // V->emplace(vertex->id, id);
-  process_queue();
+  // process_queue();
 }
 
 void DynamicMatching::add_edge(Edge* e){
