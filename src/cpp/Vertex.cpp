@@ -34,6 +34,14 @@ Vertex::Vertex(unsigned int _id, LayoutGraph* _graph) {
 
   displacement = new Eigen::MatrixXd(1, 3);
   displacement->setZero();
+
+  displacement_ = new Eigen::Matrix(1, 3);
+  displacement_->setZero();
+
+  displacement__ = new Eigen::MatrixXd(1, 3);
+  displacement__->setZero();
+
+  proj_accel = new Eigen::MatrixXd(1, 3);
 }
 
 Vertex::~Vertex(){
@@ -45,6 +53,9 @@ Vertex::~Vertex(){
   delete repulsion_forces;
   delete attraction_forces;
   delete displacement;
+  delete displacement_;
+  delete displacement__;
+  delete proj_accel;
 }
 
 double Vertex::x(){

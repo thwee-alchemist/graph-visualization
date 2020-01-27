@@ -139,12 +139,16 @@
       <graph-visualization 
         width="100%"
         height="500px"
-        attraction="10.0"
-        repulsion="10.0"
-        spread="100"
+        epsilon="0.0000001"
+        attraction="0.0001"
+        repulsion="0.0001"
+        spread="10.0"
         inner-distance="100"
-        friction="0.99">
+        friction="0.9"
+        dampening="0.75"
+        theta="0.75">
 
+        <!--
         <graph-vertex id="one" size="5" face="blue" ondblclick="centerAround(this)" onclick="select(this)" ></graph-vertex>
         <graph-vertex id="two" size="5" face="green" ondblclick="centerAround(this)" onclick="select(this)" ></graph-vertex>
         <graph-vertex id="three" size="5" face="red" ondblclick="centerAround(this)" onclick="select(this)" ></graph-vertex>
@@ -156,6 +160,7 @@
         <graph-edge source="#two" target="#three"></graph-edge>
         <graph-edge source="#two" target="#four"></graph-edge>
         <graph-edge source="#three" target="#four"></graph-edge>
+        -->
       </graph-visualization>
 
       <hr>

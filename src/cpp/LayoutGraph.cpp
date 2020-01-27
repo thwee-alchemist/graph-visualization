@@ -180,21 +180,19 @@ Eigen::MatrixXd LayoutGraph::checkNan(Eigen::MatrixXd potential, Eigen::MatrixXd
 std::string LayoutGraph::layout(){
   if(dm == NULL){
     single_level_dynamics();
+    auto vs = vertices();
+    for(auto id : vs){
+      Vertex* v = V->at(id);
+
+      *v->velocity += *v->acceleration;
+      *v->position += *v->velocity;
+    }
+
     return toJSON(false);
   }
 
   dm->coarser->layout();
-
   two_level_dynamics();
-
-  Vertex* v;
-  for(auto id : vertices()){
-    v = V->at(id);
-
-    *v->velocity += *v->acceleration;
-    *v->position += *v->velocity;
-    *v->position *= settings->spread;
-  }
 
   return toJSON(false);
 }
@@ -208,17 +206,17 @@ Eigen::MatrixXd LayoutGraph::alpha__(){
     return sum;
   }
 
+  auto vs = vertices();
   Vertex* v;
   Vertex* y;
-  for(auto id : vertices()){
+  for(auto id : vs){
     v = V->at(id);
-    y = v->coarser;
-    if(y != NULL){
-      sum += (*v->velocity * y->position->transpose()) + (*y->position * v->velocity->transpose());
-    }
+    y = dm->get_corresponding_vertex(v);
+
+    sum += (*v->velocity * y->position->transpose()) + (*y->position * v->velocity->transpose());
   }
 
-  Eigen::MatrixXd a__ = sum / (V->size());
+  Eigen::MatrixXd a__ = sum / (dm->coarser->size() + settings->epsilon);
 
   alpha_ += a__;
   alpha += alpha_;
@@ -243,7 +241,7 @@ Eigen::MatrixXd LayoutGraph::beta__(){
     sum += *v->velocity;
   }
 
-  Eigen::MatrixXd b__ = sum / (V->size());
+  Eigen::MatrixXd b__ = sum / ((double)V->size() + settings->epsilon);
   beta_ += b__;
   beta += beta_;
 
@@ -254,33 +252,56 @@ void LayoutGraph::two_level_dynamics(){
   auto a__ = alpha__();
   auto b__ = beta__();
 
-  Eigen::MatrixXd sum = Eigen::MatrixXd(1, 3);
-  sum.setZero();
+  std::cout << "alpha__: \n" << a__ << std::endl;
+  std::cout << "beta__ : \n" << b__ << std::endl;
 
   Vertex* v;
   Vertex* y;
   Eigen::MatrixXd proj_accel;
   Eigen::MatrixXd d__;
 
+  Eigen::MatrixXd sum = Eigen::MatrixXd(1, 3);
+  Eigen::MatrixXd Fi = Eigen::MatrixXd(1, 3);
+
   auto vs = vertices();
   for(auto vid : vs){
+
+    sum.setZero();
+    
     v = V->at(vid);
-    y = v->coarser;
+    y = dm->get_corresponding_vertex(v);
 
     if(y != NULL){
       sum += b__;
       sum += (a__ * (*y->position));
       sum += (2 * alpha_ * settings->theta * (*y->velocity));
-      sum += (alpha * (*y->acceleration) * (settings->theta)*(settings->theta));
-      proj_accel = sum;
+      sum += ((alpha * (*y->acceleration) * (settings->theta)*(settings->theta)));
+      *v->proj_accel = sum;
 
       d__ = *y->acceleration - proj_accel;
-      *v->acceleration = d__ + proj_accel;
-    }else{
+      // *v->acceleration = d__ + proj_accel;
+    }
+    
+    /*
+    else{
       v->acceleration->setZero();
     }
+    */
 
-    *v->acceleration -= *v->velocity * settings->drag;
+    // *v->acceleration -= (*v->velocity * settings->drag);
+  }
+
+  single_level_dynamics();
+
+  for(auto id : vs){
+    Vertex* v = V->at(id);
+    *v->displacement__ = *v->acceleration - *v->proj_accel;
+    *v->displacement += *v->displacement__;
+    *v->displacement += *v->displacement_;
+
+    *v->acceleration = *v->displacement__ + *v->proj_accel;
+    *v->velocity += *v->acceleration;
+    *v->position += *v->velocity;
   }
 }
 
@@ -331,9 +352,6 @@ void LayoutGraph::single_level_dynamics(){
     Vertex* v = V->at(id);
 
     *v->acceleration -= (*v->velocity * friction);
-
-    *v->velocity += *v->acceleration;
-    *v->position += *v->velocity;
   }
 
   delete tree;

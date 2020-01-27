@@ -36,9 +36,14 @@ namespace sc {
       double z();
 
       Eigen::MatrixXd* position;
-      Eigen::MatrixXd* displacement;
       Eigen::MatrixXd* velocity;
       Eigen::MatrixXd* acceleration;
+
+      Eigen::MatrixXd* displacement;
+      Eigen::MatrixXd* displacement_;
+      Eigen::MatrixXd* displacement__;
+
+      Eigen::MatrixXd* proj_accel;
 
       Eigen::MatrixXd* repulsion_forces;
       Eigen::MatrixXd* attraction_forces;

@@ -442,13 +442,7 @@ class GraphVisualization extends HTMLElement {
         })
 
         this[propertyName] = this.hasAttribute(attributeName) ? parseFloat(this.getAttribute(attributeName)) : this.layout.settings[readSetting];
-
-        if(this.hasAttribute(attributeName)){
-          this[propertyName] = parseFloat(this.getAttribute(attributeName));
-          this.layout.settings[propertyName] = this[propertyName];
-        }else{
-          this.propertyName = this.layout.settings[readSetting];
-        }
+        this.layout.settings[propertyName] = this[propertyName];
       })(prop)
     }
 
@@ -579,6 +573,7 @@ class GraphVisualization extends HTMLElement {
 
             if(mutation.target instanceof GraphVisualization){
               try{
+                console.log('attribute changed')
                 console.log(mutation.attributeName, this.getAttribute(mutation.attributeName))
                 self.layout.settings[mutation.attributeName.replace('-', '_')] = parseFloat(this.getAttribute(mutation.attributeName));
               }catch(_){
@@ -641,8 +636,6 @@ class GraphVisualization extends HTMLElement {
     
     document.addEventListener('dblclick', this.resolve_click.bind(this, 'dblclick'));
     document.addEventListener('click', this.resolve_click.bind(this, 'click'));
-
-
   }
 
   onresize(){
