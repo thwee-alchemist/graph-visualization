@@ -88,8 +88,8 @@ unsigned int LayoutGraph::add_edge(unsigned int source, unsigned int target, boo
   if(V->find(source) == V->end() || V->find(target) == V->end()){
     return 0;
   }
-  Vertex* src = (*V).at(source);
-  Vertex* tgt = (*V).at(target);
+  Vertex* src = V->at(source);
+  Vertex* tgt = V->at(target);
 
   if(src == NULL || tgt == NULL){
     return 0;
@@ -107,7 +107,7 @@ unsigned int LayoutGraph::add_edge(unsigned int source, unsigned int target, boo
 }
 
 bool LayoutGraph::remove_vertex(unsigned int vertex_id){
-  Vertex* v = (*V)[vertex_id];
+  Vertex* v = V->at(vertex_id);
   if(v == NULL){
     return false;
   }
@@ -131,7 +131,7 @@ bool LayoutGraph::remove_edge(unsigned int edge_id){
   if(E->find(edge_id) == E->end()){
     return false;
   }
-  Edge* e = (*E)[edge_id];
+  Edge* e = E->at(edge_id);
 
   if(e == NULL){
     std::cerr << "LG-" << id << "::remove_edge " << edge_id << ": id not found" << std::endl;
@@ -144,7 +144,6 @@ bool LayoutGraph::remove_edge(unsigned int edge_id){
 
   E->erase(e->id);
   delete e;
-  e = NULL;
 
   return true;
 }

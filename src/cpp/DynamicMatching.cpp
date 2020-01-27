@@ -73,7 +73,7 @@ void DynamicMatching::add_vertex(Vertex* vertex){
   // std::cout << "DM-" << graph->id << "::add_vertex " << vertex->id << std::endl;
   // auto id = coarser->add_vertex();
   // V->emplace(vertex->id, id);
-  // process_queue();
+  process_queue();
 }
 
 void DynamicMatching::add_edge(Edge* e){
@@ -102,7 +102,7 @@ void DynamicMatching::remove_vertex(Vertex* v){
   }
 
   // remove from coarser
-  coarser->remove_vertex((*V)[v->id]);
+  coarser->remove_vertex(V->at(v->id));
   
   // remove v from V.
   V->erase(v->id);
@@ -119,7 +119,7 @@ void DynamicMatching::remove_edge(Edge* e){
 
   // if e is in the matching, then unmatch e
   auto it = m->find(e->id);
-  if((it != m->end()) && (*m)[e->id]){
+  if((it != m->end()) && m->at(e->id)){
     unmatch(e);
   }
 
@@ -167,7 +167,7 @@ void DynamicMatching::remove_edge(Edge* e){
     if(id == e_id){
       continue;
     }
-    Edge* edge = (*graph->E)[id];
+    Edge* edge = graph->E->at(id);
     if(edge && (edge->id != e_id)){
       if(e->depends(edge)){
         pq->push(edge);
@@ -202,8 +202,8 @@ void DynamicMatching::match(Edge* e){
     if(edge_id == e->id){
       continue;
     }
-    Edge* edge = (*graph->E)[edge_id];
-    if(e != NULL && e->depends(edge) && (*m)[edge->id]){
+    Edge* edge = graph->E->at(edge_id);
+    if(e != NULL && e->depends(edge) && m->at(edge->id)){
       unmatch(edge);
     }
   }
@@ -224,7 +224,7 @@ void DynamicMatching::match(Edge* e){
 
   // create new vertex v1 u v2 in G'
   unsigned int vertex_id = coarser->add_vertex();
-  Vertex* v1_v2 = (*coarser->V)[vertex_id];
+  Vertex* v1_v2 = coarser->V->at(vertex_id);
 
   v1_v2->add_finer(e->source);
   v1_v2->add_finer(e->target);
@@ -235,14 +235,14 @@ void DynamicMatching::match(Edge* e){
   auto ies = graph->incident_edges(e->source);
   for(auto ieid : ies){
     if(ieid != e->id){
-      Edge* incident_edge = (*graph->E)[ieid];
+      Edge* incident_edge = graph->E->at(ieid);
       make_corresponding_edge(incident_edge);
     }
   }
   
   for(auto ieid : ies){
     if(ieid != e->id){
-      Edge* incident_edge = (*graph->E)[ieid];
+      Edge* incident_edge = graph->E->at(ieid);
       make_corresponding_edge(incident_edge);
     }
   }
@@ -253,7 +253,7 @@ void DynamicMatching::match(Edge* e){
     if(e_prime_id == e->id){
       continue;
     }
-    Edge* e_prime = (*graph->E)[e_prime_id];
+    Edge* e_prime = graph->E->at(e_prime_id);
     if(e->depends(e_prime)){
       pq->push(e_prime);
     }
@@ -293,7 +293,7 @@ void DynamicMatching::unmatch(Edge* e){
     if(e->id == incident_edge_id){
       continue;
     }
-    Edge* incident_edge = (*graph->E)[incident_edge_id];
+    Edge* incident_edge = graph->E->at(incident_edge_id);
     make_corresponding_edge(incident_edge);
   }
 
@@ -303,7 +303,7 @@ void DynamicMatching::unmatch(Edge* e){
       continue;
     }
 
-    Edge* incident_edge = (*graph->E)[incident_edge_id];
+    Edge* incident_edge = graph->E->at(incident_edge_id);
     make_corresponding_edge(incident_edge);
   }
   
@@ -313,7 +313,7 @@ void DynamicMatching::unmatch(Edge* e){
     if(edge_id == e->id){
       continue;
     }
-    Edge* edge = (*graph->E)[edge_id];
+    Edge* edge = graph->E->at(edge_id);
     assert(edge != NULL);
 
     if(e->depends(edge)){
@@ -333,7 +333,7 @@ bool DynamicMatching::match_equation(Edge* e){
   bool me = true;
   for(unsigned int edge_id : graph->edges()){
     if(edge_id != e->id){
-      Edge* edge = (*graph->E)[edge_id];
+      Edge* edge = graph->E->at(edge_id);
       // ?
       if(edge != NULL){
         me = me && !edge->depends(e);
@@ -355,7 +355,7 @@ void DynamicMatching::process_queue(){
 
     bool me = match_equation(e);
 
-    if(me != (*m)[e->id]){
+    if(me != m->at(e->id)){
       if(me){
         match(e);
       }else{
@@ -431,7 +431,7 @@ Vertex* DynamicMatching::make_corresponding_vertex(Vertex* v){
 
   auto cvid = coarser->add_vertex();
   v->coarser = cv;
-  cv = (*coarser->V)[cvid];
+  cv = coarser->V->at(cvid);
   cv->add_finer(v);
   v->coarser = cv;
   
@@ -466,7 +466,7 @@ Edge* DynamicMatching::make_corresponding_edge(Edge* e){
       e->strength
     );
 
-    ce = (*coarser->E)[ceid];
+    ce = coarser->E->at(ceid);
 
     return ce;
   // }

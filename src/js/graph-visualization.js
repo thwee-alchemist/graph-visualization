@@ -440,8 +440,9 @@ class GraphVisualization extends HTMLElement {
             this.layout.settings[propertyName] = value;
           }
         })
-
+        
         this[propertyName] = this.hasAttribute(attributeName) ? parseFloat(this.getAttribute(attributeName)) : this.layout.settings[readSetting];
+        
         this.layout.settings[propertyName] = this[propertyName];
       })(prop)
     }
@@ -591,7 +592,6 @@ class GraphVisualization extends HTMLElement {
   setupResizeObserver(){
     this.ro = new ResizeObserver(entries => {
       for(var entry of entries){
-        console.log(entry)
         this.onresize();
         if(this.camera){
           this.resizeCamera();
