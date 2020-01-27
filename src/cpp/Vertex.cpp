@@ -35,7 +35,7 @@ Vertex::Vertex(unsigned int _id, LayoutGraph* _graph) {
   displacement = new Eigen::MatrixXd(1, 3);
   displacement->setZero();
 
-  displacement_ = new Eigen::Matrix(1, 3);
+  displacement_ = new Eigen::MatrixXd(1, 3);
   displacement_->setZero();
 
   displacement__ = new Eigen::MatrixXd(1, 3);

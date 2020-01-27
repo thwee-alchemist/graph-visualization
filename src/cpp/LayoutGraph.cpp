@@ -216,7 +216,7 @@ Eigen::MatrixXd LayoutGraph::alpha__(){
     sum += (*v->velocity * y->position->transpose()) + (*y->position * v->velocity->transpose());
   }
 
-  Eigen::MatrixXd a__ = sum / (dm->coarser->size() + settings->epsilon);
+  Eigen::MatrixXd a__ = sum / (dm->coarser->V->size() + settings->epsilon);
 
   alpha_ += a__;
   alpha += alpha_;
