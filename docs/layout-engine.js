@@ -96,7 +96,7 @@ fetch(request).then((response) => {
             case 'add_edge':
               var result;
               try{
-                result = self.lg.add_edge(e.data.source, e.data.target, (e.data.directed !== undefined && e.data.directed ? true : false), e.data.strength);
+                result = self.lg.add_edge(e.data.source, e.data.target, e.data.directed, e.data.strength);
               }catch(e){
                 result = e;
               }finally{

@@ -51304,13 +51304,13 @@ async function add_vertex(){
   return await post({_type: 'add_vertex'});
 };
 
-async function add_edge(args){
+async function add_edge(source, target, directed=false, strength=1.0){
   return await post({
     _type: 'add_edge', 
-    source: args.source, 
-    target: args.target, 
-    directed: args.options.directed !== undefined ? args.options.directed : false, 
-    strength: args.options.strength !== undefined ? args.options.strength : 1.0
+    'source': source, 
+    'target': target, 
+    'directed': directed, 
+    'strength': strength
   });
 };
 
@@ -52016,7 +52016,6 @@ class graph_visualization_GraphVisualization extends HTMLElement {
   setupResizeObserver(){
     this.ro = new ResizeObserver(entries => {
       for(var entry of entries){
-        console.log(entry)
         this.onresize();
         if(this.camera){
           this.resizeCamera();

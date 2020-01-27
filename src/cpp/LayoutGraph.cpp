@@ -85,9 +85,11 @@ unsigned int LayoutGraph::add_vertex(){
 }
 
 unsigned int LayoutGraph::add_edge(unsigned int source, unsigned int target, bool directed, double strength){
+  /*
   if(V->find(source) == V->end() || V->find(target) == V->end()){
     return 0;
   }
+  */
   Vertex* src = V->at(source);
   Vertex* tgt = V->at(target);
 
@@ -208,6 +210,10 @@ Eigen::MatrixXd LayoutGraph::alpha__(){
   auto vs = vertices();
   Vertex* v;
   Vertex* y;
+
+  Eigen::MatrixXd part1 = Eigen::MatrixXd(3, 3);
+  Eigen::MatrixXd part2 = Eigen::MatrixXd(3, 3);
+  
   for(auto id : vs){
     v = V->at(id);
     y = dm->get_corresponding_vertex(v);
@@ -215,15 +221,36 @@ Eigen::MatrixXd LayoutGraph::alpha__(){
     if(y == NULL){
       continue;
     }
-    sum += (*v->displacement * y->position->transpose()) + (*y->position * v->displacement->transpose());
+    
+    std::cout << "before" << std::endl;
+    std::cout << *v->displacement << std::endl;
+    std::cout << y->position->transpose() << std::endl;
+    
+    part1 = *v->displacement * y->position->transpose();
+    std::cout << "part 1 done" << std::endl;
+
+    part2 = *y->position * v->displacement->transpose();
+    std::cout << "part 2 done" << std::endl;
+
+    std::cout << "part1" << std::endl << part1 << std::endl;
+    std::cout << "part2" << std::endl << part2 << std::endl;
+
+    Eigen::MatrixXd partialSum = part1 + part2;
+    std::cout << partialSum << std::endl;
+
+    sum += part1 + part2;
   }
 
-  Eigen::MatrixXd a__;
+  std::cout << "after" << std::endl;
+
+  Eigen::MatrixXd a__ = Eigen::MatrixXd(3, 3);
   if(dm->coarser->V->size() != 0){
     a__ = sum / (dm->coarser->V->size());
   }else{
     a__.setZero();
   }
+
+  std::cout << "made it to dampening" << std::endl;
 
   a__ -= settings->dampening * alpha_;
 
