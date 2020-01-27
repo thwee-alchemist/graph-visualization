@@ -598,6 +598,9 @@ class GraphVisualization extends HTMLElement {
       for(var entry of entries){
         console.log(entry)
         this.onresize();
+        if(this.camera){
+          this.resizeCamera();
+        }
       }
     });
 

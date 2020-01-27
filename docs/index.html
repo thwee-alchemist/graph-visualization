@@ -66,7 +66,7 @@
         graph.appendChild(vertex)
 
         vertex.addEventListener('click', function(e){
-          console.log(e.target.id, 'clicked')
+          select(e.target);
         })
 
         vertex.addEventListener('dblclick', function(e){
@@ -139,14 +139,16 @@
       <graph-visualization 
         width="100%"
         height="500px"
-        attraction="1000.0"
-        repulsion="1000.0"
-        spread="100">
+        attraction="-100.0"
+        repulsion="-100.0"
+        spread="100"
+        inner-distance="100"
+        friction="0.99">
 
-        <graph-vertex id="one" size="10" face="blue" ondblclick="centerAround(this)" onclick="select(this)" ></graph-vertex>
-        <graph-vertex id="two" size="10" face="green" ondblclick="centerAround(this)" onclick="select(this)" ></graph-vertex>
-        <graph-vertex id="three" size="10" face="red" ondblclick="centerAround(this)" onclick="select(this)" ></graph-vertex>
-        <graph-vertex id="four" size="10" face="purple" ondblclick="centerAround(this)" onclick="select(this)" ></graph-vertex>
+        <graph-vertex id="one" size="5" face="blue" ondblclick="centerAround(this)" onclick="select(this)" ></graph-vertex>
+        <graph-vertex id="two" size="5" face="green" ondblclick="centerAround(this)" onclick="select(this)" ></graph-vertex>
+        <graph-vertex id="three" size="5" face="red" ondblclick="centerAround(this)" onclick="select(this)" ></graph-vertex>
+        <graph-vertex id="four" size="5" face="purple" ondblclick="centerAround(this)" onclick="select(this)" ></graph-vertex>
         
         <graph-edge source="#one" target="#two" color="red"></graph-edge>
         <graph-edge source="#one" target="#three"></graph-edge>
