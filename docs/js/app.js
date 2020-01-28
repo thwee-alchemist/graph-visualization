@@ -1,5 +1,15 @@
 var App = angular.module('App', []);
 
+var randomSetting = function(){
+  var base = Math.floor(Math.random() * 10)
+  var exp = Math.floor(Math.random() * 6);
+  var sign = Math.random() < 0.5 ? -1 : 1; 
+  var expSign = Math.random() < 0.5 ? -1 : 1;
+
+  var number = parseFloat(`${sign * base}e${exp * expSign}`);
+  return number
+}
+
 
 function getEdgeLengths(){
   var graph = document.querySelector('graph-visualization');
@@ -40,11 +50,21 @@ async function getSettings(){
 var AppCtrl = App.controller('AppCtrl', ['$scope', async function($scope){
   $scope.output = "Nothing yet";
 
+  var settings = ['attraction', 'repulsion', 'epsilon', 'inner_distance', 'friction', 'dampening'];
+
+
   window.data = [];
   async function getData() {
     window.enough = new Promise((resolve, reject) => {
       window.recording = true;
       var it = setInterval(async () => {
+
+        // set random setting to a randomSetting()
+        var opt = settings[Math.floor(Math.random() * settings.length)];
+        var graph = document.querySelector('graph-visualization');
+        graph.layout.settings[opt] = randomSetting();
+        
+
         console.log('recording', window.recording)
         if(!window.recording){
           window.recording = false;
