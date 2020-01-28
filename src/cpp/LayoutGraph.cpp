@@ -222,26 +222,27 @@ Eigen::MatrixXd LayoutGraph::alpha__(){
       continue;
     }
     
+    /*
     std::cout << "before" << std::endl;
     std::cout << *v->displacement << std::endl;
     std::cout << y->position->transpose() << std::endl;
-    
+    */
     part1 = *v->displacement * y->position->transpose();
-    std::cout << "part 1 done" << std::endl;
+    // std::cout << "part 1 done" << std::endl;
 
     part2 = *y->position * v->displacement->transpose();
-    std::cout << "part 2 done" << std::endl;
+    // std::cout << "part 2 done" << std::endl;
 
-    std::cout << "part1" << std::endl << part1 << std::endl;
-    std::cout << "part2" << std::endl << part2 << std::endl;
+    // std::cout << "part1" << std::endl << part1 << std::endl;
+    // std::cout << "part2" << std::endl << part2 << std::endl;
 
     Eigen::MatrixXd partialSum = part1 + part2;
-    std::cout << partialSum << std::endl;
+    // std::cout << partialSum << std::endl;
 
     sum += part1 + part2;
   }
 
-  std::cout << "after" << std::endl;
+  // std::cout << "after" << std::endl;
 
   Eigen::MatrixXd a__ = Eigen::MatrixXd(3, 3);
   if(dm->coarser->V->size() != 0){
@@ -250,7 +251,7 @@ Eigen::MatrixXd LayoutGraph::alpha__(){
     a__.setZero();
   }
 
-  std::cout << "made it to dampening" << std::endl;
+  // std::cout << "made it to dampening" << std::endl;
 
   a__ -= settings->dampening * alpha_;
 
@@ -345,7 +346,7 @@ void LayoutGraph::single_level_dynamics(){
   }
 
   double c_friction = settings->friction;
-  double attraction = settings->attraction;
+  double c_attraction = settings->attraction;
 
   Eigen::MatrixXd friction = Eigen::MatrixXd(1, 3);
 
@@ -354,6 +355,8 @@ void LayoutGraph::single_level_dynamics(){
     
     friction = *vi->velocity * c_friction;
     *vi->acceleration = tree->estimate(vi, Vertex::pairwise_repulsion) - friction;
+
+    // std::cout << "repulsion force " << vi->acceleration->norm() << std::endl;
     
   }
 
@@ -365,6 +368,7 @@ void LayoutGraph::single_level_dynamics(){
 
   Eigen::MatrixXd force = Eigen::MatrixXd(1, 3);;
 
+  // attractions
   auto es = edges();
   for(auto id : es){
     auto e = E->at(id);
@@ -372,13 +376,20 @@ void LayoutGraph::single_level_dynamics(){
     xi = *e->source->position;
     xj = *e->target->position;
 
-    force = ((xi - xj) * -attraction);
+    force = ((xi - xj) * -c_attraction);
 
-    source_friction = *e->source->velocity * c_friction;
-    target_friction = *e->target->velocity * c_friction;
+    source_friction = -*e->source->velocity * c_friction;
+    target_friction = -*e->target->velocity * c_friction;
 
-    *(e->source->acceleration) -= force - source_friction;
-    *(e->target->acceleration) += force - target_friction;
+    // std::cout << "source friction " << source_friction << std::endl;
+    // std::cout << "target friction" << target_friction << std::endl;
+
+    // std::cout << "attraction force " << force.norm() << std::endl;
+
+    *(e->source->acceleration) += (force - source_friction);
+    *(e->target->acceleration) -= (force - target_friction);
+
+    // std::cout << "final force" << e->target->acceleration->norm() << std::endl;
   }
 
   delete tree;

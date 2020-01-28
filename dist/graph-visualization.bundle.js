@@ -51881,8 +51881,14 @@ class graph_visualization_GraphVisualization extends HTMLElement {
         var self = this;
         var animateLayout = function(){
           requestAnimationFrame(animateLayout);
-          layout.layout().then(data => {
+          layout.layout().then(async data => {
             var updates = data.V;
+
+            if(window.recording){
+              window.settings.push(await getSettings())
+              window.layouts.push(data.V);
+            }
+
             for(var update of updates){
               var elem = self.querySelector(`graph-vertex[data-layout-id="${update.id}"]`);
               elem.cube.position.set(update.x, update.y, update.z)
