@@ -217,9 +217,9 @@ var AppCtrl = App.controller('AppCtrl', ['$scope', async function($scope){
     // that we did earlier.
     const [xs, preds] = tf.tidy(() => {
       
-      const xs = tf.linspace(0, 1, 100);
+      const xs = tf.linspace(0, 1, 6*100);
       console.log('xs', xs)
-      const preds = model.predict(xs.reshape([null, 6]));      
+      const preds = model.predict(xs.reshape([100, 6]));      
       
       const unNormXs = xs
         .mul(inputMax.sub(inputMin))
