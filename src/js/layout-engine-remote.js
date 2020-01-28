@@ -87,8 +87,9 @@ async function setting(set, setting, value){
   return result;
 }
 
-function end(){
-  self.terminate();
+async function end(){
+  var result  = await post({_type: 'end'})
+  return result;
 };
 
 class Settings {

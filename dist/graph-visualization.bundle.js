@@ -51344,8 +51344,9 @@ async function setting(set, setting, value){
   return result;
 }
 
-function end(){
-  self.terminate();
+async function end(){
+  var result  = await post({_type: 'end'})
+  return result;
 };
 
 class Settings {
@@ -51466,8 +51467,6 @@ class GraphVertex extends HTMLElement {
   connectedCallback(){
     this.size = this.getAttribute('size');
     this.face = this.getAttribute('face');
-
-    console.log('vertex connected')
   }
 
   adoptedCallback(){
@@ -51608,106 +51607,6 @@ class graph_visualization_GraphVisualization extends HTMLElement {
     */
   }
 
-  /*
-  get attraction(){
-    return this._attraction;
-  }
-
-  set attraction(val){
-    this._attraction = val;
-    this.setAttribute('attraction', val);
-  }
-
-  get repulsion(){
-    return this._repulsion;
-  }
-
-  set repulsion(val){
-    this._repulsion = val;
-    this.setAttribute('repulsion', val);
-  }
-
-  get epsilon(){
-    return this._epsilon;
-  }
-
-  set epsilon(val){
-    this._epsilon = val;
-    this.setAttribute('epsilon', val);
-  }
-
-  get inner_distance(){
-    return this._inner_distance;
-  }
-
-  set inner_distance(val){
-    this._inner_distance = val;
-    this.setAttribute('inner-distance', val);
-  }
-
-  get time_dilation(){
-    return this._time_dilation;
-  }
-
-  set time_dilation(val){
-    this._time_dilation = val;
-    this.setAttribute('time-dilation', val);
-  }
-
-  get friction(){
-    return this._friction;
-  }
-
-  set friction(val){
-    this._friction = val;
-    this.setAttribute('friction', val);
-  }
-
-  get gravity(){
-    return this._gravity;
-  }
-
-  set gravity(val){
-    this._gravity = val;
-    this.setAttribute('gravity', val);
-  }
-
-  get dampening(){
-    return this._dampening;
-  }
-
-  set dampening(val){
-    this._dampening = val;
-    this.setAttribute('dampening', val);
-  }
-
-  get drag(){
-    return this._drag;
-  }
-
-  set drag(val){
-    this._drag = val;
-    this.setAttribute('drag', val); 
-  }
-
-  get theta(){
-    return this._theta;
-  }
-
-  set theta(val){
-    this._theta = val;
-    this.setAttribute('theta', val);
-  }
-
-  get spread(){
-    return this._spread;
-  }
-
-  set spread(val){
-    this._spread = val;
-    this.setAttribute('spread', val);
-  }
-  */
 
   /**
    * setSize(width, height)
@@ -51879,22 +51778,32 @@ class graph_visualization_GraphVisualization extends HTMLElement {
 
         var layout = layout_engine_remote;
         var self = this;
+        var count = 0;
+        var af = null;
         var animateLayout = function(){
-          requestAnimationFrame(animateLayout);
-          layout.layout().then(async data => {
-            var updates = data.V;
+          af = requestAnimationFrame(animateLayout);
+          try{
+            layout.layout().then(data => {
+              if(data.V){
+                var updates = data.V;
 
-            if(window.recording){
-              window.settings.push(await getSettings())
-              window.layouts.push(data.V);
-            }
-
-            for(var update of updates){
-              var elem = self.querySelector(`graph-vertex[data-layout-id="${update.id}"]`);
-              elem.cube.position.set(update.x, update.y, update.z)
-            }
-
-          })
+                for(var update of updates){
+                  var elem = self.querySelector(`graph-vertex[data-layout-id="${update.id}"]`);
+                  elem.cube.position.set(update.x, update.y, update.z)
+                }
+              }else{
+                window.recording = false;
+                layout.end();
+                cancelAnimationFrame(af);
+              }
+            }, reason => {
+              window.recording = false;
+              layout.end();
+              cancelAnimationFrame(af);
+            });
+          }catch(_){
+            recording = false;
+          }
         }
 
         animateLayout();
@@ -52120,6 +52029,8 @@ class graph_visualization_GraphVisualization extends HTMLElement {
 
     this.observer.disconnect();
     this.ro.disconnect();
+
+    this.layout.end();
   }
 
   attributeChangedCallback(attr, oldVal, newVal){
@@ -52253,7 +52164,7 @@ class graph_visualization_GraphVisualization extends HTMLElement {
         break;
 
       case 'strength':
-        console.log('todo');
+        // todo
         break;
     }
   }

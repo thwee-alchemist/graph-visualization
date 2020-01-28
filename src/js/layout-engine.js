@@ -96,7 +96,6 @@ fetch(request).then((response) => {
             case 'add_edge':
               var result;
               try{
-                console.log('adding edge')
                 result = self.lg.add_edge(parseInt(e.data.source), parseInt(e.data.target), e.data.directed, e.data.strength);
               }catch(e){
                 result = e;
@@ -155,6 +154,10 @@ fetch(request).then((response) => {
               }
               break;
 
+            case 'end':
+              self.lg.terminate();
+              self.postMessage.call(self, {re: e.data.msgId, 'result': 'stopped?'})
+              break;
             }
           };
 

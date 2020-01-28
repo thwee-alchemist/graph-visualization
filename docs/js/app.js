@@ -19,42 +19,64 @@ async function getSettings(){
   })
 }
 
+function getEdgeLengths(){
+  var graph = document.querySelector('graph-visualization');
+  var edges = graph.querySelectorAll('graph-edge');
+  if(edges instanceof Array){
+    return edges.map(edge => {
+      var xi = document.querySelector(edge.source).cube.position;
+      var xj = document.querySelector(edge.target).cube.position;
+
+      var l = xi.distanceTo(xj);
+      return l;
+    });
+  }else{
+    window.recording = false;
+    return [];
+  }
+}
+
 var AppCtrl = App.controller('AppCtrl', ['$scope', async function($scope){
   $scope.output = "Nothing yet";
 
   window.settings = [];
-  window.layouts = [];
+  window.lengths = [];
 
   async function getData() {
     window.enough = new Promise((resolve, reject) => {
       window.recording = true;
       var it = setInterval(() => {
-        if(window.layouts.length >= 250){
+        if(!window.recording){
           window.recording = false;
-          resolve(window.layouts);
+          resolve(window.lengths);
           clearInterval(it);
-        }
-      }, 100)
-    })
+        }else{
+          count++;
 
-    var layouts = await window.enough;
+          window.lengths.push( getEdgeLengths() );
+          window.settings.push( await getSettings() );
+        }
+      }, 10)
+    });
+
+    await window.enough;
+    console.log('done', lengths.length)
     var settings = window.settings;
-    console.log('layouts', layouts);
+    console.log('lengths', lengths)
     console.log('settings', settings);
 
-    var cleaned = layouts.map((l, i) => {
+    var cleaned = lengths.map((l, i) => {
 
       var s = settings[i];
-      var fs = [s.attraction, s.repulsion, s.epsilon, s.inner_distance, s.friction, s.dampening];
-      
-      // flattened layout
-      var fl = [];
-      l.forEach(v => {
-        fl.push(v.x, v.y, v.z);
-      })
-
-      return {settings: fs, layout: fl};
-    })
+      if(s){
+        var fs = [s.attraction, s.repulsion, s.epsilon, s.inner_distance, s.friction, s.dampening];
+        
+        // lengths
+        return {settings: fs, lengths: l};
+      }else{
+        return {settings: null, lengths: null}
+      }
+    }).filter(d => d.settings && d.lengths)
 
     return cleaned;
   }
@@ -67,13 +89,15 @@ var AppCtrl = App.controller('AppCtrl', ['$scope', async function($scope){
     model.add(tf.layers.dense({inputShape: [6], units: 1, useBias: true}));
     
     // Add an output layer
-    model.add(tf.layers.dense({ units: 33, useBias: true}));
+    model.add(tf.layers.dense({ units: 6, useBias: true}));
   
     return model;
   }
 
   $scope.run = async function() {
     // Load and plot the original input data that we are going to train on.
+    recording = true;
+    $scope.construct();
     const data = await getData();
 
     console.log('data', data);
@@ -83,6 +107,7 @@ var AppCtrl = App.controller('AppCtrl', ['$scope', async function($scope){
   
     // More code will be added below
 
+    /*
     const model = createModel();  
     tfvis.show.modelSummary({name: 'Model Summary'}, model);
 
@@ -92,6 +117,7 @@ var AppCtrl = App.controller('AppCtrl', ['$scope', async function($scope){
     // Train the model  
     await trainModel(model, inputs, labels);
     console.log('Done Training');
+    */
   }
 
     /**
@@ -113,13 +139,13 @@ var AppCtrl = App.controller('AppCtrl', ['$scope', async function($scope){
         return d.settings;
       })
       const labels = data.map(d => {
-        return d.layout;
+        return d.lengths;
       });
 
       console.log('inputs: ', inputs, 'labels: ', labels)
 
       const inputTensor = tf.tensor2d(inputs, [inputs.length, 6]);
-      const labelTensor = tf.tensor2d(labels, [labels.length, 33]);
+      const labelTensor = tf.tensor2d(labels, [labels.length, 10]);
 
       //Step 3. Normalize the data to the range 0 - 1 using min-max scaling
       const inputMax = inputTensor.max();
@@ -185,8 +211,7 @@ var AppCtrl = App.controller('AppCtrl', ['$scope', async function($scope){
 
   var context = canvas.getContext('2d')
 
-  $scope.i = 0;
-  $scope.addVertex = function add_vertex(){
+  var drawCube = function(){
     context.clearRect(0, 0, canvas.width, canvas.height);
 
     rc.rectangle(0, 0, 100, 100, {
@@ -195,10 +220,15 @@ var AppCtrl = App.controller('AppCtrl', ['$scope', async function($scope){
       hachureGap: 8
     });
 
+    return rc.canvas.toDataURL();
+  }
 
+
+  $scope.i = 0;
+  $scope.addVertex = function add_vertex(){
     var vertex = document.createElement('graph-vertex');
     vertex.id = `id-${$scope.i++}`;
-    vertex.face = rc.canvas.toDataURL();
+    vertex.face = drawCube();
     vertex.size = 5;
 
     $scope.graph.appendChild(vertex)
@@ -221,8 +251,6 @@ var AppCtrl = App.controller('AppCtrl', ['$scope', async function($scope){
         clearInterval(t);
       }
     }, 100)
-
-
   }
 
   $scope.addEdge = function(){
@@ -250,6 +278,71 @@ var AppCtrl = App.controller('AppCtrl', ['$scope', async function($scope){
         clearInterval(t);
       }
     }, 100)
+  }
+
+  var pyramidId = 0;
+  $scope.construct = async () => {
+    var graph = document.querySelector('graph-visualization');
+    var pid = pyramidId++;
+
+    var makeVertex = function(id, pid){
+      var vertex = document.createElement('graph-vertex');
+      vertex.id = id + '-' + pid;
+      vertex.size = 5;
+      vertex.face = drawCube();
+
+      return vertex;
+    };
+
+    var makeEdge = function(source, target){
+      var edge = document.createElement('graph-edge');
+      edge.source = '#' + source.id;
+      edge.target = '#' + target.id;
+      
+      return edge;
+    }
+
+    var wait = async function(t){
+      return await new Promise((resolve, reject) => {
+        setTimeout(resolve, t);
+      })
+    }
+
+    var t = 100;
+    var makePyramid = async function(pid){
+      var one = makeVertex('one', pid);
+      graph.appendChild(one);
+      await wait(t);
+      var two = makeVertex('two', pid);
+      graph.appendChild(two);
+      await wait(t);
+      var three = makeVertex('three', pid);
+      graph.appendChild(three);
+      await wait(t);
+      var four = makeVertex('four', pid);
+      graph.appendChild(four);
+      await wait(t);
+
+      var e1 = makeEdge(one, two, pid);
+      graph.appendChild(e1);
+      await wait(t);
+      var e2 = makeEdge(one, three, pid);
+      graph.appendChild(e2)
+      await wait(t);
+      var e3 = makeEdge(one, four, pid);
+      graph.appendChild(e3);
+      await wait(t);
+      var e4 = makeEdge(two, three, pid);
+      graph.appendChild(e4);
+      await wait(t);
+      var e5 = makeEdge(two, four, pid);
+      graph.appendChild(e5);
+      await wait(t);
+      var e6 = makeEdge(three, four, pid);
+      graph.appendChild(e6);
+    }
+
+    makePyramid(pid);
   }
 
 }]);
