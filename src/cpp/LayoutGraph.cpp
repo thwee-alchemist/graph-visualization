@@ -334,52 +334,51 @@ void LayoutGraph::two_level_dynamics(){
  * Applicable if this is the coarsest graph
  */
 void LayoutGraph::single_level_dynamics(){
+  BarnesHutNode3* tree = new BarnesHutNode3(*settings);
   auto vs = vertices();
 
-  BarnesHutNode3* tree = new BarnesHutNode3(*settings);
   for(auto id : vs){
     auto v = V->at(id);
+    v->acceleration->setZero();
+
     tree->insert(v);
   }
 
-  Eigen::MatrixXd spring_forces = Eigen::MatrixXd(1, 3);
-  spring_forces.setZero();
+  double c_friction = settings->friction;
+  double attraction = settings->attraction;
 
-  Eigen::MatrixXd repulsion_forces = Eigen::MatrixXd(1, 3);
-  repulsion_forces.setZero();
+  Eigen::MatrixXd friction = Eigen::MatrixXd(1, 3);
 
   for(auto idi : vs){
-
     Vertex* vi = V->at(idi);
-    Eigen::MatrixXd xi = *vi->position;
-
-    vi->acceleration->setZero();
-    *vi->acceleration = tree->estimate(vi, Vertex::pairwise_repulsion);
+    
+    friction = *vi->velocity * c_friction;
+    *vi->acceleration = tree->estimate(vi, Vertex::pairwise_repulsion) - friction;
+    
   }
 
-  double friction = settings->friction;
-  double attraction = settings->attraction;
+  Eigen::MatrixXd xi = Eigen::MatrixXd(1, 3);
+  Eigen::MatrixXd xj = Eigen::MatrixXd(1, 3);
+
+  Eigen::MatrixXd source_friction = Eigen::MatrixXd(1, 3);;
+  Eigen::MatrixXd target_friction = Eigen::MatrixXd(1, 3);;
+
+  Eigen::MatrixXd force = Eigen::MatrixXd(1, 3);;
 
   auto es = edges();
   for(auto id : es){
     auto e = E->at(id);
 
-    Eigen::MatrixXd xi = *e->source->position;
-    Eigen::MatrixXd xj = *e->target->position;
+    xi = *e->source->position;
+    xj = *e->target->position;
 
-    auto force = ((xi - xj) * -attraction);
+    force = ((xi - xj) * -attraction);
 
-    *e->source->acceleration -= force;
-    *e->source->acceleration -= (settings->dampening * (*e->source->velocity));
+    source_friction = *e->source->velocity * c_friction;
+    target_friction = *e->target->velocity * c_friction;
 
-    *e->target->acceleration += force;
-    *e->target->acceleration -= (settings->dampening * (*e->target->velocity));
-  }
-
-  for(auto id : vs){
-    Vertex* v = V->at(id);
-
-    *v->acceleration -= (*v->velocity * friction);
+    *(e->source->acceleration) -= force - source_friction;
+    *(e->target->acceleration) += force - target_friction;
   }
 
   delete tree;

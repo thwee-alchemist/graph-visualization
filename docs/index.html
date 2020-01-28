@@ -146,7 +146,7 @@
 
       <div class="row">
         <div class="col-sm-12">
-          <button onclick="add_vertex()">add vertex</button>
+          <button ng-click="addVertex()">add vertex</button>
           <button onclick="add_edge()">add edge</button>
           <button onclick="remove_vertex()">remove vertex</button>
           <button onclick="remove_edge()">remove edge</button>
@@ -161,7 +161,7 @@
         width="100%"
         height="500px"
         epsilon="0.001"
-        attraction="10.0"
+        attraction="1e-7"
         repulsion="10.0"
         inner-distance="10"
         friction="0.1"

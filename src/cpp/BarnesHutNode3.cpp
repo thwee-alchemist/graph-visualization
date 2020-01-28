@@ -82,6 +82,7 @@ void BarnesHutNode3::place_outer(Vertex* vertex){
 Eigen::MatrixXd BarnesHutNode3::estimate(Vertex* vertex, Eigen::MatrixXd (*force_fn)(Eigen::MatrixXd* one, Eigen::MatrixXd* two, Settings& settings)){  
   Eigen::MatrixXd force = Eigen::MatrixXd(1, 3);
   force.setZero();
+  
 
   if(inners->find(vertex->id) != inners->end()){
     for(auto inner : *inners){
@@ -95,8 +96,7 @@ Eigen::MatrixXd BarnesHutNode3::estimate(Vertex* vertex, Eigen::MatrixXd (*force
   }
 
   for(auto outer : *outers){
-    auto c = outer.second->center();
-    force += force_fn(vertex->position, &c, *settings) * (double)outer.second->count;
+    force += outer.second->estimate(vertex, force_fn);
   }
 
   return force;

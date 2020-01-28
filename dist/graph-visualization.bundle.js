@@ -51904,6 +51904,7 @@ class graph_visualization_GraphVisualization extends HTMLElement {
 
     var es = this.querySelectorAll('graph-edge');
     for(var e of es){
+      console.log('GV add edge')
       this.processAddEdge(e);
     }
   }
@@ -52291,14 +52292,7 @@ class graph_visualization_GraphVisualization extends HTMLElement {
     var source_layout_id = parseInt(source.getAttribute('data-layout-id'));
     var target_layout_id = parseInt(target.getAttribute('data-layout-id'));
 
-    var id = await this.layout.add_edge({
-      source: source_layout_id, 
-      target: target_layout_id, 
-      options: {
-        directed: false, 
-        strength: parseFloat(elem.strength)
-      }
-    });
+    var id = await this.layout.add_edge(source_layout_id, target_layout_id, false, 1.0);
     elem.setAttribute('data-layout-id', id);
 
     var positions = new Float32Array( 2 *3 );

@@ -35,7 +35,7 @@ fetch(request).then((response) => {
 
         // self.lg = null
         self.settings = Core.default_settings();
-        self.lg = new Core.LayoutGraph(self.settings, 1);
+        self.lg = new Core.LayoutGraph(self.settings, 0);
         console.log('LayoutGraph initialized')
 
         postMessage({re: 0, result: 'started'});
@@ -96,7 +96,8 @@ fetch(request).then((response) => {
             case 'add_edge':
               var result;
               try{
-                result = self.lg.add_edge(e.data.source, e.data.target, e.data.directed, e.data.strength);
+                console.log('adding edge')
+                result = self.lg.add_edge(parseInt(e.data.source), parseInt(e.data.target), e.data.directed, e.data.strength);
               }catch(e){
                 result = e;
               }finally{
