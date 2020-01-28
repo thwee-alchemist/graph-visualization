@@ -25,7 +25,6 @@ var AppCtrl = App.controller('AppCtrl', ['$scope', async function($scope){
   window.settings = [];
   window.layouts = [];
 
-
   async function getData() {
     window.enough = new Promise((resolve, reject) => {
       window.recording = true;
@@ -44,29 +43,58 @@ var AppCtrl = App.controller('AppCtrl', ['$scope', async function($scope){
     console.log('settings', settings);
 
     var cleaned = layouts.map((l, i) => {
+
       var s = settings[i];
-      return [s.attraction, s.repulsion, s.epsilon, s.inner_distance, s.friction, s.dampening, ...l.map(v => { //one layout
-        return [v.x, v.y, v.z];
-      })]
+      var fs = [s.attraction, s.repulsion, s.epsilon, s.inner_distance, s.friction, s.dampening];
+      
+      // flattened layout
+      var fl = [];
+      l.forEach(v => {
+        fl.push(v.x, v.y, v.z);
+      })
+
+      return {settings: fs, layout: fl};
     })
 
     return cleaned;
   }
 
-  function createModel(shape) {
+  function createModel() {
     // Create a sequential model
     const model = tf.sequential(); 
     
     // Add a single hidden layer
-    model.add(tf.layers.dense({inputShape: shape, units: 1, useBias: true}));
+    model.add(tf.layers.dense({inputShape: [6], units: 1, useBias: true}));
     
     // Add an output layer
-    model.add(tf.layers.dense({units: 1, useBias: true}));
+    model.add(tf.layers.dense({ units: 33, useBias: true}));
   
     return model;
   }
 
-  /**
+  $scope.run = async function() {
+    // Load and plot the original input data that we are going to train on.
+    const data = await getData();
+
+    console.log('data', data);
+
+    var input = tf.tensor(data.map(d => d.settings));
+    console.log('shape', input.shape);
+  
+    // More code will be added below
+
+    const model = createModel();  
+    tfvis.show.modelSummary({name: 'Model Summary'}, model);
+
+    const tensorData = convertToTensor(data);
+    const {inputs, labels} = tensorData;
+        
+    // Train the model  
+    await trainModel(model, inputs, labels);
+    console.log('Done Training');
+  }
+
+    /**
    * Convert the input data to tensors that we can use for machine 
    * learning. We will also do the important best practices of _shuffling_
    * the data and _normalizing_ the data
@@ -81,11 +109,17 @@ var AppCtrl = App.controller('AppCtrl', ['$scope', async function($scope){
       tf.util.shuffle(data);
 
       // Step 2. Convert data to Tensor
-      const inputs = data.map(d => d.horsepower)
-      const labels = data.map(d => d.mpg);
+      const inputs = data.map(d => {
+        return d.settings;
+      })
+      const labels = data.map(d => {
+        return d.layout;
+      });
 
-      const inputTensor = tf.tensor2d(inputs, [inputs.length, 1]);
-      const labelTensor = tf.tensor2d(labels, [labels.length, 1]);
+      console.log('inputs: ', inputs, 'labels: ', labels)
+
+      const inputTensor = tf.tensor2d(inputs, [inputs.length, 6]);
+      const labelTensor = tf.tensor2d(labels, [labels.length, 33]);
 
       //Step 3. Normalize the data to the range 0 - 1 using min-max scaling
       const inputMax = inputTensor.max();
@@ -108,23 +142,31 @@ var AppCtrl = App.controller('AppCtrl', ['$scope', async function($scope){
     });  
   }
 
-  $scope.run = async function() {
-    // Load and plot the original input data that we are going to train on.
-    const data = await getData();
-
-    console.log(data);
-
-    var input = tf.tensor(data);
-    console.log('shape', input.shape);
-  
-    // More code will be added below
-
-    const model = createModel(input.shape);  
-    tfvis.show.modelSummary({name: 'Model Summary'}, model);
+  async function trainModel(model, inputs, labels) {
+    // Prepare the model for training.  
+    model.compile({
+      optimizer: tf.train.adam(),
+      loss: tf.losses.meanSquaredError,
+      metrics: ['mse'],
+    });
+    
+    const batchSize = 32;
+    const epochs = 50;
+    
+    return await model.fit(inputs, labels, {
+      batchSize,
+      epochs,
+      shuffle: true,
+      callbacks: tfvis.show.fitCallbacks(
+        { name: 'Training Performance' },
+        ['loss', 'mse'], 
+        { height: 200, callbacks: ['onEpochEnd'] }
+      )
+    });
   }
   
 
-  
+  /* END OF TENSORFLOW STUFF */
 
   $scope.graph = document.querySelector('graph-visualization');
   var range = function(n){
