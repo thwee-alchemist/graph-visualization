@@ -41,18 +41,16 @@ var AppCtrl = App.controller('AppCtrl', ['$scope', async function($scope){
 
   window.settings = [];
   window.lengths = [];
-
   async function getData() {
     window.enough = new Promise((resolve, reject) => {
       window.recording = true;
-      var it = setInterval(() => {
+      var it = setInterval(async () => {
+        console.log('recording', window.recording)
         if(!window.recording){
           window.recording = false;
           resolve(window.lengths);
           clearInterval(it);
         }else{
-          count++;
-
           window.lengths.push( getEdgeLengths() );
           window.settings.push( await getSettings() );
         }
