@@ -99,7 +99,25 @@ var AppCtrl = App.controller('AppCtrl', ['$scope', async function($scope){
 
     var input = tf.tensor(data.map(d => d.settings));
     console.log('shape', input.shape);
-  
+
+    /*
+    const values = data.map(d => ({
+      x: d.settings,
+      y: d.lengths
+    }))
+
+    tfvis.render.scatterplot(
+      {name: 'Settings v Edges Lengths'},
+      {values}, 
+      {
+        xLabel: 'Settings',
+        yLabel: 'Edges Lengths',
+        height: 300
+      }
+    );
+    */
+
+
     // More code will be added below
 
     const model = createModel();  
@@ -111,6 +129,11 @@ var AppCtrl = App.controller('AppCtrl', ['$scope', async function($scope){
     // Train the model  
     await trainModel(model, inputs, labels);
     console.log('Done Training');
+
+    // Make some predictions using the model and compare them to the
+    // original data
+    testModel(model, data, tensorData);
+
   }
 
     /**
@@ -170,7 +193,7 @@ var AppCtrl = App.controller('AppCtrl', ['$scope', async function($scope){
     });
     
     const batchSize = 32;
-    const epochs = 250;
+    const epochs = 150;
     
     return await model.fit(inputs, labels, {
       batchSize,
@@ -182,6 +205,53 @@ var AppCtrl = App.controller('AppCtrl', ['$scope', async function($scope){
         { height: 200, callbacks: ['onEpochEnd'] }
       )
     });
+  }
+
+  function testModel(model, inputData, normalizationData) {
+    console.log('inputData.shape', inputData.shape);
+
+    const {inputMax, inputMin, labelMin, labelMax} = normalizationData;  
+    
+    // Generate predictions for a uniform range of numbers between 0 and 1;
+    // We un-normalize the data by doing the inverse of the min-max scaling 
+    // that we did earlier.
+    const [xs, preds] = tf.tidy(() => {
+      
+      const xs = tf.linspace(0, 1, 100);
+      console.log('xs', xs)
+      const preds = model.predict(xs.reshape([null, 6]));      
+      
+      const unNormXs = xs
+        .mul(inputMax.sub(inputMin))
+        .add(inputMin);
+      
+      const unNormPreds = preds
+        .mul(labelMax.sub(labelMin))
+        .add(labelMin);
+      
+      // Un-normalize the data
+      return [unNormXs.dataSync(), unNormPreds.dataSync()];
+    });
+    
+   
+    const predictedPoints = Array.from(xs).map((val, i) => {
+      return {x: val, y: preds[i]}
+    });
+    
+    const originalPoints = inputData.map(d => ({
+      x: d.settings, y: d.lengths,
+    }));
+    
+    
+    tfvis.render.scatterplot(
+      {name: 'Model Predictions vs Original Data'}, 
+      {values: [originalPoints, predictedPoints], series: ['original', 'predicted']}, 
+      {
+        xLabel: 'settings',
+        yLabel: 'edge lengths',
+        height: 300
+      }
+    );
   }
   
 

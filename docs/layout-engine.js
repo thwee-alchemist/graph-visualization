@@ -155,7 +155,7 @@ fetch(request).then((response) => {
               break;
 
             case 'end':
-              if(self.lg){
+              if(self.lg != null){
                 self.lg.delete();
               }
               self.postMessage.call(self, {re: e.data.msgId, 'result': 'stopped?'})
