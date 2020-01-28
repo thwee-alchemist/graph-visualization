@@ -1,6 +1,21 @@
 var App = angular.module('App', []);
 
 
+function getEdgeLengths(){
+  var graph = document.querySelector('graph-visualization');
+  var edges = graph.querySelectorAll('graph-edge');
+  var lengths = [];
+  for(var i=0; i<edges.length; i++){
+    var edge = edges[i];
+    var xi = document.querySelector(edge.source).cube.position;
+    var xj = document.querySelector(edge.target).cube.position;
+
+    var l = xi.distanceTo(xj);
+    lengths.push(l);
+  }
+  return lengths;
+}
+
 async function getSettings(){
   var graph = document.querySelector('graph-visualization');
   var s = graph.layout.settings;
@@ -8,39 +23,24 @@ async function getSettings(){
   return new Promise((resolve, reject) => {
     Promise.all([s.attraction, s.repulsion, s.epsilon, s.inner_distance, s.friction, s.dampening]).then(ps => {
       resolve({
-        'attraction': ps[0],
-        'repulsion': ps[1],
-        'epsilon': ps[2],
-        'inner_distance': ps[3],
-        'friction': ps[4],
-        'dampening': ps[5]
+        settings: {
+          'attraction': ps[0],
+          'repulsion': ps[1],
+          'epsilon': ps[2],
+          'inner_distance': ps[3],
+          'friction': ps[4],
+          'dampening': ps[5]
+        },
+        lengths: getEdgeLengths()
       })
     })
   })
 }
 
-function getEdgeLengths(){
-  var graph = document.querySelector('graph-visualization');
-  var edges = graph.querySelectorAll('graph-edge');
-  if(edges instanceof Array){
-    return edges.map(edge => {
-      var xi = document.querySelector(edge.source).cube.position;
-      var xj = document.querySelector(edge.target).cube.position;
-
-      var l = xi.distanceTo(xj);
-      return l;
-    });
-  }else{
-    window.recording = false;
-    return [];
-  }
-}
-
 var AppCtrl = App.controller('AppCtrl', ['$scope', async function($scope){
   $scope.output = "Nothing yet";
 
-  window.settings = [];
-  window.lengths = [];
+  window.data = [];
   async function getData() {
     window.enough = new Promise((resolve, reject) => {
       window.recording = true;
@@ -51,21 +51,18 @@ var AppCtrl = App.controller('AppCtrl', ['$scope', async function($scope){
           resolve(window.lengths);
           clearInterval(it);
         }else{
-          window.lengths.push( getEdgeLengths() );
-          window.settings.push( await getSettings() );
+          window.data.push( await getSettings() );
         }
       }, 10)
     });
 
     await window.enough;
-    console.log('done', lengths.length)
-    var settings = window.settings;
-    console.log('lengths', lengths)
-    console.log('settings', settings);
+    console.log('done', window.data.length);
 
-    var cleaned = lengths.map((l, i) => {
+    var cleaned = data.map((d, i) => {
 
-      var s = settings[i];
+      var s = d.settings;
+      var l = d.lengths;
       if(s){
         var fs = [s.attraction, s.repulsion, s.epsilon, s.inner_distance, s.friction, s.dampening];
         
@@ -74,7 +71,9 @@ var AppCtrl = App.controller('AppCtrl', ['$scope', async function($scope){
       }else{
         return {settings: null, lengths: null}
       }
-    }).filter(d => d.settings && d.lengths)
+    }).filter(d => d.settings.length == 6 && d.lengths.length == 6)
+
+    console.log('cleaned', cleaned);
 
     return cleaned;
   }
@@ -98,14 +97,11 @@ var AppCtrl = App.controller('AppCtrl', ['$scope', async function($scope){
     $scope.construct();
     const data = await getData();
 
-    console.log('data', data);
-
     var input = tf.tensor(data.map(d => d.settings));
     console.log('shape', input.shape);
   
     // More code will be added below
 
-    /*
     const model = createModel();  
     tfvis.show.modelSummary({name: 'Model Summary'}, model);
 
@@ -115,7 +111,6 @@ var AppCtrl = App.controller('AppCtrl', ['$scope', async function($scope){
     // Train the model  
     await trainModel(model, inputs, labels);
     console.log('Done Training');
-    */
   }
 
     /**
@@ -143,7 +138,7 @@ var AppCtrl = App.controller('AppCtrl', ['$scope', async function($scope){
       console.log('inputs: ', inputs, 'labels: ', labels)
 
       const inputTensor = tf.tensor2d(inputs, [inputs.length, 6]);
-      const labelTensor = tf.tensor2d(labels, [labels.length, 10]);
+      const labelTensor = tf.tensor2d(labels, [labels.length, 6]);
 
       //Step 3. Normalize the data to the range 0 - 1 using min-max scaling
       const inputMax = inputTensor.max();
@@ -175,7 +170,7 @@ var AppCtrl = App.controller('AppCtrl', ['$scope', async function($scope){
     });
     
     const batchSize = 32;
-    const epochs = 50;
+    const epochs = 250;
     
     return await model.fit(inputs, labels, {
       batchSize,
