@@ -305,7 +305,6 @@ var AppCtrl = App.controller('AppCtrl', ['$scope', async function($scope){
       fill: getRandomColor(),
       hachureAngle: 60, // angle of hachure,
       hachureGap: 8,
-      fillStyle: 'cross-hatch',
       roughness: 2.8
     });
 

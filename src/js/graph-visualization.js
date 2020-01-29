@@ -8,6 +8,17 @@
 import * as THREE from '../../node_modules/three';
 import { OrbitControls } from '../../node_modules/three/examples/jsm/controls/OrbitControls.js';
 import Remote from "./layout-engine-remote.js";
+import 'regenerator-runtime';
+import ResizeObserver from './ResizeObserver';
+import './Blob'
+
+
+var detectWebGL = function(){
+  var canvas = document.createElement("canvas");
+  // Get WebGLRenderingContext from canvas element.
+  var gl = canvas.getContext("webgl") || canvas.getContext("experimental-webgl");
+  return gl instanceof WebGLRenderingContext;
+}
 
 // https://stackoverflow.com/a/56266358/5865620
 const isValidColor = (strColor) => {
@@ -268,11 +279,19 @@ class GraphVisualization extends HTMLElement {
     this.light = new THREE.AmbientLight( 0x404040, 1.0 );
     this.scene.add(this.light);
 
-    this.renderer = new THREE.WebGLRenderer({
-      canvas: this.canvas,
-      antialias: true,
-      alpha: true
-    });
+    if(detectWebGL()){
+      this.renderer = new THREE.WebGLRenderer({
+        canvas: this.canvas,
+        antialias: true,
+        alpha: true
+      });
+    }else{
+      this.renderer = new THREE.CanvasRenderer({
+        canvas: this.canvas,
+        antialias: true,
+        alpha: true
+      })
+    }
 
     console.log('setupScene', this.width, this.height);
     this.setSize(this.width, this.height);
