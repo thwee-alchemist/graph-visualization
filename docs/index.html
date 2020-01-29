@@ -157,19 +157,19 @@
           <button onclick="changePicture()">Change Picture of Selected Vertex</button>
           <button ng-click="addVertices()">Add Many Vertices</button>
           <button ng-click="addEdges()">Add Many Edges</button>
-          <button ng-click="run()">Construct Pyramid</button>
+          <!--<button ng-click="run()">Construct Pyramid</button>-->
         </div>
       </div>
 
       <graph-visualization 
         width="100%"
         height="500px"
-        epsilon="1e-5"
-        attraction="2e-4"
-        repulsion="2e-4"
+        epsilon="1e-1"
+        attraction="2e-1"
+        repulsion="2e-1"
         friction="0.1"
         inner-distance="10"
-        dampening="0.1"
+        dampening="0.9"
         theta="0.15">
 
         <!--

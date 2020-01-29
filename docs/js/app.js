@@ -53,6 +53,7 @@ var AppCtrl = App.controller('AppCtrl', ['$scope', async function($scope){
   var settings = ['attraction', 'repulsion', 'epsilon', 'inner_distance', 'friction', 'dampening'];
 
 
+  var graph = document.querySelector('graph-visualization');
   window.data = [];
   async function getData() {
     window.enough = new Promise((resolve, reject) => {
@@ -60,10 +61,9 @@ var AppCtrl = App.controller('AppCtrl', ['$scope', async function($scope){
       var it = setInterval(async () => {
 
         // set random setting to a randomSetting()
-        var opt = settings[Math.floor(Math.random() * settings.length)];
-        var graph = document.querySelector('graph-visualization');
-        graph.layout.settings[opt] = randomSetting();
-        
+        settings.forEach(opt => {
+          graph.layout.settings[opt] = randomSetting();
+        })    
 
         console.log('recording', window.recording)
         if(!window.recording){
@@ -120,23 +120,25 @@ var AppCtrl = App.controller('AppCtrl', ['$scope', async function($scope){
     var input = tf.tensor(data.map(d => d.settings));
     console.log('shape', input.shape);
 
-    /*
-    const values = data.map(d => ({
-      x: d.settings,
-      y: d.lengths
-    }))
+    const sum = arr => arr.reduce((a,b) => a + b, 0)
 
-    tfvis.render.scatterplot(
-      {name: 'Settings v Edges Lengths'},
-      {values}, 
-      {
-        xLabel: 'Settings',
-        yLabel: 'Edges Lengths',
-        height: 300
-      }
-    );
-    */
+    settings.forEach((opt, i) => {
+      var values = data.map(d => ({
+        x: d.settings[i],
+        y: sum(d.lengths)/parseFloat(d.lengths.length)
+      }))
 
+      tfvis.render.scatterplot(
+        {name: opt + ' v. avg edge length'},
+        {values}, 
+        {
+          xLabel: opt,
+          yLabel: 'Edge Length',
+          height: 300
+        }
+      );
+
+    })
 
     // More code will be added below
 
