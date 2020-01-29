@@ -200,7 +200,7 @@ std::string LayoutGraph::layout(){
 
 Eigen::MatrixXd LayoutGraph::alpha__(){
   
-  Eigen::MatrixXd sum = Eigen::MatrixXd(3, 3); // Thanks Natalie!
+  Eigen::MatrixXd sum = Eigen::MatrixXd(3, 3);
   sum.setZero();
   
   if((V->size() == 0) || (dm->coarser->V->size() == 0)){
@@ -211,9 +211,10 @@ Eigen::MatrixXd LayoutGraph::alpha__(){
   Vertex* v;
   Vertex* y;
 
-  Eigen::MatrixXd part1 = Eigen::MatrixXd(3, 3);
-  Eigen::MatrixXd part2 = Eigen::MatrixXd(3, 3);
-  
+  Eigen::MatrixXd part1 = Eigen::MatrixXd(1, 3);
+  Eigen::MatrixXd part2 = Eigen::MatrixXd(1, 3);
+  Eigen::MatrixXd partialSum = Eigen::MatrixXd(3, 3);
+
   for(auto id : vs){
     v = V->at(id);
     y = dm->get_corresponding_vertex(v);
@@ -221,28 +222,17 @@ Eigen::MatrixXd LayoutGraph::alpha__(){
     if(y == NULL){
       continue;
     }
+
+    std::cout << "disp: " << (v->displacement->rows(), v->displacement->cols()) << std::endl; 
     
-    /*
-    std::cout << "before" << std::endl;
-    std::cout << *v->displacement << std::endl;
-    std::cout << y->position->transpose() << std::endl;
-    */
-    part1 = *v->displacement * y->position->transpose();
-    // std::cout << "part 1 done" << std::endl;
+    part1 = (y->position->transpose()) * (*v->displacement);
+    part2 = (v->displacement->transpose()) * (*y->position);
 
-    part2 = *y->position * v->displacement->transpose();
-    // std::cout << "part 2 done" << std::endl;
-
-    // std::cout << "part1" << std::endl << part1 << std::endl;
-    // std::cout << "part2" << std::endl << part2 << std::endl;
-
-    Eigen::MatrixXd partialSum = part1 + part2;
-    // std::cout << partialSum << std::endl;
-
-    sum += part1 + part2;
+    partialSum = part1 + part2;
+    sum += partialSum;
   }
 
-  // std::cout << "after" << std::endl;
+  std::cout << "after" << std::endl;
 
   Eigen::MatrixXd a__ = Eigen::MatrixXd(3, 3);
   if(dm->coarser->V->size() != 0){
@@ -251,12 +241,14 @@ Eigen::MatrixXd LayoutGraph::alpha__(){
     a__.setZero();
   }
 
-  // std::cout << "made it to dampening" << std::endl;
+  std::cout << "made it to dampening" << std::endl;
 
   a__ -= settings->dampening * alpha_;
 
   alpha_ += a__;
   alpha += alpha_;
+
+  std::cout << "returning alpha__" << std::end;
 
   return a__;
 }
