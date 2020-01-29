@@ -223,8 +223,6 @@ Eigen::MatrixXd LayoutGraph::alpha__(){
       continue;
     }
 
-    std::cout << "disp: " << (v->displacement->rows(), v->displacement->cols()) << std::endl; 
-    
     part1 = (y->position->transpose()) * (*v->displacement);
     part2 = (v->displacement->transpose()) * (*y->position);
 
@@ -241,14 +239,10 @@ Eigen::MatrixXd LayoutGraph::alpha__(){
     a__.setZero();
   }
 
-  std::cout << "made it to dampening" << std::endl;
-
   a__ -= settings->dampening * alpha_;
 
   alpha_ += a__;
   alpha += alpha_;
-
-  std::cout << "returning alpha__" << std::end;
 
   return a__;
 }
@@ -303,9 +297,9 @@ void LayoutGraph::two_level_dynamics(){
       continue;
     }
     sum += b__;
-    sum += (a__ * (*y->position));
-    sum += (2 * alpha_ * settings->theta * (*y->velocity));
-    sum += ((alpha * (*y->acceleration) * (settings->theta)*(settings->theta)));
+    sum += (*y->position) * a__;
+    sum += (*y->velocity) * (alpha_ * 2 * settings->theta);
+    sum += ((*y->acceleration) * alpha * ((settings->theta)*(settings->theta)));
     *v->proj_accel = sum;
   }
 
