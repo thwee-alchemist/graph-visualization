@@ -230,8 +230,6 @@ Eigen::MatrixXd LayoutGraph::alpha__(){
     sum += partialSum;
   }
 
-  std::cout << "after" << std::endl;
-
   Eigen::MatrixXd a__ = Eigen::MatrixXd(3, 3);
   if(dm->coarser->V->size() != 0){
     a__ = sum / (dm->coarser->V->size());
@@ -336,14 +334,14 @@ void LayoutGraph::single_level_dynamics(){
 
   Eigen::MatrixXd friction = Eigen::MatrixXd(1, 3);
 
+  // repulsion
   for(auto idi : vs){
     Vertex* vi = V->at(idi);
     
     friction = *vi->velocity * c_friction;
     *vi->acceleration = tree->estimate(vi, Vertex::pairwise_repulsion) - friction;
 
-    // std::cout << "repulsion force " << vi->acceleration->norm() << std::endl;
-    
+    std::cout << "repulsion " << idi << " " << *vi->acceleration << std::endl;
   }
 
   Eigen::MatrixXd xi = Eigen::MatrixXd(1, 3);
@@ -371,6 +369,9 @@ void LayoutGraph::single_level_dynamics(){
     // std::cout << "target friction" << target_friction << std::endl;
 
     // std::cout << "attraction force " << force.norm() << std::endl;
+
+    std::cout << "source attraction " << id << " " << force - source_friction << std::endl;
+    std::cout << "target attraction " << id << " " << force - target_friction << std::endl;
 
     *(e->source->acceleration) += (force - source_friction);
     *(e->target->acceleration) -= (force - target_friction);
