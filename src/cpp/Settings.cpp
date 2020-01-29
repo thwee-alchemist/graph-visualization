@@ -10,11 +10,9 @@ Settings::Settings(
   double _inner_distance, 
   double _friction, 
   double _gravity,
-  double _time_dilation,
   double _dampening,
-  double _drag,
   double _theta,
-  double _spread){
+  double _attraction_friction){
 
   attraction = _attraction;
   repulsion = _repulsion;
@@ -22,11 +20,9 @@ Settings::Settings(
   inner_distance = _inner_distance;
   friction = _friction;
   gravity = _gravity;
-  time_dilation = _time_dilation;
   dampening = _dampening;
-  drag = _drag;
   theta = _theta;
-  spread = _spread;
+  attraction_friction = _attraction_friction;
 };
 
 double Settings::get_attraction() const {
@@ -85,21 +81,6 @@ void Settings::set_gravity(double val){
   gravity = val;
 }
 
-double Settings::get_time_dilation() const {
-  return time_dilation;
-}
-
-void Settings::set_time_dilation(double val){
-  time_dilation = val;
-}
-
-double Settings::get_drag() const {
-  return drag;
-}
-
-void Settings::set_drag(double val){
-  drag = val;
-}
 
 double Settings::get_theta() const {
   return theta;
@@ -109,10 +90,10 @@ void Settings::set_theta(double val){
   theta = val;
 }
 
-double Settings::get_spread() const {
-  return spread;
+double Settings::get_attraction_friction() const{
+  return attraction_friction;
 }
 
-void Settings::set_spread(double val){
-  spread = val;
+void Settings::set_attraction_friction(double val){
+  attraction_friction = val;
 }

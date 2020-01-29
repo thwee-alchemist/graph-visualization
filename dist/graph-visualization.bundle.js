@@ -51355,13 +51355,11 @@ class Settings {
     this._repulsion      = obj ? obj.repulsion      : 4;
     this._epsilon        = obj ? obj.epsilon        : 1e-4;
     this._inner_distance = obj ? obj.inner_distance : 9e-3;
-    this._time_dilation  = obj ? obj.time_dilation  : 0.1;
     this._friction       = obj ? obj.friction       : 8e-1;
-    this._gravity        = obj ? obj.gravity        : 1e1;
-    this._dampening      = obj ? obj.dampening      : 1e-1;
-    this._drag           = obj ? obj.drag           : 1e-1 ;
+    this._gravity        = obj ? obj.gravity        : 1e1;  // todo implement
+    this._dampening      = obj ? obj.dampening      : 1e-1; // todo remove? 
     this._theta          = obj ? obj.theta          : 0.15;
-    this._spread         = obj ? obj.spread         : 1.0;
+    this._attraction_friction = obj ? obj.attraction_friction : 1e-2;
 
     var owns = Object.getOwnPropertyNames(this).filter(prop => prop[0] == '_');
 

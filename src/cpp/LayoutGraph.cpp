@@ -331,6 +331,7 @@ void LayoutGraph::single_level_dynamics(){
 
   double c_friction = settings->friction;
   double c_attraction = settings->attraction;
+  double c_attraction_friction = settings->attraction_friction;
 
   Eigen::MatrixXd friction = Eigen::MatrixXd(1, 3);
 
@@ -341,7 +342,7 @@ void LayoutGraph::single_level_dynamics(){
     friction = *vi->velocity * c_friction;
     *vi->acceleration = tree->estimate(vi, Vertex::pairwise_repulsion) - friction;
 
-    std::cout << "repulsion " << idi << " " << *vi->acceleration << std::endl;
+    // std::cout << "repulsion " << idi << " " << *vi->acceleration << std::endl;
   }
 
   Eigen::MatrixXd xi = Eigen::MatrixXd(1, 3);
@@ -362,19 +363,19 @@ void LayoutGraph::single_level_dynamics(){
 
     force = ((xi - xj) * -c_attraction);
 
-    source_friction = -*e->source->velocity * c_friction;
-    target_friction = -*e->target->velocity * c_friction;
+    source_friction = -*e->source->velocity * c_attraction_friction;
+    target_friction = -*e->target->velocity * c_attraction_friction;
 
     // std::cout << "source friction " << source_friction << std::endl;
     // std::cout << "target friction" << target_friction << std::endl;
 
     // std::cout << "attraction force " << force.norm() << std::endl;
 
-    std::cout << "source attraction " << id << " " << force - source_friction << std::endl;
-    std::cout << "target attraction " << id << " " << force - target_friction << std::endl;
+    // std::cout << "source attraction " << id << " " << force - source_friction << std::endl;
+    // std::cout << "target attraction " << id << " " << force - target_friction << std::endl;
 
-    *(e->source->acceleration) += (force - source_friction);
-    *(e->target->acceleration) -= (force - target_friction);
+    *(e->source->acceleration) -= (force - source_friction);
+    *(e->target->acceleration) += (force - target_friction);
 
     // std::cout << "final force" << e->target->acceleration->norm() << std::endl;
   }

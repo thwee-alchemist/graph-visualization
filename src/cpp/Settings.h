@@ -14,11 +14,9 @@ namespace sc {
         double _inner_distance,
         double _friction, 
         double _gravity,
-        double _time_dilation,
         double _dampening,
-        double _drag,
         double _theta,
-        double _spread
+        double _attraction_friction
       );
 
       double get_dampening() const;
@@ -42,17 +40,11 @@ namespace sc {
       double get_gravity() const;
       void set_gravity(double val);
 
-      double get_time_dilation() const;
-      void set_time_dilation(double val);
-
-      double get_drag() const;
-      void set_drag(double val);
-
       double get_theta() const;
       void set_theta(double val);
 
-      double get_spread() const;
-      void set_spread(double val);
+      double get_attraction_friction() const;
+      void set_attraction_friction(double val);
 
       double dampening;
       double repulsion;
@@ -61,10 +53,8 @@ namespace sc {
       double attraction;
       double friction;
       double gravity;
-      double time_dilation;
-      double drag;
       double theta;
-      double spread;
+      double attraction_friction;
   };
 }
 
