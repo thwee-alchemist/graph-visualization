@@ -182,9 +182,13 @@ std::string LayoutGraph::layout(){
   if(dm == NULL){
     single_level_dynamics();
     auto vs = vertices();
+
+    Eigen::MatrixXd friction = Eigen::MatrixXd(1, 3);
     for(auto id : vs){
       Vertex* v = V->at(id);
 
+      friction = *v->velocity * settings->friction;
+      *v->acceleration -= friction;
       *v->velocity += *v->acceleration;
       *v->position += *v->velocity;
     }
@@ -329,18 +333,15 @@ void LayoutGraph::single_level_dynamics(){
     tree->insert(v);
   }
 
-  double c_friction = settings->friction;
   double c_attraction = settings->attraction;
-  double c_attraction_friction = settings->attraction_friction;
-
-  Eigen::MatrixXd friction = Eigen::MatrixXd(1, 3);
+  // double c_attraction_friction = settings->attraction_friction;
 
   // repulsion
   for(auto idi : vs){
     Vertex* vi = V->at(idi);
     
-    friction = *vi->velocity * c_friction;
-    *vi->acceleration = tree->estimate(vi, Vertex::pairwise_repulsion) - friction;
+    // friction = *vi->velocity * c_friction;
+    *vi->acceleration = tree->estimate(vi, Vertex::pairwise_repulsion); //  - friction;
 
     // std::cout << "repulsion " << idi << " " << *vi->acceleration << std::endl;
   }
@@ -348,10 +349,10 @@ void LayoutGraph::single_level_dynamics(){
   Eigen::MatrixXd xi = Eigen::MatrixXd(1, 3);
   Eigen::MatrixXd xj = Eigen::MatrixXd(1, 3);
 
-  Eigen::MatrixXd source_friction = Eigen::MatrixXd(1, 3);;
-  Eigen::MatrixXd target_friction = Eigen::MatrixXd(1, 3);;
+  // Eigen::MatrixXd source_friction = Eigen::MatrixXd(1, 3);;
+  // Eigen::MatrixXd target_friction = Eigen::MatrixXd(1, 3);;
 
-  Eigen::MatrixXd force = Eigen::MatrixXd(1, 3);;
+  Eigen::MatrixXd attraction = Eigen::MatrixXd(1, 3);;
 
   // attractions
   auto es = edges();
@@ -361,23 +362,22 @@ void LayoutGraph::single_level_dynamics(){
     xi = *e->source->position;
     xj = *e->target->position;
 
-    force = ((xi - xj) * -c_attraction);
+    attraction = ((xi - xj) * -1 * settings->attraction);
 
-    source_friction = -*e->source->velocity * c_attraction_friction;
-    target_friction = -*e->target->velocity * c_attraction_friction;
-
-    // std::cout << "source friction " << source_friction << std::endl;
-    // std::cout << "target friction" << target_friction << std::endl;
-
-    // std::cout << "attraction force " << force.norm() << std::endl;
-
-    // std::cout << "source attraction " << id << " " << force - source_friction << std::endl;
-    // std::cout << "target attraction " << id << " " << force - target_friction << std::endl;
-
-    *(e->source->acceleration) -= (force - source_friction);
-    *(e->target->acceleration) += (force - target_friction);
+    *(e->source->acceleration) += attraction;
+    *(e->target->acceleration) -= attraction;
 
     // std::cout << "final force" << e->target->acceleration->norm() << std::endl;
+  }
+
+  double c_friction = settings->friction;
+  Eigen::MatrixXd friction = Eigen::MatrixXd(1, 3);
+
+  for(auto id : vs){
+    auto v = V->at(id);
+
+    friction = *v->velocity * settings->friction;
+    *v->acceleration -= friction;
   }
 
   delete tree;

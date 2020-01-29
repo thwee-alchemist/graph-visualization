@@ -102,7 +102,6 @@ class Settings {
     this._gravity        = obj ? obj.gravity        : 1e1;  // todo implement
     this._dampening      = obj ? obj.dampening      : 1e-1; // todo remove? 
     this._theta          = obj ? obj.theta          : 0.15;
-    this._attraction_friction = obj ? obj.attraction_friction : 1e-2;
 
     var owns = Object.getOwnPropertyNames(this).filter(prop => prop[0] == '_');
 

@@ -97,7 +97,7 @@ Eigen::MatrixXd Vertex::pairwise_repulsion(Eigen::MatrixXd* one, Eigen::MatrixXd
   Eigen::MatrixXd diff = (*one - *two);
 
   double firstDenominator = settings.epsilon + diff.squaredNorm();
-  Eigen::MatrixXd repulsion = (settings.friction / firstDenominator) * (diff / (settings.epsilon + diff.norm()));
+  Eigen::MatrixXd repulsion = (settings.repulsion / firstDenominator) * (diff / (settings.epsilon + diff.norm()));
 
   return repulsion;
 }

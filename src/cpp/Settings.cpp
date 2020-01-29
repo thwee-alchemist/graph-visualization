@@ -11,8 +11,7 @@ Settings::Settings(
   double _friction, 
   double _gravity,
   double _dampening,
-  double _theta,
-  double _attraction_friction){
+  double _theta){
 
   attraction = _attraction;
   repulsion = _repulsion;
@@ -22,7 +21,6 @@ Settings::Settings(
   gravity = _gravity;
   dampening = _dampening;
   theta = _theta;
-  attraction_friction = _attraction_friction;
 };
 
 double Settings::get_attraction() const {
@@ -81,19 +79,10 @@ void Settings::set_gravity(double val){
   gravity = val;
 }
 
-
 double Settings::get_theta() const {
   return theta;
 }
 
 void Settings::set_theta(double val){
   theta = val;
-}
-
-double Settings::get_attraction_friction() const{
-  return attraction_friction;
-}
-
-void Settings::set_attraction_friction(double val){
-  attraction_friction = val;
 }

@@ -51359,7 +51359,6 @@ class Settings {
     this._gravity        = obj ? obj.gravity        : 1e1;  // todo implement
     this._dampening      = obj ? obj.dampening      : 1e-1; // todo remove? 
     this._theta          = obj ? obj.theta          : 0.15;
-    this._attraction_friction = obj ? obj.attraction_friction : 1e-2;
 
     var owns = Object.getOwnPropertyNames(this).filter(prop => prop[0] == '_');
 
@@ -51590,20 +51589,9 @@ class graph_visualization_GraphVisualization extends HTMLElement {
       }
     }
 
-    /*
-    this._attraction     = undefined;
-    this._repulsion      = undefined;
-    this._epsilon        = undefined;
-    this._inner_distance = undefined;
-    this._time_dilation  = undefined;
-    this._friction       = undefined;
-    this._gravity        = undefined;
-    this._dampening      = undefined;
-    this._drag           = undefined;
-    this._theta          = undefined;
-    this._spread         = undefined;
-    */
+    this.queue = [];
   }
+
 
 
   /**
@@ -51812,13 +51800,13 @@ class graph_visualization_GraphVisualization extends HTMLElement {
   renderInitial(){
     var vs = this.querySelectorAll('graph-vertex');
     for(var v of vs){
-      this.processAddVertex(v);
+      this.queue.push(this.processAddVertex.bind(this, v));
     }
 
     var es = this.querySelectorAll('graph-edge');
     for(var e of es){
       console.log('GV add edge')
-      this.processAddEdge(e);
+      this.queue.push(this.processAddEdge.bind(this, e));
     }
   }
 
@@ -51879,21 +51867,21 @@ class graph_visualization_GraphVisualization extends HTMLElement {
           case 'childList':
             for(var added of mutation.addedNodes){
               if(added instanceof GraphVertex){
-                self.processAddVertex(added)
+                self.queue.push(self.processAddVertex.bind(self, added))
               }
 
               if(added instanceof GraphEdge){
-                self.processAddEdge(added);
+                self.queue.push(self.processAddEdge.bind(self, added));
               }
             }
 
             for(var removed of mutation.removedNodes){
               if(removed instanceof GraphVertex){
-                self.processRemoveVertex(removed)
+                self.queue.push(self.processRemoveVertex.bind(self, removed));
               }
 
               if(removed instanceof GraphEdge){
-                self.processRemoveEdge(removed);
+                self.queue.push(self.processRemoveEdge.bind(self, removed));
               }
             }
 
@@ -51960,10 +51948,13 @@ class graph_visualization_GraphVisualization extends HTMLElement {
     var renderer = this.renderer,
       scene = this.scene,
       camera = this.camera,
-      controls = this.controls;
+      controls = this.controls,
+      process_queue = this.process_queue.bind(this);
 
     var animate = function () {
       requestAnimationFrame( animate );
+      process_queue();
+
       controls.update();
       renderer.render( scene, camera );
     };
@@ -51972,6 +51963,21 @@ class graph_visualization_GraphVisualization extends HTMLElement {
     
     document.addEventListener('dblclick', this.resolve_click.bind(this, 'dblclick'));
     document.addEventListener('click', this.resolve_click.bind(this, 'click'));
+  }
+
+  async process_queue(){
+    if(this.queue.length){
+      if(this.waiting === undefined){
+        this.waiting = new Promise((resolve, reject) => {
+          this.queue.shift()().then(resolve);
+        })
+      }else if(this.queue.length){
+        await this.waiting;
+        this.waiting = new Promise((resolve, reject) => {
+          this.queue.shift()().then(resolve);
+        })
+      }
+    }
   }
 
   onresize(){

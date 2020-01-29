@@ -298,11 +298,15 @@ var AppCtrl = App.controller('AppCtrl', ['$scope', async function($scope){
 
   var drawCube = function(){
     context.clearRect(0, 0, canvas.width, canvas.height);
+    // context.fillStyle = 'white';
+    // context.fillRect(0, 0, canvas.width, canvas.height)
 
     rc.rectangle(0, 0, 100, 100, {
       fill: getRandomColor(),
       hachureAngle: 60, // angle of hachure,
-      hachureGap: 8
+      hachureGap: 8,
+      fillStyle: 'cross-hatch',
+      roughness: 2.8
     });
 
     return rc.canvas.toDataURL();
