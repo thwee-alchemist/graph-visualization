@@ -140,6 +140,7 @@
           <label>{{ prop.substring(1) }}</label>
           <input 
             type="number" 
+            step="0.00001"
             ng-model="graph[prop.substring(1)]" 
             ng-model-options="{updateOn : 'change blur'}">
         </div>
@@ -165,8 +166,8 @@
         width="100%"
         height="500px"
         epsilon="1e-1"
-        attraction="2e-2"
-        repulsion="4e-2"
+        attraction="2e-4"
+        repulsion="4e-4"
         friction="0.1"
         inner-distance="10"
         dampening="0.5"
