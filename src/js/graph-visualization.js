@@ -381,7 +381,7 @@ class GraphVisualization extends HTMLElement {
               }
             }, reason => {
               window.recording = false;
-              layout.end();
+              self.dispatchEvent(new Event('stopped'));
               cancelAnimationFrame(af);
             });
           }catch(_){

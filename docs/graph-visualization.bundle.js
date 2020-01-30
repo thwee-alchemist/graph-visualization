@@ -7802,7 +7802,7 @@ function (_HTMLElement4) {
                           }
                         }, function (reason) {
                           window.recording = false;
-                          layout.end();
+                          self.dispatchEvent(new Event('stopped'));
                           cancelAnimationFrame(af);
                         });
                       } catch (_) {
