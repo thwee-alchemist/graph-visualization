@@ -11,6 +11,7 @@ import Remote from "./layout-engine-remote.js";
 import 'regenerator-runtime';
 import ResizeObserver from './ResizeObserver';
 import './Blob'
+import { EventEmitter } from 'events';
 
 
 var detectWebGL = function(){
@@ -314,6 +315,9 @@ class GraphVisualization extends HTMLElement {
 
   async setupCore(){
     this.layout = Remote;
+    this.layout.stopped.then(() => {
+      this.dispatchEvent(new Event('stopped'))
+    })
 
     for(var prop in this.layout.settings){
       ((prop) => {
@@ -376,13 +380,13 @@ class GraphVisualization extends HTMLElement {
                 }
               }else{
                 window.recording = false;
-                layout.end();
                 cancelAnimationFrame(af);
+                self.dispatchEvent(new Event('stopped'));
               }
-            }, reason => {
+            }).catch(reason => {
               window.recording = false;
-              self.dispatchEvent(new Event('stopped'));
               cancelAnimationFrame(af);
+              self.dispatchEvent(new Event('stopped'));
             });
           }catch(_){
             recording = false;
@@ -535,7 +539,9 @@ class GraphVisualization extends HTMLElement {
 
     this.layout.started.then(() => {
       this.renderInitial();
-    });
+    }).catch(reason => {
+      this.dispatchEvent(new Event('stopped'));
+    })
     this.setupResizeObserver();
 
     this.textureLoader = new THREE.TextureLoader();

@@ -23,6 +23,9 @@ async function post(msg){
     }.bind(null);
     worker.addEventListener('message', onmsg);
     worker.postMessage(msg);
+    worker.addEventListener('stopped', () => {
+      stopped.resolve(true);
+    })
   });
 
   return await promise;
@@ -37,6 +40,10 @@ var started = new Promise((resolve, reject) => {
   }
 
   worker.addEventListener('message', onstarted);
+})
+
+var stopped = new Promise((resolve, reject) => {
+  worker.onerror = resolve;
 })
 
 async function start(levels){
@@ -69,6 +76,9 @@ async function remove_edge(id){
 
 async function layout(){
   var result = await post({_type: 'layout'})
+  if(result === "stopped"){
+    throw Error("stopped");
+  }
   return result;
 }
 
@@ -129,6 +139,8 @@ var Remote = {
   'start': start,
 
   'started': started,
+
+  'stopped': stopped,
   
   /* unsigned int add_vertex() */
   'add_vertex': add_vertex,
