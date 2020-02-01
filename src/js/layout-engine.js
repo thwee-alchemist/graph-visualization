@@ -121,11 +121,12 @@ fetch(request).then((response) => {
               break;
 
             case 'layout':
-              var result;
               try{
-                result = JSON.parse(self.lg.layout());
+                var l = self.lg.layout();
+                result = JSON.parse(l);
               }catch(e){
-                result = e;
+                result = 'stopped';
+                self.dispatchEvent(new Event('stopped'))
               }finally{
                 self.postMessage.call(self, {re: e.data.msgId, 'result': result});
               }
@@ -149,10 +150,12 @@ fetch(request).then((response) => {
               break;
 
             case 'end':
+              
               if(self.lg != null){
-                self.lg.delete();
+                self.dispatchEvent(new Event('stopped'))
               }
-              self.postMessage.call(self, {re: e.data.msgId, 'result': 'stopped?'})
+
+              self.postMessage.call(self, {re: e.data.msgId, 'result': 'stopped'})
               break;
             }
           };
