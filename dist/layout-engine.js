@@ -27,10 +27,6 @@ fetch(request).then((response) => {
       Core.onRuntimeInitialized = () => {
         console.log('Runtime initialized')
 
-        if(self.lg){
-          self.lg.delete();
-        }
-
         // self.lg = null
         self.settings = Core.default_settings();
         self.lg = new Core.LayoutGraph(self.settings, 1);
