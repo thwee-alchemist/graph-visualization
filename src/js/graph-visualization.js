@@ -49,11 +49,55 @@ class GraphVertex extends HTMLElement {
     this._size = undefined;
     this._face = undefined;
     this._onclick = undefined;
+
+    this.template = document.createElement('template');
+    this.template.innerHTML = `<span slot="label"></span>`;
   }  
 
   connectedCallback(){
     this.size = this.getAttribute('size');
     this.face = this.getAttribute('face');
+
+    if(this.innerHTML){
+      this.labelDiv = this.template.content.cloneNode(true)
+    }else{
+      this.labelDiv = false;
+    }
+  }
+
+  addLabel(){
+    if(!this.labelDiv){
+      return;
+    }
+    this.labelDiv.style.position = 'relative';
+    this.labelDiv.style['z-index'] = 10;
+    this.parentElement.shadowRoot.appendChild(this.labelDiv);
+  
+    var self = this;
+    var labelUpdater = function(){
+      self.updateLabelPosition();
+      self.updateLabel = requestAnimationFrame(labelUpdater);
+    };
+    this.updateLabel = requestAnimationFrame(labelUpdater);
+  }
+
+  updateLabelPositions(div){
+    var coords = this.get2DCoords(this.cube.position, this.parentElement.camera);
+    this.labelDiv.style.top = coords.x + 'px';
+    this.labelDiv.style.left = coords.y + 'px';
+  }
+
+  get2DCoords(position, camera){
+    var vector = position.project(camera);
+    vector.x = (vector.x + 1)/2 * this.parentElement.innerWidth + this.parentElement.offsetTop;
+    vector.y = -(vector.y - 1)/2 * this.parentElement.innerHeight + this.parentElement.offsetLeft;
+    return vector;
+  }
+
+  removeLabel(node){
+    if(this.updateLabel){
+      cancelAnimationFrame(this.updateLabel);
+    }
   }
 
   adoptedCallback(){
@@ -458,7 +502,7 @@ class GraphVisualization extends HTMLElement {
     var config = {
       attributes: true,
       childList: true,
-      subtree: true
+      subtree: false
     };
 
     var self = this;
@@ -552,12 +596,12 @@ class GraphVisualization extends HTMLElement {
       scene = this.scene,
       camera = this.camera,
       controls = this.controls,
-      process_queue = this.process_queue.bind(this);
+      processQueue = this.process_queue.bind(this);
+
+    setInterval(processQueue, 250);
 
     var animate = function () {
       requestAnimationFrame( animate );
-
-      process_queue();
 
       controls.update();
       renderer.render( scene, camera );
@@ -706,6 +750,12 @@ class GraphVisualization extends HTMLElement {
     };
 
     animateCube();
+
+
+    if(elem.innerHTML){
+      console.log('innerHTML', elem.innerHTML)
+      elem.addLabel();
+    }
   }
 
   updateVertex(elem, prop){

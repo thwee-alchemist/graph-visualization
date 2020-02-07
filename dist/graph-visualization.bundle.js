@@ -7866,6 +7866,8 @@ function (_HTMLElement) {
     _this._size = undefined;
     _this._face = undefined;
     _this._onclick = undefined;
+    _this.template = document.createElement('template');
+    _this.template.innerHTML = "<span slot=\"label\"></span>";
     return _this;
   }
 
@@ -7874,6 +7876,53 @@ function (_HTMLElement) {
     value: function connectedCallback() {
       this.size = this.getAttribute('size');
       this.face = this.getAttribute('face');
+
+      if (this.innerHTML) {
+        this.labelDiv = this.template.content.cloneNode(true);
+      } else {
+        this.labelDiv = false;
+      }
+    }
+  }, {
+    key: "addLabel",
+    value: function addLabel() {
+      if (!this.labelDiv) {
+        return;
+      }
+
+      this.labelDiv.style.position = 'relative';
+      this.labelDiv.style['z-index'] = 10;
+      this.parentElement.shadowRoot.appendChild(this.labelDiv);
+      var self = this;
+
+      var labelUpdater = function labelUpdater() {
+        self.updateLabelPosition();
+        self.updateLabel = requestAnimationFrame(labelUpdater);
+      };
+
+      this.updateLabel = requestAnimationFrame(labelUpdater);
+    }
+  }, {
+    key: "updateLabelPositions",
+    value: function updateLabelPositions(div) {
+      var coords = this.get2DCoords(this.cube.position, this.parentElement.camera);
+      this.labelDiv.style.top = coords.x + 'px';
+      this.labelDiv.style.left = coords.y + 'px';
+    }
+  }, {
+    key: "get2DCoords",
+    value: function get2DCoords(position, camera) {
+      var vector = position.project(camera);
+      vector.x = (vector.x + 1) / 2 * this.parentElement.innerWidth + this.parentElement.offsetTop;
+      vector.y = -(vector.y - 1) / 2 * this.parentElement.innerHeight + this.parentElement.offsetLeft;
+      return vector;
+    }
+  }, {
+    key: "removeLabel",
+    value: function removeLabel(node) {
+      if (this.updateLabel) {
+        cancelAnimationFrame(this.updateLabel);
+      }
     }
   }, {
     key: "adoptedCallback",
@@ -8345,7 +8394,7 @@ function (_HTMLElement4) {
       var config = {
         attributes: true,
         childList: true,
-        subtree: true
+        subtree: false
       };
       var self = this;
 
@@ -8525,11 +8574,11 @@ function (_HTMLElement4) {
           scene = this.scene,
           camera = this.camera,
           controls = this.controls,
-          process_queue = this.process_queue.bind(this);
+          processQueue = this.process_queue.bind(this);
+      setInterval(processQueue, 250);
 
       var animate = function animate() {
         requestAnimationFrame(animate);
-        process_queue();
         controls.update();
         renderer.render(scene, camera);
       };
@@ -8754,7 +8803,12 @@ function (_HTMLElement4) {
 
                 animateCube();
 
-              case 17:
+                if (elem.innerHTML) {
+                  console.log('innerHTML', elem.innerHTML);
+                  elem.addLabel();
+                }
+
+              case 18:
               case "end":
                 return _context3.stop();
             }

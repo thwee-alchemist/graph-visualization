@@ -1,53 +1,5 @@
 var App = angular.module('App', []);
 
-var randomSetting = function(){
-  var base = Math.floor(Math.random() * 10)
-  var exp = Math.floor(Math.random() * 6);
-  var sign = Math.random() < 0.5 ? -1 : 1; 
-  var expSign = Math.random() < 0.5 ? -1 : 1;
-
-  var number = parseFloat(`${sign * base}e${exp * expSign}`);
-  return number
-}
-
-
-function getEdgeLengths(){
-  var graph = document.querySelector('graph-visualization');
-  var edges = graph.querySelectorAll('graph-edge');
-  var lengths = [];
-  for(var i=0; i<edges.length; i++){
-    var edge = edges[i];
-    var xi = document.querySelector(edge.source).cube.position;
-    var xj = document.querySelector(edge.target).cube.position;
-
-    var l = xi.distanceTo(xj);
-    lengths.push(l);
-  }
-  return lengths;
-}
-
-async function getSettings(){
-  var graph = document.querySelector('graph-visualization');
-  var s = graph.layout.settings;
-
-  return new Promise((resolve, reject) => {
-    Promise.all([s.attraction, s.repulsion, s.epsilon, s.inner_distance, s.friction, s.dampening, s.theta]).then(ps => {
-      resolve({
-        settings: {
-          'attraction': ps[0],
-          'repulsion': ps[1],
-          'epsilon': ps[2],
-          'inner_distance': ps[3],
-          'friction': ps[4],
-          'dampening': ps[5],
-          'theta': ps[6]
-        },
-        lengths: getEdgeLengths()
-      })
-    })
-  })
-}
-
 var AppCtrl = App.controller('AppCtrl', ['$scope', async function($scope){
   $scope.output = "Nothing yet";
 
