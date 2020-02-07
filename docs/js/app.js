@@ -150,7 +150,7 @@ var AppCtrl = App.controller('AppCtrl', ['$scope', async function($scope){
     var makeVertex = function(id, pid){
       var vertex = document.createElement('graph-vertex');
       vertex.id = id + '-' + pid;
-      vertex.size = 5;
+      vertex.size = 1;
       vertex.face = drawCube();
 
       return vertex;
