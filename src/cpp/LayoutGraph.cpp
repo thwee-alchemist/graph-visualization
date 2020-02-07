@@ -181,17 +181,6 @@ Eigen::MatrixXd LayoutGraph::checkNan(Eigen::MatrixXd potential, Eigen::MatrixXd
 std::string LayoutGraph::layout(){
   if(dm == NULL){
     single_level_dynamics();
-    auto vs = vertices();
-
-    Eigen::MatrixXd friction = Eigen::MatrixXd(1, 3);
-    for(auto id : vs){
-      Vertex* v = V->at(id);
-
-      friction = *v->velocity * settings->friction;
-      *v->acceleration -= friction;
-      *v->velocity += *v->acceleration;
-      *v->position += *v->velocity;
-    }
 
     return toJSON(false);
   }
@@ -235,13 +224,9 @@ Eigen::MatrixXd LayoutGraph::alpha__(){
   }
 
   Eigen::MatrixXd a__ = Eigen::MatrixXd(3, 3);
-  if(dm->coarser->V->size() != 0){
-    a__ = sum / (dm->coarser->V->size());
-  }else{
-    a__.setZero();
-  }
+  a__ = sum / ((double)V->size());
 
-  a__ -= settings->dampening * alpha_;
+  a__ -= alpha_ * settings->dampening;
 
   alpha_ += a__;
   alpha += alpha_;
@@ -266,7 +251,7 @@ Eigen::MatrixXd LayoutGraph::beta__(){
     sum += *v->displacement;
   }
 
-  Eigen::MatrixXd b__ = sum / ((double)dm->coarser->V->size());
+  Eigen::MatrixXd b__ = sum / ((double)V->size());
 
   b__ -= settings->dampening * beta_;
 
@@ -290,10 +275,11 @@ void LayoutGraph::two_level_dynamics(){
 
   auto vs = vertices();
   for(auto vid : vs){
-
     sum.setZero();
     
     v = V->at(vid);
+    v->acceleration->setZero();
+
     y = dm->get_corresponding_vertex(v);
     if(y == NULL){
       continue;
@@ -333,10 +319,8 @@ void LayoutGraph::single_level_dynamics(){
     tree->insert(v);
   }
 
-  double c_attraction = settings->attraction;
-  // double c_attraction_friction = settings->attraction_friction;
-
   // repulsion
+  
   for(auto idi : vs){
     Vertex* vi = V->at(idi);
     
@@ -345,6 +329,8 @@ void LayoutGraph::single_level_dynamics(){
 
     // std::cout << "repulsion " << idi << " " << *vi->acceleration << std::endl;
   }
+  delete tree;
+
 
   Eigen::MatrixXd xi = Eigen::MatrixXd(1, 3);
   Eigen::MatrixXd xj = Eigen::MatrixXd(1, 3);
@@ -352,7 +338,8 @@ void LayoutGraph::single_level_dynamics(){
   // Eigen::MatrixXd source_friction = Eigen::MatrixXd(1, 3);;
   // Eigen::MatrixXd target_friction = Eigen::MatrixXd(1, 3);;
 
-  Eigen::MatrixXd attraction = Eigen::MatrixXd(1, 3);;
+  Eigen::MatrixXd attraction = Eigen::MatrixXd(1, 3);
+  attraction.setZero();
 
   // attractions
   auto es = edges();
@@ -362,7 +349,7 @@ void LayoutGraph::single_level_dynamics(){
     xi = *e->source->position;
     xj = *e->target->position;
 
-    attraction = ((xi - xj) * -1 * settings->attraction);
+    attraction = ((xi - xj) * -1.0 * settings->attraction) * e->strength;
 
     *(e->source->acceleration) += attraction;
     *(e->target->acceleration) -= attraction;
@@ -375,12 +362,12 @@ void LayoutGraph::single_level_dynamics(){
 
   for(auto id : vs){
     auto v = V->at(id);
-
+    
     friction = *v->velocity * settings->friction;
     *v->acceleration -= friction;
+    *v->velocity += *v->acceleration;
+    *v->position += *v->velocity;
   }
-
-  delete tree;
 }
 
 std::string LayoutGraph::get_center(){

@@ -158,24 +158,23 @@
           <button onclick="changePicture()">Change Picture of Selected Vertex</button>
           <button ng-click="addVertices()">Add Many Vertices</button>
           <button ng-click="addEdges()">Add Many Edges</button>
-          <!--<button ng-click="run()">Construct Pyramid</button>-->
+          <button ng-click="constructPyramid()">Construct Pyramid</button>
         </div>
       </div>
 
       <graph-visualization 
         width="100%"
         height="500px"
-        epsilon="1e-6"
-        attraction="4e-2"
-        repulsion="0.2"
-        friction="0.75"
-        attraction-friction="2e-3"
+        epsilon="1e-3"
+        attraction="1.0e-2"
+        repulsion="3.00"
+        friction="0.35"
         time-dilation="1e1"
         inner-distance="10"
-        dampening="0.5"
-        theta="0.75">
+        dampening="0.35"
+        theta="0.15">
 
-        <!--
+    <!--
         <graph-vertex id="one" size="5" face="blue" ondblclick="centerAround(this)" onclick="select(this)" ></graph-vertex>
         <graph-vertex id="two" size="5" face="green" ondblclick="centerAround(this)" onclick="select(this)" ></graph-vertex>
         <graph-vertex id="three" size="5" face="red" ondblclick="centerAround(this)" onclick="select(this)" ></graph-vertex>
@@ -187,7 +186,7 @@
         <graph-edge source="#two" target="#three"></graph-edge>
         <graph-edge source="#two" target="#four"></graph-edge>
         <graph-edge source="#three" target="#four"></graph-edge>
-        -->
+    -->
       </graph-visualization>
 
       <hr>

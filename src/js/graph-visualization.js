@@ -556,6 +556,7 @@ class GraphVisualization extends HTMLElement {
 
     var animate = function () {
       requestAnimationFrame( animate );
+
       process_queue();
 
       controls.update();

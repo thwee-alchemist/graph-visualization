@@ -31,7 +31,7 @@ async function getSettings(){
   var s = graph.layout.settings;
 
   return new Promise((resolve, reject) => {
-    Promise.all([s.attraction, s.repulsion, s.epsilon, s.inner_distance, s.friction, s.dampening]).then(ps => {
+    Promise.all([s.attraction, s.repulsion, s.epsilon, s.inner_distance, s.friction, s.dampening, s.theta]).then(ps => {
       resolve({
         settings: {
           'attraction': ps[0],
@@ -39,7 +39,8 @@ async function getSettings(){
           'epsilon': ps[2],
           'inner_distance': ps[3],
           'friction': ps[4],
-          'dampening': ps[5]
+          'dampening': ps[5],
+          'theta': ps[6]
         },
         lengths: getEdgeLengths()
       })
@@ -86,11 +87,11 @@ var AppCtrl = App.controller('AppCtrl', ['$scope', async function($scope){
 
 
   $scope.i = 0;
-  $scope.addVertex = function add_vertex(){
+  $scope.addVertex = function(){
     var vertex = document.createElement('graph-vertex');
     vertex.id = `id-${$scope.i++}`;
     vertex.face = drawCube();
-    vertex.size = 5;
+    vertex.size = 1;
 
     $scope.graph.appendChild(vertex)
 
@@ -142,7 +143,7 @@ var AppCtrl = App.controller('AppCtrl', ['$scope', async function($scope){
   }
 
   var pyramidId = 0;
-  $scope.construct = async () => {
+  $scope.constructPyramid = () => {
     var graph = document.querySelector('graph-visualization');
     var pid = pyramidId++;
 
