@@ -51,53 +51,15 @@ class GraphVertex extends HTMLElement {
     this._onclick = undefined;
 
     this.template = document.createElement('template');
-    this.template.innerHTML = `<span slot="label"></span>`;
-  }  
+    this.template.innerHTML = `<slot name="label"></slot>`;
+    this.attachShadow({mode: 'open'})
+
+    this.shadowRoot.appendChild(this.template.cloneNode(true));
+  }
 
   connectedCallback(){
     this.size = this.getAttribute('size');
     this.face = this.getAttribute('face');
-
-    if(this.innerHTML){
-      this.labelDiv = this.template.content.cloneNode(true)
-    }else{
-      this.labelDiv = false;
-    }
-  }
-
-  addLabel(){
-    if(!this.labelDiv){
-      return;
-    }
-    this.labelDiv.style.position = 'relative';
-    this.labelDiv.style['z-index'] = 10;
-    this.parentElement.shadowRoot.appendChild(this.labelDiv);
-  
-    var self = this;
-    var labelUpdater = function(){
-      self.updateLabelPosition();
-      self.updateLabel = requestAnimationFrame(labelUpdater);
-    };
-    this.updateLabel = requestAnimationFrame(labelUpdater);
-  }
-
-  updateLabelPositions(div){
-    var coords = this.get2DCoords(this.cube.position, this.parentElement.camera);
-    this.labelDiv.style.top = coords.x + 'px';
-    this.labelDiv.style.left = coords.y + 'px';
-  }
-
-  get2DCoords(position, camera){
-    var vector = position.project(camera);
-    vector.x = (vector.x + 1)/2 * this.parentElement.innerWidth + this.parentElement.offsetTop;
-    vector.y = -(vector.y - 1)/2 * this.parentElement.innerHeight + this.parentElement.offsetLeft;
-    return vector;
-  }
-
-  removeLabel(node){
-    if(this.updateLabel){
-      cancelAnimationFrame(this.updateLabel);
-    }
   }
 
   adoptedCallback(){
@@ -346,8 +308,6 @@ class GraphVisualization extends HTMLElement {
     console.log(this.clientWidth, this.clientHeight);
 
     this.camera = new THREE.PerspectiveCamera( 75, this.clientWidth / this.clientHeight, 1, 1000 );
-
-
     this.scene.add(this.camera);
 
     this.camera.position.set(0, 0, -50);
@@ -558,6 +518,36 @@ class GraphVisualization extends HTMLElement {
     self.observer.observe(this, config);
   }
 
+  addLabel(elem){
+    if(!elem.children.length){
+      return;
+    }
+
+    var labelNode = elem.children[0];
+  
+    this.shadowRoot.appendChild(labelNode);
+
+    var self = this;
+    var labelUpdater = function(){
+      self.updateLabelPosition(elem, labelNode);
+      self.updateLabel = requestAnimationFrame(labelUpdater);
+    };
+    this.updateLabel = requestAnimationFrame(labelUpdater);
+  }
+
+  updateLabelPosition(elem, label){
+    var coords = this.get2DCoords(elem.cube.position, this.camera);
+    label.style.top = coords.x + 'px';
+    label.style.left = coords.y + 'px';
+  }
+
+  get2DCoords(position, camera){
+    var vector = position.project(camera);
+    vector.x = (vector.x + 1)/2 * this.innerWidth + this.offsetTop;
+    vector.y = -(vector.y - 1)/2 * this.innerHeight + this.offsetLeft;
+    return vector;
+  }
+
   setupResizeObserver(){
     this.ro = new ResizeObserver(entries => {
       for(var entry of entries){
@@ -750,12 +740,7 @@ class GraphVisualization extends HTMLElement {
     };
 
     animateCube();
-
-
-    if(elem.innerHTML){
-      console.log('innerHTML', elem.innerHTML)
-      elem.addLabel();
-    }
+    this.addLabel(elem)
   }
 
   updateVertex(elem, prop){

@@ -7867,7 +7867,14 @@ function (_HTMLElement) {
     _this._face = undefined;
     _this._onclick = undefined;
     _this.template = document.createElement('template');
-    _this.template.innerHTML = "<span slot=\"label\"></span>";
+    _this.template.innerHTML = "<slot name=\"label\"></slot>";
+
+    _this.attachShadow({
+      mode: 'open'
+    });
+
+    _this.shadowRoot.appendChild(_this.template.cloneNode(true));
+
     return _this;
   }
 
@@ -7876,53 +7883,6 @@ function (_HTMLElement) {
     value: function connectedCallback() {
       this.size = this.getAttribute('size');
       this.face = this.getAttribute('face');
-
-      if (this.innerHTML) {
-        this.labelDiv = this.template.content.cloneNode(true);
-      } else {
-        this.labelDiv = false;
-      }
-    }
-  }, {
-    key: "addLabel",
-    value: function addLabel() {
-      if (!this.labelDiv) {
-        return;
-      }
-
-      this.labelDiv.style.position = 'relative';
-      this.labelDiv.style['z-index'] = 10;
-      this.parentElement.shadowRoot.appendChild(this.labelDiv);
-      var self = this;
-
-      var labelUpdater = function labelUpdater() {
-        self.updateLabelPosition();
-        self.updateLabel = requestAnimationFrame(labelUpdater);
-      };
-
-      this.updateLabel = requestAnimationFrame(labelUpdater);
-    }
-  }, {
-    key: "updateLabelPositions",
-    value: function updateLabelPositions(div) {
-      var coords = this.get2DCoords(this.cube.position, this.parentElement.camera);
-      this.labelDiv.style.top = coords.x + 'px';
-      this.labelDiv.style.left = coords.y + 'px';
-    }
-  }, {
-    key: "get2DCoords",
-    value: function get2DCoords(position, camera) {
-      var vector = position.project(camera);
-      vector.x = (vector.x + 1) / 2 * this.parentElement.innerWidth + this.parentElement.offsetTop;
-      vector.y = -(vector.y - 1) / 2 * this.parentElement.innerHeight + this.parentElement.offsetLeft;
-      return vector;
-    }
-  }, {
-    key: "removeLabel",
-    value: function removeLabel(node) {
-      if (this.updateLabel) {
-        cancelAnimationFrame(this.updateLabel);
-      }
     }
   }, {
     key: "adoptedCallback",
@@ -8513,6 +8473,42 @@ function (_HTMLElement4) {
       self.observer.observe(this, config);
     }
   }, {
+    key: "addLabel",
+    value: function addLabel(elem) {
+      if (!elem.children.length) {
+        return;
+      }
+
+      var labelNode = elem.children[0];
+      labelNode.style.position = 'absolute';
+      labelNode.style['z-index'] = 10;
+      labelNode.style.color = 'black';
+      this.shadowRoot.appendChild(labelNode);
+      var self = this;
+
+      var labelUpdater = function labelUpdater() {
+        self.updateLabelPosition(elem, labelNode);
+        self.updateLabel = requestAnimationFrame(labelUpdater);
+      };
+
+      this.updateLabel = requestAnimationFrame(labelUpdater);
+    }
+  }, {
+    key: "updateLabelPosition",
+    value: function updateLabelPosition(elem, label) {
+      var coords = this.get2DCoords(elem.cube.position, this.camera);
+      label.style.top = coords.x + 'px';
+      label.style.left = coords.y + 'px';
+    }
+  }, {
+    key: "get2DCoords",
+    value: function get2DCoords(position, camera) {
+      var vector = position.project(camera);
+      vector.x = (vector.x + 1) / 2 * this.innerWidth + this.offsetTop;
+      vector.y = -(vector.y - 1) / 2 * this.innerHeight + this.offsetLeft;
+      return vector;
+    }
+  }, {
     key: "setupResizeObserver",
     value: function setupResizeObserver() {
       var _this6 = this;
@@ -8802,11 +8798,7 @@ function (_HTMLElement4) {
                 };
 
                 animateCube();
-
-                if (elem.innerHTML) {
-                  console.log('innerHTML', elem.innerHTML);
-                  elem.addLabel();
-                }
+                this.addLabel(elem);
 
               case 18:
               case "end":
