@@ -7867,13 +7867,13 @@ function (_HTMLElement) {
     _this._face = undefined;
     _this._onclick = undefined;
     _this.template = document.createElement('template');
-    _this.template.innerHTML = "<slot name=\"label\"></slot>";
+    _this.template.innerHTML = "<slot id=\"slot\" name=\"label\" slot=\"graph-label\"></slot>";
 
     _this.attachShadow({
       mode: 'open'
     });
 
-    _this.shadowRoot.appendChild(_this.template.cloneNode(true));
+    _this.shadowRoot.appendChild(_this.template.content);
 
     return _this;
   }
@@ -7883,6 +7883,7 @@ function (_HTMLElement) {
     value: function connectedCallback() {
       this.size = this.getAttribute('size');
       this.face = this.getAttribute('face');
+      this.slot = this.shadowRoot.querySelector('slot');
     }
   }, {
     key: "adoptedCallback",
@@ -7917,51 +7918,22 @@ function (_HTMLElement) {
   return GraphVertex;
 }(_wrapNativeSuper(HTMLElement));
 
-var VertexLabel =
-/*#__PURE__*/
-function (_HTMLElement2) {
-  graph_visualization_inherits(VertexLabel, _HTMLElement2);
-
-  function VertexLabel() {
-    var _this2;
-
-    graph_visualization_classCallCheck(this, VertexLabel);
-
-    _this2 = graph_visualization_possibleConstructorReturn(this, graph_visualization_getPrototypeOf(VertexLabel).call(this));
-    _this2._reference = undefined;
-    return _this2;
-  }
-
-  _createClass(VertexLabel, [{
-    key: "ref",
-    get: function get() {
-      return this._reference;
-    },
-    set: function set(val) {
-      this._reference = val;
-      this.setAttribute('ref', val);
-    }
-  }]);
-
-  return VertexLabel;
-}(_wrapNativeSuper(HTMLElement));
-
 var GraphEdge =
 /*#__PURE__*/
-function (_HTMLElement3) {
-  graph_visualization_inherits(GraphEdge, _HTMLElement3);
+function (_HTMLElement2) {
+  graph_visualization_inherits(GraphEdge, _HTMLElement2);
 
   function GraphEdge() {
-    var _this3;
+    var _this2;
 
     graph_visualization_classCallCheck(this, GraphEdge);
 
-    _this3 = graph_visualization_possibleConstructorReturn(this, graph_visualization_getPrototypeOf(GraphEdge).call(this));
-    _this3._color = undefined;
-    _this3._strength = undefined;
-    _this3._source = undefined;
-    _this3._target = undefined;
-    return _this3;
+    _this2 = graph_visualization_possibleConstructorReturn(this, graph_visualization_getPrototypeOf(GraphEdge).call(this));
+    _this2._color = undefined;
+    _this2._strength = undefined;
+    _this2._source = undefined;
+    _this2._target = undefined;
+    return _this2;
   }
 
   _createClass(GraphEdge, [{
@@ -8023,24 +7995,24 @@ function (_HTMLElement3) {
 
 var graph_visualization_GraphVisualization =
 /*#__PURE__*/
-function (_HTMLElement4) {
-  graph_visualization_inherits(GraphVisualization, _HTMLElement4);
+function (_HTMLElement3) {
+  graph_visualization_inherits(GraphVisualization, _HTMLElement3);
 
   function GraphVisualization() {
-    var _this4;
+    var _this3;
 
     var width = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : '100px';
     var height = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : "100px";
 
     graph_visualization_classCallCheck(this, GraphVisualization);
 
-    _this4 = graph_visualization_possibleConstructorReturn(this, graph_visualization_getPrototypeOf(GraphVisualization).call(this, width, height));
+    _this3 = graph_visualization_possibleConstructorReturn(this, graph_visualization_getPrototypeOf(GraphVisualization).call(this, width, height));
 
-    _this4.attachShadow({
+    _this3.attachShadow({
       mode: 'open'
     });
 
-    _this4._defaults = {
+    _this3._defaults = {
       vertex: {
         size: 10,
         face: 'black'
@@ -8050,8 +8022,8 @@ function (_HTMLElement4) {
         strength: 1.0
       }
     };
-    _this4.queue = [];
-    return _this4;
+    _this3.queue = [];
+    return _this3;
   }
   /**
    * setSize(width, height)
@@ -8081,7 +8053,7 @@ function (_HTMLElement4) {
       }
 
       var styleTemplate = document.createElement('template');
-      styleTemplate.innerHTML = "\n    <style class=\"default\">\n    :host {\n      display: block;\n      width: ".concat(width, ";\n      height: ").concat(height, ";\n      margin: 0;\n      padding: 0;\n      border: 1px dashed black;\n      resize: both;\n    }\n\n    canvas {\n      width: ").concat(width, ";\n      height: ").concat(height, ";\n    }\n    </style>");
+      styleTemplate.innerHTML = "\n    <style class=\"default\">\n    :host {\n      display: block;\n      width: ".concat(width, ";\n      height: ").concat(height, ";\n      margin: 0;\n      padding: 0;\n      border: 0;\n      resize: both;\n    }\n    </style>\n\n    canvas {\n      width: ").concat(width, ";\n      height: ").concat(height, ";\n    }\n    <slot name=\"graph-label\"></slot>");
       var style = styleTemplate.content.cloneNode(true);
       this.shadowRoot.appendChild(style);
       this.style.width = width;
@@ -8165,7 +8137,7 @@ function (_HTMLElement4) {
       var _setupCore = graph_visualization_asyncToGenerator(
       /*#__PURE__*/
       regeneratorRuntime.mark(function _callee() {
-        var _this5 = this;
+        var _this4 = this;
 
         var prop;
         return regeneratorRuntime.wrap(function _callee$(_context) {
@@ -8174,7 +8146,7 @@ function (_HTMLElement4) {
               case 0:
                 this.layout = layout_engine_remote;
                 this.layout.stopped.then(function () {
-                  _this5.dispatchEvent(new Event('stopped'));
+                  _this4.dispatchEvent(new Event('stopped'));
                 });
 
                 for (prop in this.layout.settings) {
@@ -8192,9 +8164,9 @@ function (_HTMLElement4) {
                           })*/
                     // this._prop
 
-                    _this5[prop] = undefined; // this.prop
+                    _this4[prop] = undefined; // this.prop
 
-                    Object.defineProperty(_this5, propertyName, {
+                    Object.defineProperty(_this4, propertyName, {
                       get: function get() {
                         return this[valueName];
                       },
@@ -8204,18 +8176,18 @@ function (_HTMLElement4) {
                         this.layout.settings[propertyName] = value;
                       }
                     });
-                    _this5[propertyName] = _this5.hasAttribute(attributeName) ? parseFloat(_this5.getAttribute(attributeName)) : _this5.layout.settings[readSetting];
-                    _this5.layout.settings[propertyName] = _this5[propertyName];
+                    _this4[propertyName] = _this4.hasAttribute(attributeName) ? parseFloat(_this4.getAttribute(attributeName)) : _this4.layout.settings[readSetting];
+                    _this4.layout.settings[propertyName] = _this4[propertyName];
                   })(prop);
                 }
 
                 console.log(this.layout.settings);
                 return _context.abrupt("return", new Promise(function (resolve, reject) {
-                  _this5.layout.started.then(function () {
+                  _this4.layout.started.then(function () {
                     console.log('layout started');
                     resolve();
                     var layout = layout_engine_remote;
-                    var self = _this5;
+                    var self = _this4;
                     var count = 0;
                     var af = null;
 
@@ -8475,20 +8447,23 @@ function (_HTMLElement4) {
   }, {
     key: "addLabel",
     value: function addLabel(elem) {
-      if (!elem.children.length) {
+      var labelT = elem.shadowRoot.querySelector('#slot');
+      var labels = labelT.assignedNodes();
+
+      if (!labels.length) {
         return;
       }
 
-      var labelNode = elem.children[0];
-      labelNode.style.position = 'absolute';
-      labelNode.style['z-index'] = 10;
-      labelNode.style.color = 'black';
-      this.shadowRoot.appendChild(labelNode);
+      var label = labels[0];
+      label.style.position = 'absolute';
+      label.style['z-index'] = 10;
+      this.shadowRoot.appendChild(label);
+      updatePosition();
       var self = this;
 
       var labelUpdater = function labelUpdater() {
-        self.updateLabelPosition(elem, labelNode);
         self.updateLabel = requestAnimationFrame(labelUpdater);
+        sekf.updateLabelPosition.bind(this, elem, label);
       };
 
       this.updateLabel = requestAnimationFrame(labelUpdater);
@@ -8497,7 +8472,8 @@ function (_HTMLElement4) {
     key: "updateLabelPosition",
     value: function updateLabelPosition(elem, label) {
       var coords = this.get2DCoords(elem.cube.position, this.camera);
-      label.style.top = coords.x + 'px';
+      label.style.top = coords.x + 'px'; // todo  +offset
+
       label.style.left = coords.y + 'px';
     }
   }, {
@@ -8511,7 +8487,7 @@ function (_HTMLElement4) {
   }, {
     key: "setupResizeObserver",
     value: function setupResizeObserver() {
-      var _this6 = this;
+      var _this5 = this;
 
       this.ro = new ResizeObserver_default.a(function (entries) {
         var _iteratorNormalCompletion7 = true;
@@ -8522,10 +8498,10 @@ function (_HTMLElement4) {
           for (var _iterator7 = entries[Symbol.iterator](), _step7; !(_iteratorNormalCompletion7 = (_step7 = _iterator7.next()).done); _iteratorNormalCompletion7 = true) {
             var entry = _step7.value;
 
-            _this6.onresize();
+            _this5.onresize();
 
-            if (_this6.camera) {
-              _this6.resizeCamera();
+            if (_this5.camera) {
+              _this5.resizeCamera();
             }
           }
         } catch (err) {
@@ -8552,16 +8528,16 @@ function (_HTMLElement4) {
   }, {
     key: "connectedCallback",
     value: function connectedCallback() {
-      var _this7 = this;
+      var _this6 = this;
 
       this.canvas = document.createElement('canvas');
       this.shadowRoot.appendChild(this.canvas);
       this.setupScene();
       this.setupCore().then(this.setupChildObserver.bind(this));
       this.layout.started.then(function () {
-        _this7.renderInitial();
+        _this6.renderInitial();
       })["catch"](function (reason) {
-        _this7.dispatchEvent(new Event('stopped'));
+        _this6.dispatchEvent(new Event('stopped'));
       });
       this.setupResizeObserver();
       this.textureLoader = new TextureLoader();
@@ -8589,7 +8565,7 @@ function (_HTMLElement4) {
       var _process_queue = graph_visualization_asyncToGenerator(
       /*#__PURE__*/
       regeneratorRuntime.mark(function _callee2() {
-        var _this8 = this;
+        var _this7 = this;
 
         return regeneratorRuntime.wrap(function _callee2$(_context2) {
           while (1) {
@@ -8606,7 +8582,7 @@ function (_HTMLElement4) {
                 }
 
                 this.waiting = new Promise(function (resolve, reject) {
-                  _this8.queue.shift()().then(resolve);
+                  _this7.queue.shift()().then(resolve);
                 });
                 _context2.next = 9;
                 break;
@@ -8622,7 +8598,7 @@ function (_HTMLElement4) {
 
               case 8:
                 this.waiting = new Promise(function (resolve, reject) {
-                  _this8.queue.shift()().then(resolve);
+                  _this7.queue.shift()().then(resolve);
                 });
 
               case 9:

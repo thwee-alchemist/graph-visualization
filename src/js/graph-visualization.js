@@ -51,15 +51,15 @@ class GraphVertex extends HTMLElement {
     this._onclick = undefined;
 
     this.template = document.createElement('template');
-    this.template.innerHTML = `<slot name="label"></slot>`;
+    this.template.innerHTML = `<slot id="slot" name="label" slot="graph-label"></slot>`;
     this.attachShadow({mode: 'open'})
-
-    this.shadowRoot.appendChild(this.template.cloneNode(true));
+    this.shadowRoot.appendChild(this.template.content);
   }
 
   connectedCallback(){
     this.size = this.getAttribute('size');
     this.face = this.getAttribute('face');
+    this.slot = this.shadowRoot.querySelector('slot')
   }
 
   adoptedCallback(){
@@ -86,23 +86,6 @@ class GraphVertex extends HTMLElement {
   set face(val){
     this._face = val;
     this.setAttribute('face', val);
-  }
-}
-
-class VertexLabel extends HTMLElement {
-  constructor(){
-    super();
-
-    this._reference = undefined;
-  }
-
-  get ref(){
-    return this._reference;
-  }
-
-  set ref(val){
-    this._reference = val;
-    this.setAttribute('ref', val);
   }
 }
 
@@ -223,15 +206,17 @@ class GraphVisualization extends HTMLElement {
       height: ${height};
       margin: 0;
       padding: 0;
-      border: 1px dashed black;
+      border: 0;
       resize: both;
     }
+    </style>
 
     canvas {
       width: ${width};
       height: ${height};
     }
-    </style>`;
+    <slot name="graph-label"></slot>`
+    ;
 
     var style = styleTemplate.content.cloneNode(true);
     this.shadowRoot.appendChild(style);
@@ -313,8 +298,6 @@ class GraphVisualization extends HTMLElement {
     this.camera.position.set(0, 0, -50);
     this.camera.lookAt(0,0,0)
     this.camera.updateProjectionMatrix();
-
-
   }
 
   async setupCore(){
@@ -519,25 +502,32 @@ class GraphVisualization extends HTMLElement {
   }
 
   addLabel(elem){
-    if(!elem.children.length){
+    var labelT = elem.shadowRoot.querySelector('#slot');
+    var labels = labelT.assignedNodes();
+    if(!labels.length){
       return;
     }
 
-    var labelNode = elem.children[0];
-  
-    this.shadowRoot.appendChild(labelNode);
+    var label = labels[0];
+
+    label.style.position = 'absolute';
+    label.style['z-index'] = 10;
+    this.shadowRoot.appendChild(label);
+
+    updatePosition();
 
     var self = this;
     var labelUpdater = function(){
-      self.updateLabelPosition(elem, labelNode);
       self.updateLabel = requestAnimationFrame(labelUpdater);
+
+      sekf.updateLabelPosition.bind(this, elem, label);
     };
     this.updateLabel = requestAnimationFrame(labelUpdater);
   }
 
   updateLabelPosition(elem, label){
     var coords = this.get2DCoords(elem.cube.position, this.camera);
-    label.style.top = coords.x + 'px';
+    label.style.top = coords.x + 'px'; // todo  +offset
     label.style.left = coords.y + 'px';
   }
 
@@ -741,6 +731,7 @@ class GraphVisualization extends HTMLElement {
 
     animateCube();
     this.addLabel(elem)
+
   }
 
   updateVertex(elem, prop){
