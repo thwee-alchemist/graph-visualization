@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="test.css">
     <script src="js/jquery-3.4.1.min.js"></script>
     <script src="js/jquery-ui.min.js"></script>
-    <script src="js/jquery.ui.touch-punch.min.js"></script>
+    <!--<script src="js/jquery.ui.touch-punch.min.js"></script>-->
     <script src="js/bootstrap.min.js"></script>
     <script src="js/three.min.js"></script>
     <script src="graph-visualization.bundle.js"></script>
@@ -77,25 +77,6 @@
         selected.face = `img/${Math.floor((Math.random() * 5)+1)}.png`;
       } 
 
-      function add_vertex(){
-        var graph = document.querySelector('graph-visualization');
-
-        var vertex = document.createElement('graph-vertex');
-        vertex.id = prompt('ID: ', namesI < names.length ? names[namesI++] : 'someid')
-        vertex.face = randomColor();
-        vertex.size = 5;
-
-        graph.appendChild(vertex)
-
-        vertex.onclick = function(e){
-          select(e.target);
-        }
-
-        vertex.ondblclick = function(e){
-          centerAround(e.target);
-        }
-      }
-
       function remove_vertex(){
         var graph = document.querySelector('graph-visualization');
 
@@ -162,9 +143,12 @@
         </div>
       </div>
 
+      <hr>
+
       <graph-visualization 
         width="100%"
         height="500px"
+        style="position: relative;"
         epsilon="1e-3"
         attraction="0.005"
         repulsion="3.00"
@@ -196,7 +180,7 @@
       <div class="row">
         <div class="col-sm-12">
           <p>
-            This is a dynamic graph visualization. It's still pretty simple, in terms of Math and Computer Science, as I was focusing on getting something out. 
+            This is a dynamic graph visualization. It's still coming together. 
             It is based on <a href="https://arxiv.org/abs/0712.1549">this paper</a>, a paper which is taking me the better part of a decade's free time to understand. 
           </p>
           <ol>

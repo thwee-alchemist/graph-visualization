@@ -8053,9 +8053,10 @@ function (_HTMLElement3) {
       }
 
       var styleTemplate = document.createElement('template');
-      styleTemplate.innerHTML = "\n    <style class=\"default\">\n    :host {\n      display: block;\n      width: ".concat(width, ";\n      height: ").concat(height, ";\n      margin: 0;\n      padding: 0;\n      border: 0;\n      resize: both;\n    }\n    </style>\n\n    canvas {\n      width: ").concat(width, ";\n      height: ").concat(height, ";\n    }\n    <slot name=\"graph-label\"></slot>");
+      styleTemplate.innerHTML = "\n    <style class=\"default\">\n    :host {\n      position: relative;\n      display: block;\n      width: ".concat(width, ";\n      height: ").concat(height, ";\n      margin: 0;\n      padding: 0;\n      border: 0;\n      resize: both;\n    }\n\n    slot[name=\"graph-label\"] {\n      position: relative;\n    }\n\n    ::slotted(label){\n      position: absolute;\n      z-index: 10;\n    }\n\n    canvas {\n      position: absolute;\n      left: 0;\n      top: 0;\n      z-index: 5;\n      width: ").concat(width, ";\n      height: ").concat(height, ";\n    }\n\n    label {\n      position: absolute;\n    }\n\n    </style>\n    ");
       var style = styleTemplate.content.cloneNode(true);
       this.shadowRoot.appendChild(style);
+      this.style.position = 'relative';
       this.style.width = width;
       this.style.height = height;
 
@@ -8207,6 +8208,11 @@ function (_HTMLElement3) {
                                 var update = _step.value;
                                 var elem = self.querySelector("graph-vertex[data-layout-id=\"".concat(update.id, "\"]"));
                                 elem.cube.position.set(update.x, update.y, update.z);
+                                /*
+                                if(elem.hasLabel){
+                                  self.updateLabelPosition(elem, elem.label);
+                                }
+                                */
                               }
                             } catch (err) {
                               _didIteratorError = true;
@@ -8447,41 +8453,74 @@ function (_HTMLElement3) {
   }, {
     key: "addLabel",
     value: function addLabel(elem) {
+      /*
       var labelT = elem.shadowRoot.querySelector('#slot');
       var labels = labelT.assignedNodes();
+      if(!labels.length){
+        return;
+      }
+       var label = labels[0].cloneNode(true);
+      */
+      var labelT = elem.querySelector('label');
+      labelT.style.display = "none";
 
-      if (!labels.length) {
+      if (!labelT) {
         return;
       }
 
-      var label = labels[0];
-      label.style.position = 'absolute';
-      label.style['z-index'] = 10;
-      this.shadowRoot.appendChild(label);
-      updatePosition();
-      var self = this;
+      var label = labelT.cloneNode(true);
+      label.style.display = "block";
+      label.slot = 'graph-label'; // this.updateLabelPosition(elem, label);
+      // this.shadowRoot.appendChild(label);
 
-      var labelUpdater = function labelUpdater() {
+      var slot = this.shadowRoot.querySelector('slot[name="graph-label"]');
+      slot.appendChild(label);
+      elem.hasLabel = true;
+      elem.label = label;
+      /*
+      var updatePosition = this.updateLabelPosition.bind(this, elem, label);
+       var self = this;
+      var labelUpdater = function(){
         self.updateLabel = requestAnimationFrame(labelUpdater);
-        sekf.updateLabelPosition.bind(this, elem, label);
+        updatePosition();
       };
-
       this.updateLabel = requestAnimationFrame(labelUpdater);
+      */
     }
   }, {
     key: "updateLabelPosition",
     value: function updateLabelPosition(elem, label) {
       var coords = this.get2DCoords(elem.cube.position, this.camera);
-      label.style.top = coords.x + 'px'; // todo  +offset
+      label.style.left = coords.x + 'px'; // todo  +offset
 
-      label.style.left = coords.y + 'px';
+      label.style.top = coords.y + 'px';
+    }
+    /*
+    get2DCoords(position, camera){
+      var vector = position.project(camera);
+      vector.x = (vector.x + 1)/2 * this.innerWidth + this.offsetLeft;
+      vector.y = -(vector.y - 1)/2 * this.innerHeight + this.offsetTop;
+      vector.x = this.between(0, vector.x, this.innerWidth + this.offsetLeft);
+      vector.y = this.between(0, vector.y, this.innerHeight + this.offsetTop);
+       return vector;
+    }
+    */
+
+  }, {
+    key: "between",
+    value: function between(min, val, max) {
+      if (val < min) return min;
+      if (val > max) return max;
+      return val;
     }
   }, {
     key: "get2DCoords",
     value: function get2DCoords(position, camera) {
       var vector = position.project(camera);
-      vector.x = (vector.x + 1) / 2 * this.innerWidth + this.offsetTop;
-      vector.y = -(vector.y - 1) / 2 * this.innerHeight + this.offsetLeft;
+      vector.x = (vector.x + 1) / 2 * this.clientWidth;
+      vector.y = -(vector.y - 1) / 2 * this.clientHeight;
+      vector.x = this.between(0, vector.x, this.clientWidth);
+      vector.y = this.between(0, vector.y, this.clientHeight);
       return vector;
     }
   }, {
@@ -8530,6 +8569,9 @@ function (_HTMLElement3) {
     value: function connectedCallback() {
       var _this6 = this;
 
+      var slot = document.createElement('slot');
+      slot.name = 'graph-label';
+      this.shadowRoot.appendChild(slot);
       this.canvas = document.createElement('canvas');
       this.shadowRoot.appendChild(this.canvas);
       this.setupScene();

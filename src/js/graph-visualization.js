@@ -201,6 +201,7 @@ class GraphVisualization extends HTMLElement {
     styleTemplate.innerHTML = `
     <style class="default">
     :host {
+      position: relative;
       display: block;
       width: ${width};
       height: ${height};
@@ -209,18 +210,37 @@ class GraphVisualization extends HTMLElement {
       border: 0;
       resize: both;
     }
-    </style>
+
+    slot[name="graph-label"] {
+      position: relative;
+    }
+
+    ::slotted(label){
+      position: absolute;
+      z-index: 10;
+    }
 
     canvas {
+      position: absolute;
+      left: 0;
+      top: 0;
+      z-index: 5;
       width: ${width};
       height: ${height};
     }
-    <slot name="graph-label"></slot>`
+
+    label {
+      position: absolute;
+    }
+
+    </style>
+    `
     ;
 
     var style = styleTemplate.content.cloneNode(true);
     this.shadowRoot.appendChild(style);
 
+    this.style.position = 'relative';
     this.style.width = width;
     this.style.height = height;
 
@@ -364,6 +384,12 @@ class GraphVisualization extends HTMLElement {
                 for(var update of updates){
                   var elem = self.querySelector(`graph-vertex[data-layout-id="${update.id}"]`);
                   elem.cube.position.set(update.x, update.y, update.z)
+
+                  /*
+                  if(elem.hasLabel){
+                    self.updateLabelPosition(elem, elem.label);
+                  }
+                  */
                 }
               }else{
                 window.recording = false;
@@ -502,39 +528,80 @@ class GraphVisualization extends HTMLElement {
   }
 
   addLabel(elem){
+    /*
     var labelT = elem.shadowRoot.querySelector('#slot');
     var labels = labelT.assignedNodes();
     if(!labels.length){
       return;
     }
 
-    var label = labels[0];
+    var label = labels[0].cloneNode(true);
+    */
 
-    label.style.position = 'absolute';
-    label.style['z-index'] = 10;
-    this.shadowRoot.appendChild(label);
+    var labelT = elem.querySelector('label')
+    labelT.style.display = "none";
+    if(!labelT){
+      return 
+    }
+  
+    var label = labelT.cloneNode(true)
+    label.style.display = "block";
+    label.slot = 'graph-label';
 
-    updatePosition();
+    // this.updateLabelPosition(elem, label);
+    // this.shadowRoot.appendChild(label);
+    var slot = this.shadowRoot.querySelector('slot[name="graph-label"]');
+    slot.appendChild(label)
+
+    elem.hasLabel = true;
+    elem.label = label;
+
+    /*
+    var updatePosition = this.updateLabelPosition.bind(this, elem, label);
 
     var self = this;
     var labelUpdater = function(){
       self.updateLabel = requestAnimationFrame(labelUpdater);
-
-      self.updateLabelPosition.bind(this, elem, label);
+      updatePosition();
     };
     this.updateLabel = requestAnimationFrame(labelUpdater);
+    */
   }
 
   updateLabelPosition(elem, label){
     var coords = this.get2DCoords(elem.cube.position, this.camera);
-    label.style.top = coords.x + 'px'; // todo  +offset
-    label.style.left = coords.y + 'px';
+    label.style.left = coords.x + 'px'; // todo  +offset
+    label.style.top = coords.y + 'px';
+  }
+
+  /*
+  get2DCoords(position, camera){
+    var vector = position.project(camera);
+    vector.x = (vector.x + 1)/2 * this.innerWidth + this.offsetLeft;
+    vector.y = -(vector.y - 1)/2 * this.innerHeight + this.offsetTop;
+    vector.x = this.between(0, vector.x, this.innerWidth + this.offsetLeft);
+    vector.y = this.between(0, vector.y, this.innerHeight + this.offsetTop);
+
+    return vector;
+  }
+  */
+
+  between(min, val, max){
+    if(val < min)
+      return min;
+    if(val > max)
+      return max;
+    return val;
   }
 
   get2DCoords(position, camera){
     var vector = position.project(camera);
-    vector.x = (vector.x + 1)/2 * this.innerWidth + this.offsetTop;
-    vector.y = -(vector.y - 1)/2 * this.innerHeight + this.offsetLeft;
+    vector.x = (vector.x + 1)/2 * this.clientWidth;
+    vector.y = (-(vector.y - 1)/2 * this.clientHeight);
+
+    vector.x = this.between(0, vector.x, this.clientWidth);
+    vector.y = this.between(0, vector.y, this.clientHeight);
+
     return vector;
   }
 
@@ -555,6 +622,10 @@ class GraphVisualization extends HTMLElement {
    * 
    */
   connectedCallback(){
+    var slot = document.createElement('slot');
+    slot.name = 'graph-label';
+    this.shadowRoot.appendChild(slot);
+
     this.canvas = document.createElement('canvas');
     this.shadowRoot.appendChild(this.canvas);
     this.setupScene();

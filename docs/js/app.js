@@ -42,9 +42,14 @@ var AppCtrl = App.controller('AppCtrl', ['$scope', async function($scope){
   $scope.addVertex = function(){
     var vertex = document.createElement('graph-vertex');
     vertex.id = `id-${$scope.i++}`;
-    vertex.face = drawCube();
+    vertex.face = 'black' // drawCube();
     vertex.size = 1;
 
+    var label = document.createElement('label');
+    label.slot = 'label';
+    label.textContent = `Vertex ${vertex.id}`;
+    vertex.appendChild(label);
+    
     $scope.graph.appendChild(vertex)
 
     vertex.onclick = function(e){
@@ -103,7 +108,12 @@ var AppCtrl = App.controller('AppCtrl', ['$scope', async function($scope){
       var vertex = document.createElement('graph-vertex');
       vertex.id = id + '-' + pid;
       vertex.size = 1;
-      vertex.face = drawCube();
+      vertex.face = 'black'; // drawCube();      
+
+      var label = document.createElement('label');
+      label.slot = 'label';
+      label.textContent = `Vertex ${vertex.id}`;
+      vertex.appendChild(label);
 
       return vertex;
     };
