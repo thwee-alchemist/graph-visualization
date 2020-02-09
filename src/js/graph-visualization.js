@@ -520,7 +520,7 @@ class GraphVisualization extends HTMLElement {
     var labelUpdater = function(){
       self.updateLabel = requestAnimationFrame(labelUpdater);
 
-      sekf.updateLabelPosition.bind(this, elem, label);
+      self.updateLabelPosition.bind(this, elem, label);
     };
     this.updateLabel = requestAnimationFrame(labelUpdater);
   }
