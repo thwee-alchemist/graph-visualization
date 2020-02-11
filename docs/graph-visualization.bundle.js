@@ -7883,7 +7883,7 @@ function (_HTMLElement) {
     value: function connectedCallback() {
       this.size = this.getAttribute('size');
       this.face = this.getAttribute('face');
-      this.slot = this.shadowRoot.querySelector('slot');
+      this.slot = this.shadowRoot.querySelector('#slot');
     }
   }, {
     key: "adoptedCallback",
@@ -8208,11 +8208,16 @@ function (_HTMLElement3) {
                                 var update = _step.value;
                                 var elem = self.querySelector("graph-vertex[data-layout-id=\"".concat(update.id, "\"]"));
                                 elem.cube.position.set(update.x, update.y, update.z);
+
+                                if (elem.hasLabel) {
+                                  self.updateLabelPosition(elem, elem.label);
+                                }
                                 /*
                                 if(elem.hasLabel){
                                   self.updateLabelPosition(elem, elem.label);
                                 }
                                 */
+
                               }
                             } catch (err) {
                               _didIteratorError = true;
@@ -8355,6 +8360,10 @@ function (_HTMLElement3) {
                   for (var _iterator5 = mutation.addedNodes[Symbol.iterator](), _step5; !(_iteratorNormalCompletion5 = (_step5 = _iterator5.next()).done); _iteratorNormalCompletion5 = true) {
                     var added = _step5.value;
 
+                    if (added instanceof HTMLLabelElement) {
+                      continue;
+                    }
+
                     if (added instanceof GraphVertex) {
                       self.queue.push(self.processAddVertex.bind(self, added));
                     }
@@ -8385,6 +8394,10 @@ function (_HTMLElement3) {
                 try {
                   for (var _iterator6 = mutation.removedNodes[Symbol.iterator](), _step6; !(_iteratorNormalCompletion6 = (_step6 = _iterator6.next()).done); _iteratorNormalCompletion6 = true) {
                     var removed = _step6.value;
+
+                    if (removed instanceof HTMLLabelElement) {
+                      continue;
+                    }
 
                     if (removed instanceof GraphVertex) {
                       self.queue.push(self.processRemoveVertex.bind(self, removed));
@@ -8461,22 +8474,23 @@ function (_HTMLElement3) {
       }
        var label = labels[0].cloneNode(true);
       */
-      var labelT = elem.querySelector('label');
-      labelT.style.display = "none";
-
-      if (!labelT) {
+      if (!elem.innerHTML) {
         return;
       }
 
-      var label = labelT.cloneNode(true);
-      label.style.display = "block";
-      label.slot = 'graph-label'; // this.updateLabelPosition(elem, label);
-      // this.shadowRoot.appendChild(label);
+      var label = elem.querySelector('label');
 
-      var slot = this.shadowRoot.querySelector('slot[name="graph-label"]');
-      slot.appendChild(label);
-      elem.hasLabel = true;
+      if (!label) {
+        return;
+      }
+
+      label.display = "block"; // this.updateLabelPosition(elem, label);
+
+      this.shadowRoot.appendChild(label); // var labelSlot = this.shadowRoot.querySelector('slot[name="graph-label"]');
+      // labelSlot.appendChild(label)
+
       elem.label = label;
+      elem.hasLabel = true;
       /*
       var updatePosition = this.updateLabelPosition.bind(this, elem, label);
        var self = this;
@@ -8815,10 +8829,9 @@ function (_HTMLElement3) {
                   cube.rotation.y += 0.01; // cube.position.x += 0.1 * Math.random();
                 };
 
-                animateCube();
-                this.addLabel(elem);
+                animateCube(); // this.addLabel(elem)
 
-              case 18:
+              case 17:
               case "end":
                 return _context3.stop();
             }

@@ -59,7 +59,8 @@ class GraphVertex extends HTMLElement {
   connectedCallback(){
     this.size = this.getAttribute('size');
     this.face = this.getAttribute('face');
-    this.slot = this.shadowRoot.querySelector('slot')
+    this.slot = this.shadowRoot.querySelector('#slot')
+
   }
 
   adoptedCallback(){
@@ -384,7 +385,9 @@ class GraphVisualization extends HTMLElement {
                 for(var update of updates){
                   var elem = self.querySelector(`graph-vertex[data-layout-id="${update.id}"]`);
                   elem.cube.position.set(update.x, update.y, update.z)
-
+                  if(elem.hasLabel){
+                    self.updateLabelPosition(elem, elem.label)
+                  }
                   /*
                   if(elem.hasLabel){
                     self.updateLabelPosition(elem, elem.label);
@@ -480,6 +483,10 @@ class GraphVisualization extends HTMLElement {
         switch(mutation.type){
           case 'childList':
             for(var added of mutation.addedNodes){
+              if(added instanceof HTMLLabelElement){
+                continue;
+              }
+
               if(added instanceof GraphVertex){
                 self.queue.push(self.processAddVertex.bind(self, added))
               }
@@ -490,6 +497,10 @@ class GraphVisualization extends HTMLElement {
             }
 
             for(var removed of mutation.removedNodes){
+              if(removed instanceof HTMLLabelElement){
+                continue;
+              }
+
               if(removed instanceof GraphVertex){
                 self.queue.push(self.processRemoveVertex.bind(self, removed));
               }
@@ -538,23 +549,22 @@ class GraphVisualization extends HTMLElement {
     var label = labels[0].cloneNode(true);
     */
 
-    var labelT = elem.querySelector('label')
-    labelT.style.display = "none";
-    if(!labelT){
-      return 
+    if(!elem.innerHTML){
+      return;
     }
-  
-    var label = labelT.cloneNode(true)
-    label.style.display = "block";
-    label.slot = 'graph-label';
+    var label = elem.querySelector('label')
+    if(!label){
+      return;
+    }
+    label.display = "block";
 
     // this.updateLabelPosition(elem, label);
-    // this.shadowRoot.appendChild(label);
-    var slot = this.shadowRoot.querySelector('slot[name="graph-label"]');
-    slot.appendChild(label)
+    this.shadowRoot.appendChild(label);
+    // var labelSlot = this.shadowRoot.querySelector('slot[name="graph-label"]');
+    // labelSlot.appendChild(label)
 
-    elem.hasLabel = true;
     elem.label = label;
+    elem.hasLabel = true;
 
     /*
     var updatePosition = this.updateLabelPosition.bind(this, elem, label);
@@ -801,7 +811,7 @@ class GraphVisualization extends HTMLElement {
     };
 
     animateCube();
-    this.addLabel(elem)
+    // this.addLabel(elem)
 
   }
 

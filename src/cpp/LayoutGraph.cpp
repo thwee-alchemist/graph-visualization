@@ -278,6 +278,7 @@ void LayoutGraph::two_level_dynamics(){
     sum.setZero();
     
     v = V->at(vid);
+    v->proj_accel->setZero();
     v->acceleration->setZero();
 
     y = dm->get_corresponding_vertex(v);

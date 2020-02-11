@@ -72,8 +72,8 @@ Edge* DynamicMatching::get_corresponding_edge(Edge* e){
 void DynamicMatching::add_vertex(Vertex* vertex){
   // std::cout << "DM-" << graph->id << "::add_vertex " << vertex->id << std::endl;
   // auto id = coarser->add_vertex();
-  // V->emplace(vertex->id, id);
-  // process_queue();
+  //V->emplace(vertex->id, id);
+  process_queue();
 }
 
 void DynamicMatching::add_edge(Edge* e){

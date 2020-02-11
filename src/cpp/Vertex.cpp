@@ -6,11 +6,24 @@
 #include <vector>
 
 #include <iostream>
+#include <random>
+#include <ctime>
 
 using namespace sc;
 
+bool Vertex::initialized = false;
+
+void Vertex::initializePRNG(){
+  if(!Vertex::initialized){
+    srand(time(NULL));
+    Vertex::initialized = true;
+  }
+}
+
 Vertex::Vertex(unsigned int _id, LayoutGraph* _graph) {
+  Vertex::initializePRNG();
   id = _id;
+  
   graph = _graph;
   position = new Eigen::MatrixXd(1, 3);
   position->setRandom();
@@ -86,7 +99,7 @@ std::string Vertex::toJSON(){
 }
 
 void Vertex::add_finer(Vertex* fine){
-  (*finers).push_back(fine);
+  finers->push_back(fine);
   for(auto it = fine->edges->begin(); it != fine->edges->end(); it++){
     edges->emplace(it->first, it->second);
   }

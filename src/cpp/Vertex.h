@@ -16,6 +16,10 @@ namespace sc {
   class EdgeOrder;
 
   class Vertex {
+    private:
+      static void initializePRNG();
+      static bool initialized;
+
     public: 
       friend class Edge;
       friend class LayoutGraph;
